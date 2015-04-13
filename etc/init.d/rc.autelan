@@ -2,13 +2,8 @@
 
 phase1() {
 	clock_set
-#	. /etc/cp1.in
-#	/etc/upgrade/mount_all.sh
-#	. /etc/cp2.in
-	atsys mount
-	echo "mount ok..."
-#	atdog clear
-#	atdog disable
+	. /etc/cp1.in
+	. /etc/cp2.in
 
 	ifconfig lo up
 	#
@@ -82,7 +77,6 @@ phase2() {
 }
 
 phase3() {
-	atsys startup
 	return
 }
 
