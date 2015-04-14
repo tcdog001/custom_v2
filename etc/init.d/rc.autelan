@@ -3,6 +3,7 @@
 phase1() {
 	clock_set
 	. /etc/cp1.in
+	atsys mount
 	. /etc/cp2.in
 
 	ifconfig lo up

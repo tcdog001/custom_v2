@@ -4,6 +4,8 @@ echo "version $(cat /etc/.version)"
 
 . /etc/env.in
 
+mount -a
+
 LDCONFIG=$(type -p ldconfig)
 if [ -f "${LDCONFIG}" ]; then
     # Configuring dynamic linker
