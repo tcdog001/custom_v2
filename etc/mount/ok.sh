@@ -31,14 +31,12 @@ config_ok() {
 }
 
 data_ok() {
-	echo &> /dev/null
+	return
 }
 
 main() {
 	local dev="$1"
 	local dir="$2"
-
-	echo "$0 $1 $2"
 
 	#
 	# try cur last /
