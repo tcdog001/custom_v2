@@ -31,7 +31,7 @@ config_ok() {
 }
 
 data_ok() {
-
+	echo &> /dev/null
 }
 
 main() {
