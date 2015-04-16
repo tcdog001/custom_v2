@@ -38,6 +38,24 @@ main() {
 	local dev="$1"
 	local dir="$2"
 
+	echo "$0 $1 $2"
+
+	#
+	# try cur last /
+	#
+	# aaa/bbb/ccc/ ==> aaa/bbb/ccc
+	# aaa/bbb/ccc  ==> aaa/bbb/ccc
+	#
+	dir=${dir%/}
+
+	#
+	# try keep last path
+	#
+	#  aaa/bbb/ccc ==> ccc
+	# /aaa/bbb/ccc ==> ccc
+	#
+	dir=${dir##*/}
+
 	case ${dir} in
 	rootfs0)
 		rootfs0_ok
