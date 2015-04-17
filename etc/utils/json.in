@@ -35,14 +35,24 @@ __json_eq() {
 	local b="$2"
 
 	local keys=$(echo ${a} | jq -j 'keys') || return $?
+	__debug "__json_eq:keys:${keys}"
+
 	local count=$(echo ${keys} | jq -j '.|length')
+	__debug "__json_eq:count:${count}"
 
 	local i
 	for ((i=0; i<count; i++)); do
 		local name=$(echo ${keys} | jq -j ".[${i}]")
+		__debug "__json_eq:name:${name}"
+
 		local type=$(echo ${a} | jq -j ".${name} | type")
+		__debug "__json_eq:type:${type}"
+
 		local va=$(echo ${a} | jq -j ".${name} | ${type}s")
+		__debug "__json_eq:va:${va}"
+
 		local vb=$(echo ${b} | jq -j ".${name} | ${type}s")
+		__debug "__json_eq:va:${va}"
 
 		case ${type} in
 		null | number | boolean | string)
