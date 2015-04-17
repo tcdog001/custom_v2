@@ -5,6 +5,10 @@ if [[ -z "${__UTILS_JSON_IN__}" ]]; then __UTILS_JSON_IN__=_; else return; fi
 . ${__ROOTFS__}/etc/utils/list.in
 . ${__ROOTFS__}/etc/utils/array.in
 
+log() {
+	echo "$@" >> /tmp/json.log
+}
+
 #
 #$1:json...
 #
@@ -28,7 +32,11 @@ json_merge() {
 	local a="$1"; shift
 	local b="$*"
 
-	echo "${a}" | jq -j ". * ${b}"
+	if [[ -z "${b}" ]]; then
+		echo "${a}"
+	else
+		echo "${a}" | jq -j ". * ${b}"
+	fi
 }
 
 #
@@ -191,6 +199,10 @@ __json_create() {
 	local value="$2"; shift 2
 	local list first tail
 
+	if [[ -z "${key}" ]]; then
+		return
+	fi
+
 	case "${ifs}" in
 	""|"_"|" ")
 		list=${key}
@@ -199,9 +211,13 @@ __json_create() {
 		list="${key//${ifs}/ }"
 		;;
 	esac
+	log "__json_create:list:${list}"
 
 	first=$(__json_create_bylv "${list}" "${value}")
+        log "__json_create:first:${first}"
+
 	tail=$(__json_create "${ifs}" "$@")
+	log "__json_create:tail:${tail}"
 
 	echo $(json_merge "${first}" "${tail}")
 }
@@ -212,6 +228,7 @@ __json_create() {
 #   value(maybe a json)
 #
 json_create() {
+	log "json_create:$@"
 	echo $(__json_create / "$@")
 }
 
