@@ -75,9 +75,9 @@ json_create_bykv() {
 		#
 		# value is json
 		#
-		echo $(__json_create_byko "$@")
+		echo $(__json_create_byko "${key}" "${value}")
 	else
-		echo $(__json_create_bykv "$@")
+		echo $(__json_create_bykv "${key}" "${value}")
 	fi
 }
 
