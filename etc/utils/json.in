@@ -56,7 +56,7 @@ __json_eq() {
 
 		case ${type} in
 		null | number | boolean | string)
-			if [[ "${va} != ${vb}" ]]; then
+			if [[ "${va}" != "${vb}" ]]; then
 				__debug "__json_eq:${va}!=${vb}"
 
 				return ${e_noeq}
