@@ -214,6 +214,20 @@ jdebug_KVs() {
 	jlog_KVs debug "$@"
 }
 
+__test_jlog() {
+	jerror_kvs kvs \
+		name sb \
+		obj '{"name":"SB"}' \
+		big '{"name":"DSB","obj":{"name":"SB"}}' \
+		#end
+
+	jerror_KVs KVs \
+		name/name1/name2 sb \
+		name/obj1/obj2 '{"name":"SB"}' \
+		name/big1/big2 '{"name":"DSB","obj":{"name":"SB"}}' \
+		#end
+}
+
 #
 #$1:file
 #$2:info...
