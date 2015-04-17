@@ -17,6 +17,14 @@ readonly -A SYSLOG_PRI=(
 
 readonly SYSLOG_PRI_HIGH=3
 
+
+#
+#just for test
+#
+jlogger() {
+	return
+}
+
 #
 #$1:pri
 #$2:app
