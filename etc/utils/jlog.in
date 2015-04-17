@@ -27,17 +27,13 @@ jlogger() {
 #
 #$1:pri
 #
-jlog_npri() {
+jlog_pri() {
 	local pri="$1"
 	local npri
 
 	npri=${JLOG_PRI[${pri}]}
 
 	echo ${npri:-6}
-}
-
-jlog_epri() {
-	echo ${__JLOG_ECHO_PRI__:-${JLOG_ECHO_PRI}}
 }
 
 #
@@ -57,13 +53,14 @@ jlog_obj() {
 	jlogger "${PRI}" "${app}" "${json}"
 
 	if [[ -n "${__JLOG_ECHO__}" ]]; then
-		local npri=$(jlog_npri ${pri})
-		local epri=$(jlog_epri)
+		local npri=$(jlog_pri ${pri})
+		local epri=${__JLOG_ECHO_PRI__:-${JLOG_ECHO_PRI}}
+		local opt=${__JLOG_ECHO_OPT__}
 
 		if ((npri<=epri)); then
 			local obj="$(json_create_bykvs app ${app} pri ${pri})"
 
-			echo $(json_merge "${obj}" "${json}" ) | jq .
+			echo $(json_merge "${obj}" "${json}" ) | jq ${opt} .
 		fi
 	fi
 }
