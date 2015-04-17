@@ -5,8 +5,8 @@ if [[ -z "${__UTILS_JSON_IN__}" ]]; then __UTILS_JSON_IN__=_; else return; fi
 . ${__ROOTFS__}/etc/utils/list.in
 . ${__ROOTFS__}/etc/utils/array.in
 
-__debug() {
-	if [[ -n "${__LOG_DEBUG__}" && -n "${__LOG_DEBUG_FILE__}" ]]; then
+__json_debug() {
+	if [[ -n "${__JSON_DEBUG__}" && -n "${__JSON_DEBUG_FILE__}" ]]; then
 		echo "$@" >> ${__LOG_DEBUG_FILE__}
 	fi
 }
@@ -35,29 +35,29 @@ __json_eq() {
 	local b="$2"
 
 	local keys=$(echo ${a} | jq -j 'keys') || return $?
-	__debug "__json_eq:keys:${keys}"
+	__json_debug "__json_eq:keys:${keys}"
 
 	local count=$(echo ${keys} | jq -j '.|length')
-	__debug "__json_eq:count:${count}"
+	__json_debug "__json_eq:count:${count}"
 
 	local i
 	for ((i=0; i<count; i++)); do
 		local name=$(echo ${keys} | jq -j ".[${i}]")
-		__debug "__json_eq:name:${name}"
+		__json_debug "__json_eq:name:${name}"
 
 		local type=$(echo ${a} | jq -j ".${name} | type")
-		__debug "__json_eq:type:${type}"
+		__json_debug "__json_eq:type:${type}"
 
 		local va=$(echo ${a} | jq -j ".${name} | ${type}s")
-		__debug "__json_eq:va:${va}"
+		__json_debug "__json_eq:va:${va}"
 
 		local vb=$(echo ${b} | jq -j ".${name} | ${type}s")
-		__debug "__json_eq:vb:${vb}"
+		__json_debug "__json_eq:vb:${vb}"
 
 		case ${type} in
 		null | number | boolean | string)
 			if [[ "${va}" != "${vb}" ]]; then
-				__debug "__json_eq:${va}!=${vb}"
+				__json_debug "__json_eq:${va}!=${vb}"
 
 				return ${e_noeq}
 			fi
@@ -66,7 +66,7 @@ __json_eq() {
 			__json_eq "${va}" "${vb}" || return $?
 			;;
 		*)
-			__debug "__json_eq:bad type:${type}"
+			__json_debug "__json_eq:bad type:${type}"
 
 			return ${e_bad_json}
 			;;
@@ -212,8 +212,8 @@ __json_create_bylo() {
 	local obj="$2"
 	local new first tail
 
-	__debug "__json_create_bylo:list:${list}"
-	__debug "__json_create_bylo:obj:${obj}"
+	__json_debug "__json_create_bylo:list:${list}"
+	__json_debug "__json_create_bylo:obj:${obj}"
 
 	if [[ -z "${list}" ]]; then
 		echo "${obj}"
@@ -241,8 +241,8 @@ __json_create_bylv_reversed() {
 	local value="$2"
 	local obj first tail
 
-	__debug "__json_create_bylv_reversed:list:${list}"
-	__debug "__json_create_bylv_reversed:value:${value}"
+	__json_debug "__json_create_bylv_reversed:list:${list}"
+	__json_debug "__json_create_bylv_reversed:value:${value}"
 
 	if [[ -z "${list}" ]]; then
 		echo "${value}"
@@ -268,7 +268,7 @@ __json_create_bylv_reversed() {
 __json_create_bylv() {
 	local list="$1"; shift
 
-	__debug "__json_create_bylv:list:${list}"
+	__json_debug "__json_create_bylv:list:${list}"
 	echo $(__json_create_bylv_reversed "$(list_reverse ${list})" "$*")
 }
 
@@ -298,10 +298,10 @@ __json_create() {
 	esac
 
 	first=$(__json_create_bylv "${list}" "${value}")
-	__debug "__json_create:first:${first}"
+	__json_debug "__json_create:first:${first}"
 
 	tail=$(__json_create "${ifs}" "$@")
-	__debug "__json_create:tail:${tail}"
+	__json_debug "__json_create:tail:${tail}"
 
 	echo $(json_merge "${first}" "${tail}")
 }
@@ -312,7 +312,7 @@ __json_create() {
 #   value(maybe a json)
 #
 json_create() {
-	__debug "json_create:$@"
+	__json_debug "json_create:$@"
 
 	echo $(__json_create / "$@")
 }

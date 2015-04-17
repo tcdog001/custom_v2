@@ -1,10 +1,10 @@
 #!/bin/bash
 
-if [[ -z "${__UTILS_LOG_IN__}" ]]; then __UTILS_LOG_IN__=_; else return; fi
+if [[ -z "${__UTILS_JLOG_IN__}" ]]; then __UTILS_JLOG_IN__=_; else return; fi
 
 . ${__ROOTFS__}/etc/utils/json.in
 
-readonly -A SYSLOG_PRI=(
+readonly -A JLOG_PRI=(
 	[emerg]=0
 	[alert]=1
 	[crit]=2
@@ -15,14 +15,29 @@ readonly -A SYSLOG_PRI=(
 	[debug]=7
 )
 
-readonly SYSLOG_PRI_HIGH=3
-
+readonly JLOG_ECHO_PRI=3
 
 #
 #just for test
 #
 jlogger() {
 	return
+}
+
+#
+#$1:pri
+#
+jlog_npri() {
+	local pri="$1"
+	local npri
+
+	npri=${JLOG_PRI[${pri}]}
+
+	echo ${npri:-6}
+}
+
+jlog_epri() {
+	echo ${__JLOG_ECHO_PRI__:-${JLOG_ECHO_PRI}}
 }
 
 #
@@ -41,11 +56,11 @@ jlog_obj() {
 
 	jlogger "${PRI}" "${app}" "${json}"
 
-	if [[ -n "${__SYSLOG_ECHO__}" ]]; then
-		local PRI=${SYSLOG_PRI[${pri}]}
-		local HIGH=${__SYSLOG_PRI__:-${SYSLOG_PRI_HIGH}}
+	if [[ -n "${__JLOG_ECHO__}" ]]; then
+		local npri=$(jlog_npri ${pri})
+		local epri=$(jlog_epri)
 
-		if ((PRI<=HIGH)); then
+		if ((npri<=epri)); then
 			local obj="$(json_create_bykvs app ${app} pri ${pri})"
 
 			echo $(json_merge "${obj}" "${json}" ) | jq .
@@ -214,7 +229,7 @@ jdebug_KVs() {
 	jlog_KVs debug "$@"
 }
 
-__test_jlog() {
+__test_log() {
 	jerror_kvs kvs \
 		name sb \
 		obj '{"name":"SB"}' \
