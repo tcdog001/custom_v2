@@ -20,39 +20,15 @@ json_check() {
 	}
 }
 
-
 #
-#$@: k1 v1 k2 v2 ... kn vn
+#$1:json a
+#$2:json b
 #
-__json_create_bykvs() {
-	local key="$1"
-	local value="$2"; shift 2
+json_merge() {
+	local a="$1"; shift
+	local b="$*"
 
-	if [[ -z "${key}" ]]; then
-		echo ""
-	else
-		local first=$(printf ',"%s":"%s"' "${key}" "${value}")
-		local tail=$(__json_create_bykvs "$@")
-
-		echo "${first}${tail}"
-	fi
-}
-
-#
-#$@: k1 v1 k2 v2 ... kn vn
-#
-json_create_bykvs() {
-	local key="$1"
-	local value="$2"; shift 2
-
-	local first
-	if [[ -n "${key}" ]]; then
-		first=$(printf '"%s":"%s"' "${key}" "${value}")
-	fi
-
-	local tail=$(__json_create_bykvs "$@")
-
-	echo "{${first}${tail}}"
+	echo "${a}" | jq -j ". * ${b}"
 }
 
 #
@@ -78,98 +54,165 @@ __json_create_byko() {
 }
 
 #
+#$1:key
+#$2:value(maybe a json)
+#
+json_create_bykv() {
+	local key="$1"; shift
+	local value="$*"
+	local err
+
+	json_check "${value}"; err=$?
+	if ((0==err)); then
+		#
+		# value is json
+		#
+		echo $(__json_create_byko "$@")
+	else
+		echo $(__json_create_bykv "$@")
+	fi
+}
+
+#
+#$@:k1 v1 k2 v2 ... kn vn
+#   value maybe a json
+#
+__json_create_bykvs() {
+	local key="$1"
+	local value="$2"; shift 2
+	local first tail err
+
+	if [[ -z "${key}" ]]; then
+		return
+	fi
+
+	json_check "${value}"; err=$?
+	if ((0==err)); then
+		#
+		# value is json
+		#
+		first=$(printf '"%s":%s' "${key}" "${value}")
+	else
+		first=$(printf '"%s":"%s"' "${key}" "${value}")
+	fi
+
+	tail=$(__json_create_bykvs "$@")
+
+	if [[ -z "${tail}" ]]; then
+		echo "${first}"
+	else
+		echo "${first},${tail}"
+	fi
+}
+
+#
+#$@: k1 v1 k2 v2 ... kn vn
+#   value maybe a json
+#
+json_create_bykvs() {
+	local json
+
+	json=$(__json_create_bykvs "$@")
+
+	echo "{${json}}"
+}
+
+#
 #$1:list(reversed)
 #$2:obj
+#
+# __json_create_bylo "c b a" "obj"
+#   ==>
+# {"a":{"b":{"c":obj}}}
 #
 __json_create_bylo() {
 	local list="$1"
 	local obj="$2"
+	local new first tail
 
-	if [[ -z "${list}" ]]; then
-		echo "${obj}"
-	else
-		local new=$(__json_create_byko "$(list_first ${list})" "${obj}")
+	if [[ -n "${list}" ]]; then
+		first="$(list_first ${list})"
+		tail="$(list_tail ${list})"
 
-		echo $(__json_create_bylo "$(list_tail ${list})" "${new}")
+		new=$(__json_create_byko "${first}" "${obj}")
+
+		echo $(__json_create_bylo "${tail}" "${new}")
 	fi
 }
 
 #
-#$1:key
+#$1:list(reversed)
 #$2:value
-#[$3:ifs]
+#   value(maybe a json)
+#
+# __json_create_bylv_reversed "c b a" "value"
+#   ==>
+# {"a":{"b":{"c":"value"}}}
+#
+__json_create_bylv_reversed() {
+	local list="$1"
+	local value="$2"
+	local obj first tail
+
+	if [[ -n "${list}" ]]; then
+		first="$(list_first ${list})"
+		tail="$(list_tail ${list})"
+
+		obj=$(json_create_bykv "${first}" "${value}")
+
+		echo $(__json_create_bylo "${tail}" "${obj}")
+	fi
+}
+
+#
+#$1:list
+#$2:value
+#   value(maybe a json)
+#
+# json_create_bylo "a b c" "value"
+#   ==>
+# {"a":{"b":{"c":"value"}}}
+#
+__json_create_bylv() {
+	local list="$1"; shift
+
+	echo $(__json_create_bylv_reversed "$(list_reverse ${list})" "$*")
+}
+
+#
+#$1:ifs
+#$left:k1 v1 k2 v2 ... kn vn
+#   key(maybe include ifs)
+#   value(maybe a json)
 #
 __json_create() {
+	local ifs="$1"; shift
 	local key="$1"
-	local value="$2"
-	local ifs="$3"
-	local list
+	local value="$2"; shift 2
+	local list first tail
 
-	if [[ -z "${ifs}" || " " == "${ifs}" ]]; then
-		list="${key}"
-	else
+	case "${ifs}" in
+	""|"_"|" ")
+		list=${key}
+		;;
+	*)
 		list="${key//${ifs}/ }"
-	fi
-	list=$(list_reverse ${list})
+		;;
+	esac
 
-	local first=$(list_first ${list})
-	local json=$(__json_create_bykv "${first}" "${value}")
+	first=$(__json_create_bylv "${list}" "${value}")
+	tail=$(__json_create "${ifs}" "$@")
 
-	local tail=$(list_tail ${list})
-	if [[ -n "${tail}" ]]; then
-		json=$(__json_create_bylo "${tail}" "${json}")
-	fi
-
-	echo "${json}"
+	echo $(json_merge "${first}" "${tail}")
 }
 
 #
-#$1:key
-#$2:value
+#$@:k1 v1 k2 v2 ... kn vn
+#   key(maybe include ifs)
+#   value(maybe a json)
 #
 json_create() {
-	echo $(__json_create "$@" /)
-}
-
-#
-#$1:json a
-#$2:json b
-#
-json_merge() {
-	local a="$1"; shift
-	local b="$*"
-
-	echo "${a}" | jq -j ". * ${b}"
-}
-
-#
-#$1:json
-#$2:key
-#$3:value
-#[$4:ifs]
-#
-__json_add() {
-	local json="$1"; shift
-	local new=$(__json_create "$@")
-
-	echo $(json_merge "${json}" "${new}")
-}
-
-#
-#$1:json
-#$2:key
-#$3:value
-#
-json_add() {
-	echo $(__json_add "$@" /)
-}
-
-#
-#$1:json
-#$3:key
-#
-json_del() {
-	echo $(__json_add "$@" /)
+	echo $(__json_create / "$@")
 }
 
 #
