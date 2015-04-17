@@ -1,0 +1,45 @@
+#!/bin/bash
+
+if [[ -z "${__UTILS_JLOG_IN__}" ]]; then __UTILS_JLOG_IN__=_; else return; fi
+
+. ${__ROOTFS__}/etc/utils/json.in
+
+readonly -a jlogger_pri=(
+        [0]=emerg
+        [1]=alert
+        [2]=crit
+        [3]=error
+        [4]=warning
+        [5]=notice
+        [6]=info
+        [7]=debug
+)
+
+readonly -A JLOGGER_PRI=(
+        [emerg]=0
+        [alert]=1
+        [crit]=2
+        [error]=3
+        [waring]=4
+        [notice]=5
+        [info]=6
+        [debug]=7
+)
+
+#
+#$1:app
+#$2:pri
+#$3:json...
+#
+jlog_obj() {
+        jlogger "$@"
+}
+
+#
+#$1:app
+#$2:pri
+#$3:kvs...
+#
+jlog_kvs() {
+
+}
