@@ -224,7 +224,6 @@ __json_create() {
 		list="${key//${ifs}/ }"
 		;;
 	esac
-	__debug "__json_create:list:${list}"
 
 	first=$(__json_create_bylv "${list}" "${value}")
 	__debug "__json_create:first:${first}"
@@ -241,6 +240,8 @@ __json_create() {
 #   value(maybe a json)
 #
 json_create() {
+	__debug "json_create:$@"
+
 	echo $(__json_create / "$@")
 }
 
