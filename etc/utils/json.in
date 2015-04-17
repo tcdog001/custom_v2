@@ -403,3 +403,21 @@ json_to_aa_with_deft() {
 		fi
 	done
 }
+
+__test_json_eq() {
+	local a b err
+
+	a='{"name":"sb","age":"20","obj":{"name":"sb","age":"20"}}'
+	b='{"obj":{"name":"sb","age":"20"},"age":"20","name":"sb"}'
+
+	json_eq "${a}" "${b}"; err=$?
+	if ((0==err)); then
+		echo "${a}=${b}"
+	else
+		echo "${a}!=${b}"
+	fi
+}
+
+__test_json() {
+	__test_json_eq
+}
