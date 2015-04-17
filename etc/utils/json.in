@@ -5,8 +5,10 @@ if [[ -z "${__UTILS_JSON_IN__}" ]]; then __UTILS_JSON_IN__=_; else return; fi
 . ${__ROOTFS__}/etc/utils/list.in
 . ${__ROOTFS__}/etc/utils/array.in
 
-log() {
-	echo "$@" >> /tmp/json.log
+__debug() {
+	if [[ -n "${__LOG_DEBUG__}" && -n "${__LOG_DEBUG_FILE__}" ]]; then
+		echo "$@" >> ${__LOG_DEBUG_FILE__}
+	fi
 }
 
 #
@@ -138,18 +140,18 @@ __json_create_bylo() {
 	local obj="$2"
 	local new first tail
 
-	log "__json_create_bylo:list:${list}"
-	log "__json_create_bylo:obj:${obj}"
+	__debug "__json_create_bylo:list:${list}"
+	__debug "__json_create_bylo:obj:${obj}"
 
-	if [[ -n "${list}" ]]; then
+	if [[ -z "${list}" ]]; then
+		echo "${obj}"
+	else
 		first="$(list_first ${list})"
 		tail="$(list_tail ${list})"
 
 		new=$(__json_create_byko "${first}" "${obj}")
 
 		echo $(__json_create_bylo "${tail}" "${new}")
-	else
-		echo "${obj}"
 	fi
 }
 
@@ -167,18 +169,18 @@ __json_create_bylv_reversed() {
 	local value="$2"
 	local obj first tail
 
-	log "__json_create_bylv_reversed:list:${list}"
-	log "__json_create_bylv_reversed:value:${value}"
+	__debug "__json_create_bylv_reversed:list:${list}"
+	__debug "__json_create_bylv_reversed:value:${value}"
 
-	if [[ -n "${list}" ]]; then
+	if [[ -z "${list}" ]]; then
+		echo "${value}"
+	else
 		first="$(list_first ${list})"
 		tail="$(list_tail ${list})"
 
 		obj=$(json_create_bykv "${first}" "${value}")
 
 		echo $(__json_create_bylo "${tail}" "${obj}")
-	else
-		echo "${value}"
 	fi
 }
 
@@ -194,7 +196,7 @@ __json_create_bylv_reversed() {
 __json_create_bylv() {
 	local list="$1"; shift
 
-	log "__json_create_bylv:list:${list}"
+	__debug "__json_create_bylv:list:${list}"
 	echo $(__json_create_bylv_reversed "$(list_reverse ${list})" "$*")
 }
 
@@ -222,13 +224,13 @@ __json_create() {
 		list="${key//${ifs}/ }"
 		;;
 	esac
-	log "__json_create:list:${list}"
+	__debug "__json_create:list:${list}"
 
 	first=$(__json_create_bylv "${list}" "${value}")
-	log "__json_create:first:${first}"
+	__debug "__json_create:first:${first}"
 
 	tail=$(__json_create "${ifs}" "$@")
-	log "__json_create:tail:${tail}"
+	__debug "__json_create:tail:${tail}"
 
 	echo $(json_merge "${first}" "${tail}")
 }
@@ -239,7 +241,6 @@ __json_create() {
 #   value(maybe a json)
 #
 json_create() {
-	log "json_create:$@"
 	echo $(__json_create / "$@")
 }
 
