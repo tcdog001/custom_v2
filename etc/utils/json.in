@@ -138,6 +138,9 @@ __json_create_bylo() {
 	local obj="$2"
 	local new first tail
 
+	log "__json_create_bylo:list:${list}"
+	log "__json_create_bylo:obj:${obj}"
+
 	if [[ -n "${list}" ]]; then
 		first="$(list_first ${list})"
 		tail="$(list_tail ${list})"
@@ -162,6 +165,9 @@ __json_create_bylv_reversed() {
 	local value="$2"
 	local obj first tail
 
+	log "__json_create_bylv_reversed:list:${list}"
+	log "__json_create_bylv_reversed:value:${value}"
+
 	if [[ -n "${list}" ]]; then
 		first="$(list_first ${list})"
 		tail="$(list_tail ${list})"
@@ -184,6 +190,7 @@ __json_create_bylv_reversed() {
 __json_create_bylv() {
 	local list="$1"; shift
 
+	log "__json_create_bylv:list:${list}"
 	echo $(__json_create_bylv_reversed "$(list_reverse ${list})" "$*")
 }
 
@@ -214,7 +221,7 @@ __json_create() {
 	log "__json_create:list:${list}"
 
 	first=$(__json_create_bylv "${list}" "${value}")
-        log "__json_create:first:${first}"
+	log "__json_create:first:${first}"
 
 	tail=$(__json_create "${ifs}" "$@")
 	log "__json_create:tail:${tail}"
