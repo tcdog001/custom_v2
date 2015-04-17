@@ -35,8 +35,13 @@ data_ok() {
 }
 
 main() {
+	local argc=$#
 	local dev="$1"
 	local dir="$2"
+
+	if ((2!=argc)); then
+		return 1
+	fi
 
 	#
 	# try cur last /
