@@ -30,11 +30,69 @@ json_check() {
 #$1:json a
 #$2:json b
 #
+__json_eq() {
+	local a="$1"
+	local b="$2"
+
+	local keys=$(echo ${a} | jq -j 'keys') || return $?
+	local count=$(echo ${keys} | jq -j '.|length')
+
+	local i
+	for ((i=0; i<count; i++)); do
+		local name=$(echo ${keys} | jq -j ".[${i}]")
+		local type=$(echo ${a} | jq -j ".${name} | type")
+		local va=$(echo ${a} | jq -j ".${name} | ${type}s")
+		local vb=$(echo ${b} | jq -j ".${name} | ${type}s")
+
+		case ${type} in
+		null | number | boolean | string)
+			if [[ "${va} != ${vb}" ]]; then
+				return ${e_noeq}
+			fi
+			;;
+		array | object)
+			__json_eq "${va}" "${vb}" || return $?
+			;;
+		*)
+			return ${e_bad_json}
+			;;
+		esac
+	done
+}
+
+#
+#$1:json a
+#$2:json b
+#
+json_eq() {
+	local a="$1"
+	local b="$2"
+
+	local erra errb
+
+	json_check "${a}"; erra=$?
+	json_check "${b}"; errb=$?
+
+	if ((0==erra && 0==errb)); then
+		__json_eq "$@"
+	elif ((erra && errb)); then
+		return
+	else
+		return ${e_noeq}
+	fi
+}
+
+#
+#$1:json a
+#$2:json b
+#
 json_merge() {
 	local a="$1"; shift
 	local b="$*"
 
-	if [[ -z "${b}" ]]; then
+	if [[ -z "${a}" ]]; then
+		echo "${b}"
+	elif [[ -z "${b}" ]]; then
 		echo "${a}"
 	else
 		echo "${a}" | jq -j ". * ${b}"
@@ -310,41 +368,6 @@ __json_to_aa() {
 #
 json_to_aa() {
 	__json_to_aa _ "$@"
-}
-
-
-#
-#$1:json a
-#$2:json b
-#
-json_eq() {
-	local json="$1"
-	local json2="$2"
-
-	local keys=$(echo ${json} | jq -j 'keys') || return $?
-	local count=$(echo ${keys} | jq -j '.|length')
-
-	local i
-	for ((i=0; i<count; i++)); do
-		local name=$(echo ${keys} | jq -j ".[${i}]")
-		local type=$(echo ${json} | jq -j ".${name} | type")
-		local value=$(echo ${json} | jq -j ".${name} | ${type}s")
-		local value2=$(echo ${json2} | jq -j ".${name} | ${type}s")
-
-		case ${type} in
-		null | number | boolean | string)
-			if [[ "${value} != ${value2}" ]]; then
-				return ${e_noeq}
-			fi
-			;;
-		array | object)
-			json_eq "${value}" "${value2}" || return $?
-			;;
-		*)
-			return ${e_bad_json}
-			;;
-		esac
-	done
 }
 
 #
