@@ -48,7 +48,8 @@ jlog_obj() {
 #$2:app
 #$3:kvs...
 #
-# jlog_kvs debug app k1 v1 k2 v2 ... kn vn
+#   jlog_kvs debug app k1 v1 k2 v2 ... kn vn
+#       value maybe a json
 #
 jlog_kvs() {
 	local pri="$1"
@@ -120,6 +121,87 @@ jinfo_kvs() {
 #
 jdebug_kvs() {
 	jlog_kvs debug "$@"
+}
+
+#
+#$1:pri
+#$2:app
+#$3:KVs...
+#
+#   jlog_KVs debug app k1 v1 k2 v2 ... kn vn
+#       key maybe as path(include ifs /)
+#       value maybe a json
+#
+jlog_KVs() {
+	local pri="$1"
+	local app="$2"; shift 2
+	local json=$(json_create "$@")
+
+	jlog_obj "${pri}" "${app}" "${json}"
+}
+
+#
+#$1:app
+#$2:KVs...
+#
+jemerg_KVs() {
+	jlog_KVs emerg "$@"
+}
+
+#
+#$1:app
+#$2:KVs...
+#
+jalert_KVs() {
+	jlog_KVs alert "$@"
+}
+
+#
+#$1:app
+#$2:KVs...
+#
+jcrit_KVs() {
+	jlog_KVs crit "$@"
+}
+
+#
+#$1:app
+#$2:KVs...
+#
+jerror_KVs() {
+	jlog_KVs error "$@"
+}
+
+#
+#$1:app
+#$2:KVs...
+#
+jwaring_KVs() {
+	jlog_KVs waring "$@"
+}
+
+#
+#$1:app
+#$2:KVs...
+#
+jnotice_KVs() {
+	jlog_KVs notice "$@"
+}
+
+#
+#$1:app
+#$2:KVs...
+#
+jinfo_KVs() {
+	jlog_KVs info "$@"
+}
+
+#
+#$1:app
+#$2:KVs...
+#
+jdebug_KVs() {
+	jlog_KVs debug "$@"
 }
 
 #
