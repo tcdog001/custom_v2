@@ -55,12 +55,11 @@ jlog_obj() {
 	if [[ -n "${__JLOG_ECHO__}" ]]; then
 		local npri=$(jlog_pri ${pri})
 		local epri=${__JLOG_ECHO_PRI__:-${JLOG_ECHO_PRI}}
-		local opt=${__JLOG_ECHO_OPT__}
 
 		if ((npri<=epri)); then
 			local obj="$(json_create_bykvs app ${app} pri ${pri})"
 
-			echo $(json_merge "${obj}" "${json}") | jq ${opt} .
+			echo $(json_merge "${obj}" "${json}") | jq .
 		fi
 	fi
 }
