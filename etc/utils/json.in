@@ -148,6 +148,8 @@ __json_create_bylo() {
 		new=$(__json_create_byko "${first}" "${obj}")
 
 		echo $(__json_create_bylo "${tail}" "${new}")
+	else
+		echo "${obj}"
 	fi
 }
 
@@ -175,6 +177,8 @@ __json_create_bylv_reversed() {
 		obj=$(json_create_bykv "${first}" "${value}")
 
 		echo $(__json_create_bylo "${tail}" "${obj}")
+	else
+		echo "${value}"
 	fi
 }
 
