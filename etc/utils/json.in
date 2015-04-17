@@ -52,11 +52,13 @@ __json_eq() {
 		__debug "__json_eq:va:${va}"
 
 		local vb=$(echo ${b} | jq -j ".${name} | ${type}s")
-		__debug "__json_eq:va:${va}"
+		__debug "__json_eq:vb:${vb}"
 
 		case ${type} in
 		null | number | boolean | string)
 			if [[ "${va} != ${vb}" ]]; then
+				__debug "__json_eq:${va}!=${vb}"
+
 				return ${e_noeq}
 			fi
 			;;
@@ -64,6 +66,8 @@ __json_eq() {
 			__json_eq "${va}" "${vb}" || return $?
 			;;
 		*)
+			__debug "__json_eq:bad type:${type}"
+
 			return ${e_bad_json}
 			;;
 		esac
