@@ -229,7 +229,7 @@ jdebug_KVs() {
 	jlog_KVs debug "$@"
 }
 
-__test_log() {
+__test_jlog() {
 	jerror_kvs kvs \
 		name sb \
 		obj '{"name":"SB"}' \
