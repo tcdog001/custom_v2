@@ -46,7 +46,9 @@ jlog_obj() {
 		local HIGH=${__SYSLOG_PRI__:-${SYSLOG_PRI_HIGH}}
 
 		if ((PRI<=HIGH)); then
-			echo $(json_merge "${json}" $(json_create_bykvs app ${app} pri ${pri})) | jq .
+			local obj="$(json_create_bykvs app ${app} pri ${pri})"
+
+			echo $(json_merge "${obj}" "${json}" ) | jq .
 		fi
 	fi
 }
