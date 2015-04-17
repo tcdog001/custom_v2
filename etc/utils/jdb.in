@@ -2,7 +2,6 @@
 
 if [[ -z "${__UTILS_JDB_IN__}" ]]; then __UTILS_JDB_IN__=_; else return; fi
 
-
 . ${__ROOTFS__}/etc/utils/json.in
 
 #

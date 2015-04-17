@@ -2,12 +2,10 @@
 
 if [[ -z "${__UTILS_FILE_IN__}" ]]; then __UTILS_FILE_IN__=_; else return; fi
 
-
 #
 # basename
 # dirname
 #
-
 
 # getfilename filename
 # 	@filename: just filename, not include path
@@ -193,24 +191,6 @@ readnumberfile_andadd() {
 #
 readnumberfile_andaddone() {
 	readnumberfile_andadd "$1" 1
-}
-
-#
-#$1:file
-#$2:info...
-#
-log_with_limit() {
-	local file="$1"; shift
-	local info="$*"
-
-	local count=$(sed -n '$=' ${file} 2>/dev/null)
-	number_check ${count} && {
-		if ((count>1000)); then
-			sed -i "1,100d" ${file} &> /dev/null
-		fi
-	}
-
-	echo "${info}" >> ${file}; fsync ${file}
 }
 
 #

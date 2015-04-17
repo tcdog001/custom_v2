@@ -2,7 +2,6 @@
 
 if [[ -z "${__UTILS_LIST_IN__}" ]]; then __UTILS_LIST_IN__=_; else return; fi
 
-
 #
 #$1:value
 #$2:list...

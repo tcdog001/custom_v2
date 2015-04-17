@@ -2,7 +2,6 @@
 
 if [[ -z "${__UTILS_DIR_IN__}" ]]; then __UTILS_DIR_IN__=_; else return; fi
 
-
 readonly file_ap=sysupgrade.bin
 readonly file_ap_long=openwrt-ar71xx-generic-db120-squashfs-sysupgrade.bin
 readonly file_ap_boot=u-boot.bin

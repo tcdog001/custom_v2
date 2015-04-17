@@ -2,6 +2,7 @@
 
 if [[ -z "${__UTILS_BASE_IN__}" ]]; then __UTILS_BASE_IN__=_; else return; fi
 
+. ${__ROOTFS__}/etc/utils/errno.in
 
 do_nothing() {
 	return
@@ -9,25 +10,6 @@ do_nothing() {
 
 do_silent() {
 	eval "$@ &> /dev/null"
-}
-
-#
-#$1:tag
-#[$2:info...]
-#
-do_logger() {
-	local tag="$1"; shift
-
-	logger -t "${tag}" "$*"
-}
-
-#
-#$1:tag
-#[$2:info...]
-#
-echo_logger() {
-	echo "$@"
-	do_logger "$@"
 }
 
 #
@@ -96,7 +78,7 @@ __board_check() {
 	local board_type="$1"
 
 	if [[ "${board_type}" != "$(get_board_type)" ]]; then
-		return 1
+		return ${e_bad_board}
 	fi
 }
 
@@ -109,7 +91,17 @@ md_board_check() {
 }
 
 get_peer() {
-	echo "$(get_file_value ${__ROOTFS__}/etc/peer ${PEER})"
+	local peer=${__ROOTFS__}/etc/peer
+
+	if [[ -n "${PEER}" ]]; then
+		echo ${PEER}
+	elif [[ -f "${peer}" ]]; then
+		cat ${peer}
+	elif [[ "md" == "$(get_board_type)" ]]; then
+		echo 10.0.0.1
+	else
+		echo 10.0.0.2
+	fi
 }
 
 #
@@ -119,96 +111,6 @@ get_varlist_with_prefix() {
 	local prefix="$1"
 
 	eval "echo \${!${prefix}*}"
-}
-
-#
-#$1:task name
-#
-gettaskcount() {
-	local task=$1
-	local count=$(ps | grep ${task} | wc -l)
-
-	((count--))
-	echo ${count}
-
-	if ((0==count)); then
-		return ${e_noexist}
-	fi
-}
-
-#
-#$1:task
-#[$2:app...]
-#
-monitortask() {
-	local task=$1; shift
-	local app="$*"
-	local count
-
-	count=$(gettaskcount ${task}) || {
-		if [[ -z "${app}" ]]; then
-			eval "${task} &"
-		else
-			eval "${app} &"
-		fi
-
-		echo_logger "monitor" "monitor ${task} is dead, restart it"
-	}
-}
-
-#
-#$1:lockfile
-#$2:action...
-#
-exec_with_flock() {
-	local lockfile="$1"; shift
-	local action="$*"
-	local err=0
-
-	{
-		flock -n 3 || {
-			do_logger "flock" \
-				"FAILED: cannot lock ${lockfile}"
-
-			return ${e_flock_failed}
-		}
-
-		#
-		# can NOT eval, the action maybe include json
-		#
-		${action}; err=$?
-	} 3<>${lockfile}
-
-	return ${err}
-}
-
-
-#
-#$1:lockfile
-#$2:wait
-#$3:action...
-#
-exec_with_flock_wait() {
-	local lockfile="$1"
-	local wait="$2"; shift 2
-	local action="$*"
-	local err=0
-
-	{
-		flock -w ${wait} 3 || {
-			do_logger "flock" \
-				"FAILED: cannot lock ${lockfile}"
-
-			return ${e_flock_failed}
-		}
-
-		#
-		# can NOT eval, the action maybe include json
-		#
-		${action}; err=$?
-	} 3<>${lockfile}
-
-	return ${err}
 }
 
 #

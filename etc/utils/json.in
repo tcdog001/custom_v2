@@ -2,7 +2,6 @@
 
 if [[ -z "${__UTILS_JSON_IN__}" ]]; then __UTILS_JSON_IN__=_; else return; fi
 
-
 . ${__ROOTFS__}/etc/utils/list.in
 . ${__ROOTFS__}/etc/utils/array.in
 
@@ -17,8 +16,6 @@ json_check() {
 	fi
 
 	echo "${json}" | jq '.|objects' &> /dev/null || {
-		debug_error "bad json:${json}"
-
 		return ${e_bad_json}
 	}
 }

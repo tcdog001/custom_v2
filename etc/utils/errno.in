@@ -2,7 +2,6 @@
 
 if [[ -z "${__UTILS_ERRNO_IN__}" ]]; then __UTILS_ERRNO_IN__=_; else return; fi
 
-
 #
 # from linux errno-base.h
 #
@@ -90,18 +89,3 @@ readonly e_upgrade_running=71
 readonly e_sysfsck_failed=80
 readonly e_sysfsck_count=81
 readonly e_sysfsck_md5=82
-
-#
-#$1:olderr
-#$2:newerr
-#
-seterrno() {
-	local olderr=$1
-	local newerr=$2
-
-	if [[ "0" == "${newerr}" ]]; then
-		echo ${olderr}
-	else
-		echo ${newerr}
-	fi
-}

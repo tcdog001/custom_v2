@@ -2,7 +2,6 @@
 
 if [[ -z "${__UTILS_ARRAY_IN__}" ]]; then __UTILS_ARRAY_IN__=_; else return; fi
 
-
 #
 #$1:array name
 #$2:args...

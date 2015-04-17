@@ -2,7 +2,6 @@
 
 if [[ -z "${__UTILS_DEBUG_IN__}" ]]; then __UTILS_DEBUG_IN__=_; else return; fi
 
-
 dir_debug=${dir_debug:-/tmp/.debug}
 MKDIR "${dir_debug}"
 

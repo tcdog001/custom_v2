@@ -1,0 +1,233 @@
+#!/bin/bash
+
+if [[ -z "${__UTILS_LOG_IN__}" ]]; then __UTILS_LOG_IN__=_; else return; fi
+
+. ${__ROOTFS__}/etc/utils/json.in
+
+readonly -A SYSLOG_PRI=(
+	[emerg]=0
+	[alert]=1
+	[crit]=2
+	[error]=3
+	[waring]=4
+	[notice]=5
+	[info]=6
+	[debug]=7
+)
+
+#
+#$1:pri
+#$2:app
+#$3:json...
+#
+jlog_obj() {
+	local pri="$1"
+	local app="$2"; shift 2
+	local json="$*"
+
+	if [[ "_" == "${app}" ]]; then
+		app=common
+	fi
+
+	jlogger "${SYSLOG_PRI[${pri}]}" "${app}" "${json}"
+}
+
+#
+#$1:pri
+#$2:app
+#$3:kvs...
+#
+jlog_kvs() {
+	local pri="$1"
+	local app="$2"; shift 2
+	local json=$(json_create_bykvs "$@")
+
+	jlog_obj "${pri}" "${app}" "${json}"
+}
+
+#
+#$1:app
+#$2:kvs...
+#
+jemerg_kvs() {
+	jlog_kvs emerg "$@"
+}
+
+#
+#$1:app
+#$2:kvs...
+#
+jalert_kvs() {
+	jlog_kvs alert "$@"
+}
+
+#
+#$1:app
+#$2:kvs...
+#
+jcrit_kvs() {
+	jlog_kvs crit "$@"
+}
+
+#
+#$1:app
+#$2:kvs...
+#
+jerror_kvs() {
+	jlog_kvs error "$@"
+}
+
+#
+#$1:app
+#$2:kvs...
+#
+jwaring_kvs() {
+	jlog_kvs waring "$@"
+}
+
+#
+#$1:app
+#$2:kvs...
+#
+jnotice_kvs() {
+	jlog_kvs notice "$@"
+}
+
+#
+#$1:app
+#$2:kvs...
+#
+jinfo_kvs() {
+	jlog_kvs info "$@"
+}
+
+#
+#$1:app
+#$2:kvs...
+#
+jdebug_kvs() {
+	jlog_kvs debug "$@"
+}
+
+#
+#$1:pri
+#$2:app
+#$3:key
+#$4:json...
+#
+jlog_ko() {
+	local pri="$1"
+	local app="$2"; shift 2
+	local json=$(__json_create_byko "$@")
+
+	jlog_obj "${pri}" "${app}" "${json}"
+}
+
+#
+#$1:app
+#$2:key
+#$3:json...
+#
+jemerg_ko() {
+	jlog_ko emerg "$@"
+}
+
+#
+#$1:app
+#$2:key
+#$3:json...
+#
+jalert_ko() {
+	jlog_ko alert "$@"
+}
+
+#
+#$1:app
+#$2:key
+#$3:json...
+#
+jcrit_ko() {
+	jlog_ko crit "$@"
+}
+
+#
+#$1:app
+#$2:key
+#$3:json...
+#
+jerror_ko() {
+	jlog_ko error "$@"
+}
+
+#
+#$1:app
+#$2:key
+#$3:json...
+#
+jwaring_ko() {
+	jlog_ko waring "$@"
+}
+
+#
+#$1:app
+#$2:key
+#$3:json...
+#
+jnotice_ko() {
+	jlog_ko notice "$@"
+}
+
+#
+#$1:app
+#$2:key
+#$3:json...
+#
+jinfo_ko() {
+	jlog_ko info "$@"
+}
+
+#
+#$1:app
+#$2:key
+#$3:json...
+#
+jdebug_ko() {
+	jlog_ko debug "$@"
+}
+
+#
+#$1:file
+#$2:info...
+#
+log_with_limit() {
+	local file="$1"; shift
+	local info="$*"
+
+	local count=$(sed -n '$=' ${file} 2>/dev/null)
+	number_check ${count} && {
+		if ((count>1000)); then
+			sed -i "1,100d" ${file} &> /dev/null
+		fi
+	}
+
+	echo "${info}" >> ${file}; fsync ${file}
+}
+
+#
+#$1:tag
+#[$2:info...]
+#
+do_logger() {
+	local tag="$1"; shift
+
+	logger -t "${tag}" "$*"
+}
+
+#
+#$1:tag
+#[$2:info...]
+#
+echo_logger() {
+	echo "$@"
+	do_logger "$@"
+}
