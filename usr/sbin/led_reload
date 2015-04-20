@@ -1,0 +1,251 @@
+#!/bin/bash
+
+led_list=""
+led_path=/tmp/leds
+led_conf_path=/tmp/config
+led_config=${led_conf_path}/led
+led_config_tmp=${led_conf_path}/.config_led
+leds_status=${led_path}/main/status
+leds_interval=${led_path}/main/interval
+led_lock_path=${led_path}/lock
+led_lock_file=${led_path}/lock/.led_main.pid
+flock_wait1="flock -w 1"
+flock_nowait="flock -n"
+
+led_status() {                                                                  
+        local status="NA"                                                       
+        local status_tmp=""                                                     
+        local led=$1                                                            
+	
+	status_tmp=$(cat ${led_path}/${led}/status 2> /dev/null)                
+	[[ ${status_tmp} ]] && status=${status_tmp}                             
+	echo "${status}"                                                        
+}                                                                               
+
+led_main_status() {                                                                 
+	local status="NA"
+	local status_tmp=""
+	                                                      
+	status_tmp=$(cat ${leds_status} 2> /dev/null)
+	[[ "${status_tmp}" ]] && status=${status_tmp}
+	echo ${status}
+}
+                                                                                                                                                                                                                                        
+led_del_locks() {
+	rm -f ${led_lock_path}/*
+}
+
+led_delete_lock() {
+	local led=$1
+	rm -f ${led_lock_path}/${led}
+}
+
+led_create_lock() {
+	local led=$1
+	touch ${led_lock_path}/${led}
+}
+
+led_check_lock() {
+	if [[ -f ${led_lock_path}/${led} ]]; then
+		return 1
+	else
+		return 0
+	fi
+}
+
+leds_ctrl() {
+	local led
+	local val=$1
+	
+	for led in ${led_list}
+	do
+		gpio ${led}=${val} > /dev/null
+	done
+}
+
+leds_up() {
+	leds_ctrl 0
+}
+
+leds_down() {
+	leds_ctrl 1
+}
+
+led_main_interval() {
+	local interval=2
+	local intval=$(cat ${leds_interval} 2> /dev/null)
+	
+	if [[ ${intval} ]]; then
+		interval=${intval}
+	else
+		echo ${interval} > ${leds_interval}
+	fi
+	echo ${interval}
+}
+
+leds_blink() {
+	local interval=$(led_main_interval)
+	
+	leds_up
+	sleep ${interval}
+	leds_down
+}
+
+#
+# $1: led name
+# $2: gpio value
+#
+led_ctrl() {
+	local led=$1
+	local val=$2
+	
+	{
+		${flock_wait1} 3 || {
+			echo " -$$- FAILED: ${led} cannot lock ${led_lock_file}"
+			return
+		}
+		gpio ${led}=${val} > /dev/null
+	} 3<>${led_lock_file}
+}
+
+led_up() {
+	led_ctrl ${led} 0
+}
+
+led_down() {
+	led_ctrl ${led} 1
+}
+
+led_interval() {
+	local interval=$(led_main_interval)
+	local intval=$(cat ${led_path}/${led}/interval 2> /dev/null)
+
+	[[ ${intval} ]] && interval=${intval}
+	echo ${interval}
+}
+
+led_blink() {
+	local led=$1
+	local interval=2
+	local led_stat=""
+	local main_stat=""
+	
+        led_check_lock
+        [[ $? = 1 ]] && return 0
+	
+	echo " -$$- led_check_lock $(ls ${led_lock_path}/${led}) $(date)" >> /tmp/led_${led}.liu
+	led_create_lock ${led}
+	while :
+	do
+		main_stat=$(led_main_status)
+		led_stat=$(led_status ${led})
+		
+		echo " -$$- date: $(date), ${led}: ${led_stat} ?= blink, ${main_stat} ?= NA" >> /tmp/led_${led}.liu
+		[[ "${led_stat}" != "blink" || "${main_stat}" != "NA" ]] && {
+			led_delete_lock ${led}
+			break
+		}
+	
+		{
+			${flock_nowait} 4 || {
+				echo " -$$- FAILED: ${led} cannot lock ${led_lock_path}/${led}"
+				led_delete_lock ${led}
+				break
+			}
+			interval=$(led_interval ${led})
+			echo "date: $(date), interval=${interval}" >> /tmp/led_${led}.liu 
+			led_up
+			sleep ${interval}
+			led_down
+		} 4<> ${led_lock_path}/${led}
+	done
+}
+
+led_control() {
+	local led
+	local up=0
+	local down=1
+	local status=""
+
+	for led in ${led_list}
+	do
+		status=$(led_status ${led})
+		echo "led_control $(date) ${led} ${status}" >> /tmp/led_${led}.liu
+		case ${status} in
+		"up"|"down")
+			led_delete_lock ${led}
+			led_${status} ${led}
+			;;
+		"blink")
+			led_check_lock
+                        [[ $? = 0 ]] && led_blink ${led} &
+			;;
+		*)
+			led_down ${led}
+			echo "NA" > ${led_path}/${led}/status
+			;;
+		esac
+	done
+}
+
+leds_monitor() {
+	local err=0
+	local status=""
+	
+	status=$(led_main_status)
+	
+	case ${status} in
+	"blink"|"up"|"down")
+		led_del_locks
+		leds_${status}
+		;;
+	*)
+		echo "NA" > ${leds_status}
+		led_control	
+		;;
+	esac
+}
+
+led_config_init() {
+	local led=$1
+	local status=$2
+	local interval=$3
+	local path=${led_path}/${led}
+	
+	[[ ${led} != "main" ]] && led_list+=" ${led}"
+	#echo "${led_list}"
+
+	mkdir -p ${path}
+	if [[ -d ${path} ]]; then
+		[[ ${status} ]] && echo ${status} > ${path}/status
+		[[ ${interval} ]] && echo ${interval} > ${path}/interval
+	fi
+}
+
+led_do_config() {
+	[[ ${1} ]] && led_config="$1"
+	[[ ${2} ]] && led_path="$2"
+
+	local tmp=${led_config_tmp}
+	local line=""
+
+	sed '/#/d;/^$/d' ${led_config} > ${tmp}
+	
+	while read line
+	do
+		led_config_init ${line}
+	done < ${tmp}
+	#rm ${tmp}
+	
+	echo "${led_list}"
+}
+
+led_main_prepare() {
+	rm -rf ${led_path}
+	mkdir -p ${led_lock_path}
+	echo $$ >> ${led_lock_file}
+	
+	led_do_config
+}
+
+led_do_config "$@"

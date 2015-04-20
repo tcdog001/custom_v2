@@ -1,0 +1,100 @@
+#!/bin/bash
+
+gps_path=/tmp/config
+gps_config=${gps_path}/gps_init
+gps_config_tmp=${gps_path}/.config_gps
+gps_device="/dev/ttyAMA2"
+gps_device_tmp=${gps_device}
+gps_string_tmp=/tmp/.string_gps
+
+#
+# $1: command
+#
+command_kill() {
+	local command=$1
+	local pid=""
+	local line=0
+		
+	while :
+	do
+		ps | grep "${command}" > ${gps_string_tmp}
+		sed -i '/grep/d' ${gps_string_tmp}
+		line=$(cat ${gps_string_tmp} | wc -l)
+		
+		[[ ${line} -eq 0 ]] && break
+		#echo "line=${line}"
+		
+		pid=$(cat ${gps_string_tmp} | awk '{if(NR==1){print $1}}')
+		echo "pid=${pid}"
+		[[ ${pid} ]] && kill -9 ${pid}
+	done
+}
+
+#
+# $1: delay, $2: interval, $3: output file, $4: command
+#
+stop_move_log_bak() {
+	local delay=$1
+	local interval=$2
+	local output=$3
+	local command=$4
+
+	echo "${command}"
+	command_kill ${command}
+}
+
+stop_move_log() {
+	local delay=$1
+	local interval=$2
+	local output=$3
+	local command=$4
+
+	echo "${command}"
+	command_kill ${command}
+}
+#
+# $1: delay, $2: interval, $3: output file, $4: command
+#
+stop_obtain_data() {
+	local delay="$1"
+	local interval="$2"
+	local output="$3"; shift 3
+	local command="$*"
+
+	echo "${command}"
+	command_kill ${command}
+}
+
+#
+# $1: delay, $2: interval, $3: output file, $4: command, $5: debug path
+#
+stop_anlysis_data() {
+	local delay=$1
+	local interval=$2
+	local output=$3
+	local command=$4
+	local dpath=$5
+
+	echo "${command}"
+	command_kill ${command}
+}
+
+stop_main() {
+	command_kill gps_init
+}
+
+main() {
+	local tmp=${gps_config_tmp}
+
+	sed '/#/d;/^$/d' ${gps_config} > ${tmp}
+
+	local alias delay interval file command file1
+	while read alias delay interval file command file1; do
+		[[ "${alias}" = "move_log" ]] && stop_${alias} ${delay} ${interval} ${file} ${command} ${file1}
+		[[ "${alias}" = "obtain_data" ]] && stop_${alias} ${delay} ${interval} ${file} ${command} ${file1}
+		[[ "${alias}" = "anlysis_data" ]] && stop_${alias} ${delay} ${interval} ${file} ${command} ${file1}
+	done < ${tmp}
+	stop_main
+}
+
+main "$@"

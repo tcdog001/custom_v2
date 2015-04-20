@@ -1,0 +1,66 @@
+#!/bin/bash
+
+acc_path=/tmp/config
+acc_config=${acc_path}/acc_init
+acc_config_tmp=${acc_path}/.config_acc
+
+#
+# $1: delay, $2:interval, $3:command, $4:file, $5:file1, $6:interval1, $7:interval2
+#
+start_upload_vcc() {
+	local delay="$1"
+	local interval="$2"
+	local command="$3"
+	local file="$4"
+	local file1="$5"
+	local interval1="$6"
+	local interval2="$7"
+
+	echo "${delay} ${interval} ${command} ${file} ${file1} ${interval1} ${interval2}"
+	sleep ${delay}
+	[[ -f ${file} && -d ${file1}]] && ${command} ${file} ${file1}
+}
+
+#
+# $1: delay, $2:interval, $3:command, $4:file, $5:file1, $6:interval1, $7:interval2
+#
+start_acc_monitor() {
+	local delay="$1"
+	local interval="$2"
+	local command="$3"
+	local file="$4"
+	local file1="$5"
+	local interval1="$6"
+	local interval2="$7"
+
+	echo "${delay} ${interval} ${command} ${file} ${file1} ${interval1} ${interval2}"
+	sleep ${delay}
+	if [[ ${interval1} || ${interval2} || ${file} || ${file1} ]]; then
+		${command} -t ${interval} -v ${interval1} -d ${interval2} -l ${file} -p ${file1} 1>/dev/null &
+	else if [[ ${interval1} || ${interval2} || ${file} ]]; then
+		${command} -t ${interval} -v ${interval1} -d ${interval2} -l ${file} 1>/dev/null &
+	else if [[ ${interval1} || ${interval2} ]]; then
+		${command} -t ${interval} -v ${interval1} -d ${interval2} 1>/dev/null &
+	else if [[ ${interval1} ]]; then
+		${command} -t ${interval} -v ${interval1} 1>/dev/null &
+	else
+		${command} -t ${interval} 1>/dev/null &
+	fi
+	fi
+	fi
+	fi
+}
+
+main() {
+	local tmp=${acc_config_tmp}
+
+	sed '/#/d;/^$/d' ${acc_config} > ${tmp}
+
+	local alias delay interval command file file1 interval1 interval2
+	while read alias delay interval command file file1 interval1 interval2; do
+		[[ "${alias}" = "acc_monitor" ]] && start_${alias} ${delay} ${interval} ${command} ${file} ${file1} ${interval1} ${interval2} &
+		[[ "${alias}" = "upload_vcc" ]] && start_${alias} ${delay} ${interval} ${command} ${file} ${file1} ${interval1} ${interval2} &
+	done < ${tmp}
+}
+
+main "$@"

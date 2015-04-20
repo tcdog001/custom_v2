@@ -1,0 +1,64 @@
+#!/bin/bash
+
+led_path=/tmp/config
+led_config=${led_path}/led_init
+led_config_tmp=${led_path}/.config_led
+
+#
+# $1: delay, $2: interval, $3: input file, $4: command, $3: output path
+#
+start_led_reload() {
+	local delay="$1"
+	local interval="$2"
+	local input="$3"
+	local command="$4"
+	local output="$5"
+
+	echo "${delay} ${interval} ${input} ${command} ${output}"
+	sleep ${delay}
+	while :
+	do
+		${command} ${input} ${output}
+		[[ "${interval}" = "0" ]] && break
+		sleep ${interval}
+	done
+}
+
+#
+# $1: delay, $2: interval, $3: input path, $4: command, $5: output file
+#
+start_led_main() {
+	local delay="$1"
+	local interval="$2"
+	local input="$3"
+	local command="$4"
+	local output="$5"
+
+	echo "${delay} ${interval} ${input} ${command} ${output}"
+	sleep ${delay}
+	if [[ ${output} || ${input} || ${interval} ]]; then
+		${command} -t ${interval} -p ${input} -l ${output} 1>/dev/null &
+	else if [[ ${input} || ${interval} ]]; then
+		${command} -t ${interval} -p ${input} 1>/dev/null &
+	else if [[ ${input} || ${interval} ]]; then
+		${command} -t ${interval} 1> /dev/null &
+	else
+		${command} 1> /dev/null &
+	fi
+	fi
+	fi
+}
+
+main() {
+	local tmp=${led_config_tmp}
+
+	sed '/#/d;/^$/d' ${led_config} > ${tmp}
+
+	local alias delay interval file command file1
+	while read alias delay interval file command file1; do
+		[[ "${alias}" = "led_reload" ]] && start_${alias} ${delay} ${interval} ${file} ${command} ${file1} &
+		[[ "${alias}" = "led_main" ]] && start_${alias} ${delay} ${interval} ${file} ${command} ${file1} &
+	done < ${tmp}
+}
+
+main "$@"

@@ -1,0 +1,53 @@
+#!/bin/bash
+
+#
+#busybox app
+#
+readonly -a list_reboot_0=(
+	smonitord
+	stimerd
+)
+
+#
+#custom app
+#
+readonly -a list_reboot_1=(
+	nginx
+)
+
+#
+#last app
+#
+readonly -a list_reboot_2=(
+	syslogd
+	jlogd
+)
+
+#
+#$@:list
+#
+killapp() {
+	local list="$@"
+
+	killall ${list}
+	killall ${list}
+}
+
+main() {
+	echo "System will reboot after 3s..."
+
+	killapp ${list_reboot_0[@]}
+	sleep 1
+
+	killapp ${list_reboot_1[@]}
+	sleep 1
+
+	killapp ${list_reboot_2[@]}
+	sleep 1
+
+        echo "System will reboot now!"
+	reboot
+}
+
+main "$@"
+

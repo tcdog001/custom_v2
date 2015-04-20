@@ -1,0 +1,78 @@
+#!/bin/bash
+
+gps_path=/tmp/config
+gps_config=${gps_path}/gps_init
+gps_config_tmp=${gps_path}/.config_gps
+gps_device="/dev/ttyAMA2"
+gps_device_tmp=${gps_device}
+gps_data_file="/tmp/gps.log"
+
+#
+# $1: delay, $2: interval, $3: output file, $4: command
+#
+start_move_log() {
+	local delay=$1
+	local interval=$2
+	local output=$3
+	local command=$4
+	local input=${gps_data_file}
+
+	echo "${delay} ${interval} ${output} ${command}"
+	sleep ${delay}
+	${command} ${output} ${input} ${interval} &
+}
+
+#
+# $1: delay, $2: interval, $3: output file, $4: command
+#
+start_obtain_data() {
+	local delay="$1"
+	local interval="$2"
+	local output="$3"; shift 3
+	local command="$*"
+
+	echo "${delay} ${interval} ${output} ${command} ${gps_device}"
+	sleep ${delay}
+	while :
+	do
+		${command} ${gps_device} > ${output}
+		sleep ${interval}
+	done
+}
+
+#
+# $1: delay, $2: interval, $3: output file, $4: command, $5: debug path
+#
+start_anlysis_data() {
+	local delay=$1
+	local interval=$2
+	local output=$3
+	local command=$4
+	local dpath=$5
+
+	echo "${delay} ${interval} ${output} ${command} ${dpath} ${gps_device_tmp}"
+	sleep ${delay}
+	${command} -t ${interval} -l ${output} -p ${dpath} -d ${gps_device_tmp} 1>/dev/null &
+}
+
+main() {
+	local tmp=${gps_config_tmp}
+
+	sed '/#/d;/^$/d' ${gps_config} > ${tmp}
+
+	local alias delay interval file command file1
+	while read alias delay interval file command file1; do
+		[[ "${alias}" = "gps_device" ]] && [[ ${file} ]] && gps_device=${file}
+		if [[ "${alias}" = "obtain_data" ]]; then
+			[[ "${file}" ]] && gps_device_tmp=${file}
+			start_${alias} ${delay} ${interval} ${file} ${command} ${file1} &
+		fi
+		if [[ "${alias}" = "anlysis_data" ]]; then
+			[[ $file ]] && gps_data_file=${file}
+			start_${alias} ${delay} ${interval} ${file} ${command} ${file1} &
+		fi
+		[[ "${alias}" = "move_log" ]] && start_${alias} ${delay} ${interval} ${file} ${command} ${file1} &
+	done < ${tmp}
+}
+
+main "$@"

@@ -1,0 +1,5 @@
+#alias           delay   interval  file                command                   file1
+gps_device       0       0         /dev/ttyAMA2
+#obtain_data      30      10        /tmp/gps_info       head -n 30
+anlysis_data     60      30        /tmp/gps.log        /usr/sbin/rgps            /tmp/.gps/
+move_log         300     300       /tmp/log/gps/gps-   /usr/sbin/move_gps.sh
