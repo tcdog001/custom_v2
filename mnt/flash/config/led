@@ -1,0 +1,10 @@
+#name		#status		#interval
+main		NA		2
+3g_led1		down		2
+3g_led2		down		2
+alarm		down		2
+gps		down		2
+pwr		up		2
+sata		down		2
+sys		down		2
+
