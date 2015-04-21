@@ -2,12 +2,14 @@
 
 LOCAL_GPS_MOVE=/tmp/log/gps/gps-
 LOCAL_GPS_FILE=/tmp/gps.log
-LOCAL_GPS_TIME=""
 LOCAL_GPS_INTVAL=0
 
 do_move() {
-	local time=${LOCAL_GPS_TIME}
+	local time=""
 	local LOCAL_TMP_FILE=${LOCAL_GPS_MOVE}${time}
+
+	time=$(get_gps_time)
+	[ -z ${time} ] && time=$(date '+%F-%H:%M:%S')
 
 	if [ ${time} ]; then
 		cp ${LOCAL_GPS_FILE} ${LOCAL_TMP_FILE} 2> /dev/null
@@ -21,8 +23,8 @@ do_move() {
 }
 
 get_gps_time() {
-	LOCAL_GPS_TIME=$(/bin/cat $LOCAL_GPS_FILE | awk '{if(NR==1){print $1}}'| jq -j '.date')
-	echo "$0: ${LOCAL_GPS_TIME}" $DEBUG_LOG_LOCAL
+	local time=$(cat ${LOCAL_GPS_FILE} | awk '{if(NR==1){print $1}}'| jq -j '.date')
+	echo "${time}"
 }
 
 do_service() {
@@ -43,8 +45,6 @@ main() {
 	[[ "$3" ]] && LOCAL_GPS_INTVAL="$3"
 	
 	if [ -f $LOCAL_GPS_FILE ];then
-		get_gps_time
-		[[ -z ${LOCAL_GPS_TIME} ]] && return 1
 		do_service
 	else
 		return 1

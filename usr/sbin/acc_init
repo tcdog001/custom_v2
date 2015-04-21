@@ -18,7 +18,7 @@ start_upload_vcc() {
 
 	echo "${delay} ${interval} ${command} ${file} ${file1} ${interval1} ${interval2}"
 	sleep ${delay}
-	[[ -f ${file} && -d ${file1}]] && ${command} ${file} ${file1}
+	[[ -f ${file} && -d ${file1} ]] && ${command} ${file} ${file1}
 }
 
 #
