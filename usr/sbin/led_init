@@ -1,7 +1,7 @@
 #!/bin/bash
 
 led_path=/tmp/config
-led_config=${led_path}/led_init
+led_config=${led_path}/led.conf
 led_config_tmp=${led_path}/.config_led
 
 #

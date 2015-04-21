@@ -3,8 +3,8 @@
 led_list=""
 led_path=/tmp/leds
 led_conf_path=/tmp/config
-led_config=${led_conf_path}/led
-led_config_tmp=${led_conf_path}/.config_led
+led_config=${led_conf_path}/led.def
+led_config_tmp=${led_conf_path}/.default_led
 leds_status=${led_path}/main/status
 leds_interval=${led_path}/main/interval
 led_lock_path=${led_path}/lock

@@ -37,6 +37,15 @@ phase1() {
 	dnsmasq & 2>/dev/null
 	
 	xinetd &
+
+	# run acc processes, use acc_exit to quit acc
+	acc_init &
+
+	# run led processes, use led_exit to quit led
+	led_init &
+
+	# run gps processes, use gps_exit to quit gps
+	gps_init &
 }
 
 phase2() {
