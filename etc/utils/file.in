@@ -42,6 +42,18 @@ mkfile() {
 }
 
 #
+#$@:files...
+#
+mkfiles() {
+	local list="$*"
+	local file
+
+	for file in ${list}; do
+		mkfile ${file}
+	done
+}
+
+#
 #$1:file
 #$2:state when file exist
 #$3:state when file not exist

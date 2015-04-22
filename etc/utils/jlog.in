@@ -17,6 +17,12 @@ readonly -A JLOG_PRI=(
 
 readonly JLOG_ECHO_PRI=3
 
+readonly dir_jlog=/tmp/jlog
+readonly file_jlog_ap_file=${dir_jlog}/ap.log
+readonly file_jlog_md_file=${dir_jlog}/md.log
+readonly file_jlog_ap_afile=${dir_jlog}/.ap.log
+readonly file_jlog_md_afile=${dir_jlog}/.md.log
+
 #
 #$1:pri
 #
