@@ -10,7 +10,7 @@ save_file() {
 	time=$(get_vcc_time)
 	[ -z ${time} ] && time=$(date '+%F-%H:%M:%S')
 
-	[[ ${time} ]] && cp ${LOCAL_VCC_FILE} ${LOCAL_VCC_MOVE_FILE}-${time}
+	[[ ${time} ]] && cp ${LOCAL_VCC_FILE} ${LOCAL_VCC_MOVE_FILE}${time}
 	if [ $? = 0 ]; then
 		echo "$0: MOVE OK"
 		> ${LOCAL_VCC_FILE}

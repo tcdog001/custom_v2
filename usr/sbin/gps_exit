@@ -1,7 +1,7 @@
 #!/bin/bash
 
 gps_path=/tmp/config
-gps_config=${gps_path}/gps_init
+gps_config=${gps_path}/gps.conf
 gps_config_tmp=${gps_path}/.config_gps
 gps_device="/dev/ttyAMA2"
 gps_device_tmp=${gps_device}

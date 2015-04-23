@@ -1,7 +1,7 @@
 #!/bin/bash
 
 acc_path=/tmp/config
-acc_config=${acc_path}/acc_init
+acc_config=${acc_path}/acc.conf
 acc_config_tmp=${acc_path}/.config_acc
 
 #
@@ -18,7 +18,7 @@ start_upload_vcc() {
 
 	echo "${delay} ${interval} ${command} ${file} ${file1} ${interval1} ${interval2}"
 	sleep ${delay}
-	[[ -f ${file} && -d ${file1}]] && ${command} ${file} ${file1}
+	[[ -f ${file} && -d ${file1} ]] && ${command} ${file} ${file1}
 }
 
 #

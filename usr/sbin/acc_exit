@@ -1,7 +1,7 @@
 #!/bin/bash
 
 acc_path=/tmp/config
-acc_config=${acc_path}/acc_init
+acc_config=${acc_path}/acc.conf
 acc_config_tmp=${acc_path}/.config_acc
 acc_string_tmp=/tmp/.string_acc
 
