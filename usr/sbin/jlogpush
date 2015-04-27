@@ -1,0 +1,12 @@
+#!/bin/bash
+
+main() {
+	local json="$*"
+
+	#
+	# todo: use curl
+	#
+	echo "jlogpush:${json}"
+}
+
+main "$@"
