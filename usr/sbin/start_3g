@@ -3,8 +3,6 @@
 #start 3g
 #
 start_3g_dial() {
-        stop_3g
-        sleep 1
         /usr/sbin/3g/do_get_3ginfo.sh &
         /usr/sbin/3g/get_hdrcsq.sh &
         /usr/sbin/3g/check_sim_state.sh &
