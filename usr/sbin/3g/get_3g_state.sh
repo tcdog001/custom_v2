@@ -95,7 +95,7 @@ main () {
                         #sysled 3g off
                         if [[ ${num} -ge 9 ]];then
                                 logger -t $0 "The network is unreachable, start to check the result !"
-                                3g_drop_log
+                                drop_3g_log
                                 start_check
                                 num=0
                         fi
