@@ -25,18 +25,12 @@ phase1() {
 	vconfig set_flag eth0.9  1 1
 	ifconfig eth0.9 1.0.0.6 netmask 255.255.255.252 up
 
-	route add default gw 1.0.0.1
-
-	udhcpd -f /etc/udhcpd.conf & 2>/dev/null
+	udhcpd -f /mnt/flash/config/udhcpd.conf & 2>/dev/null
 
 	sysctl -p 2>/dev/null
-	cp /etc/dnsmasq.conf.3gdown /etc/dnsmasq.conf 2>/dev/null
-	chmod 777 /etc/dnsmasq.conf.3gdown 2>/dev/null
-	chmod 777 /etc/dnamasq.conf.3gup 2>/dev/null
-	chmod 777 /etc/dnsmasq.conf 2>/dev/null
-	dnsmasq & 2>/dev/null
+	dnsmasq -C /mnt/flash/config/dnsmasq.conf -x /tmp/dnsmasq.pid & 2>/dev/null
 	
-	xinetd &
+	xinetd -f /mnt/flash/config/xinetd.conf -pidfile /tmp/xinetd.pid &
 
 	# run acc processes, use acc_exit to quit acc
 	acc_init &
@@ -49,10 +43,15 @@ phase1() {
 }
 
 phase2() {
+	#
+	# set 3g model and set at_ctrl
+	#
+	/usr/sbin/3g/set_3g_model &
+
 	php-fpm -y /usr/local/php/php-fpm.ini -p /usr/local/php/ 2>/dev/null
 	/etc/init.d/nginx_start.sh &
-	/usr/sbin/sshd -f /etc/ssh/ssh_config -h /etc/ssh/ssh_host_rsa_key -p 22
-
+	/usr/sbin/sshd -f /mnt/flash/config/ssh/sshd_config -h /mnt/flash/config/ssh/ssh_host_rsa_key -p 22 &
+	
 #	chmod -R 777 /usr/local/php/php-cgi.sock
 #	chmod 777 /sbin/sudo
 #	chmod u+s /sbin/sudo
@@ -62,12 +61,12 @@ phase2() {
 	/usr/sbin/crond -c /etc/crontabs/
 
 	#check the last time drop reason
-	. /etc/drop_off.sh
-	. /etc/get_time.sh &
+#	. /etc/drop_off.sh
+#	. /etc/get_time.sh &
 
-	/usr/localweb/.compare_disk.sh &
+#	/usr/localweb/.compare_disk.sh &
 
-	wifidog -c /usr/local/etc/wifidog.conf 2>/dev/null
+#	wifidog -c /usr/local/etc/wifidog.conf 2>/dev/null
 
 #	/usr/sbin/sync_3gstatus_MD.sh &
 #	/usr/sbin/auto_reboot_md.sh &
@@ -77,6 +76,16 @@ phase2() {
 	if [[ -n "${__CP_DEVMAC__}" ]]; then
 			/etc/init.d/${__CP__}/init.sh 2>/dev/null &
 	fi
+	#
+	#start 3g
+	#
+	/usr/sbin/3g/do_get_3ginfo.sh &
+	/usr/sbin/3g/get_hdrcsq.sh &        
+	/usr/sbin/3g/check_sim_state.sh &        
+	/usr/sbin/3g/3g_connect.sh &
+	/usr/sbin/3g/get_3g_state.sh &
+	/usr/sbin/3g/get_3g_flow.sh &
+	/usr/sbin/3g/add_nat.sh &
 
 	echo $(date '+%F-%H-%M-%S') > /tmp/.startup
 

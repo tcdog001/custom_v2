@@ -1,0 +1,151 @@
+#!/bin/bash
+. /usr/sbin/3g/get_3ginfo.in
+#. /tmp/get_3ginfo.in
+path_3g=/tmp/3g
+#
+# check file,if there is not the file,mkdir the file and echo ${default_content} >file
+#
+check_file() {
+        local file_name=$1
+        local default_content=$2
+        local file_content=$(cat ${file_name} 2>/dev/null)
+
+        if [[ -z ${file_content} ]];then
+                file_content=${default_content}
+        fi
+        echo ${file_content}
+}
+#
+# kill some duplicate processes
+#
+kill_process() {
+        local process=$1
+        local line_num=$(ps |grep ${process} |wc -l)
+
+        if [[ ${line_num} -ge 2 ]];then
+                killall -9 ${process} 2>/dev/null
+                sleep 1
+        fi
+}
+#
+# add default route
+#
+add_route() {
+        route |grep default |grep ppp0 >/dev/null 2>&1; local ret_route=$?
+
+        if [[ ${ret_route} -ne 0 ]];then
+                route add default ppp0
+        fi
+}
+#
+# add nat
+#
+add_nat() {
+        iptables -t nat  -A POSTROUTING -o ppp0  -j  MASQUERADE
+}
+#
+# control 3g led
+#
+led_3g_on() {
+        echo "up" > /tmp/leds/3g_led1/status
+}
+led_3g_off() {
+        echo "down" > /tmp/leds/3g_led1/status
+}
+
+#
+# ntp time sync
+#
+syn_net_time() {
+	ntpclient -h cn.pool.ntp.org -s -c 1 && \
+		ntpclient -h cn.pool.ntp.org -s -c 1 &
+}
+#
+# get now time
+#
+get_now_time() {
+        local time=$(date '+%F:%H:%M:%S')
+        echo ${time}
+}
+#
+# get 3g up flow
+#
+get_3gup_flow() {
+        local up_flow=$(ifconfig ppp0 | awk '/TX bytes/{print $2}' | awk -F ':' '{print $2}' 2>/dev/null)
+        local up_flow_file=${path_3g}/3gup_flow
+        local up_flow_old=$(cat ${up_flow_file} 2>/dev/null)
+        if [[ -z ${up_flow_old} ]];then
+                up_flow_old=0
+        fi
+        if [[ ${up_flow_old} -gt ${up_flow} ]];then
+                up_flow=$(( ${up_flow_old} + ${up_flow} ))
+        fi
+        echo ${up_flow} >${up_flow_file}
+}
+#
+# get 3g down flow
+#
+get_3gdown_flow() {
+        local down_flow=$(ifconfig ppp0 | awk '/RX bytes/{print $2}' | awk -F ':' '{print $2}' 2>/dev/null)
+        local down_flow_file=${path_3g}/3gdown_flow
+        local down_flow_old=$(cat ${down_flow_file} 2>/dev/null)
+        if [[ -z ${down_flow_old} ]];then
+                down_flow_old=0
+        fi
+        if [[ ${down_flow_old} -gt ${down_flow} ]];then
+                down_flow=$(( ${down_flow_old} + ${down_flow} ))
+        fi
+        echo ${down_flow} >${down_flow_file}
+}
+#
+# get the 3g flow
+#
+get_3g_flow() {
+        local startup=$(cat /tmp/.startup 2>/dev/null)
+        local starttime=$(cat ${path_3g}/starttime 2>/dev/null)
+        local endtime=$(cat ${path_3g}/endtime 2>/dev/null)
+        local up=$(check_file "${path_3g}/3gup_flow" "0" )
+        local down=$(check_file "${path_3g}/3gdown_flow" "0")
+        local flow_log_file=${path_3g}/3g_flow_${startup}.log
+
+        if [[ ! -z ${starttime} && ! -z ${endtime} ]];then
+                printf '{"starttime":"%s", "endtime":"%s", "up":"%s", "down":"%s"}\n'   \
+                        "${starttime}"    \
+                        "${endtime}"      \
+                        "${up}"           \
+                        "${down}"     >> ${flow_log_file}
+        fi
+}
+#
+# write the log of 3g drop
+#
+3g_drop_log() {
+        get_dbm
+        local type=$(check_file "${path_3g}/net" "INVALID DATA")
+        local recordtime=$(get_now_time)
+        local starttime=$(cat ${path_3g}/start_dial_time 2>/dev/null)
+        local endtime=$(cat ${path_3g}/end_dial_time 2>/dev/null)
+        local dialcount=$(check_file "${path_3g}/dialcount" "0")
+        local resetcount=$(check_file "${path_3g}/resetcount" "0")
+        local ICCID=$(check_file "${path_3g}/iccid" "INVALID DATA")
+        local dbm=$(check_file "${path_3g}/dbm" "0")
+        local csq=$(cat ${path_3g}/hdrcsq |sed -n '$p' 2>/dev/null)
+        local startup=$(cat /tmp/.startup 2>/dev/null)
+        local log_file=${path_3g}/3g_drop_${startup}.log
+
+        if [[ ${dialcount} -gt 1 ]];then
+                printf '{"type":"%s", "recordtime":"%s", "starttime":"%s", "endtime":"%s", "dialcount":"%s", "resetcount":"%s", "ICCID":"%s", "dbm":"%s", "csq":"%s"}\n'    \
+                        "${type}"       \
+                        "${recordtime}" \
+                        "${starttime}"  \
+                        "${endtime}"    \
+                        "${dialcount}"  \
+                        "${resetcount}" \
+                        "${ICCID}"      \
+                        "${dbm}"        \
+                        "${csq}"  >>${log_file}
+        fi
+}
+
+
+

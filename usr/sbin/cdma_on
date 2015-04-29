@@ -1,0 +1,15 @@
+#!/bin/bash
+main() {
+        local slot_file=/tmp/3g/slot
+        cat ${slot_file} |grep "2-2" >/dev/null 2>&1;local ret2=$?
+        cat ${slot_file} |grep "2-3" >/dev/null 2>&1;local ret3=$?
+        if [[ ${ret2} -eq 0 ]];then
+                gpio 3g_ctl2=1 2>/dev/null
+        fi
+        if [[ ${ret3} -eq 0 ]];then
+                gpio 3g_ctl1=1 2>/dev/null
+        fi
+}
+
+main "$@"
+

@@ -1,0 +1,81 @@
+#!/bin/bash
+
+#add by autelan
+mkdir /tmp/3g 2>/dev/null
+#
+# Get the 3g module slot num (2-2 or 2-3)
+#
+get_slot() {
+        ls -la /sys/bus/usb/devices/2-3/ >/dev/null 2>&1; local ret_3=$?
+        ls -la /sys/bus/usb/devices/2-2/ >/dev/null 2>&1; local ret_2=$?
+        local slot_file=/tmp/3g/slot
+
+        if [[ ${ret_3} -eq 0 ]];then
+                echo "2-3" >>${slot_file}
+        fi
+        if [[ ${ret_2} -eq 0 ]];then
+                echo "2-2" >>${slot_file}
+        fi
+}
+
+#
+# According to the 3g module type, set at_ctrl
+#
+set_at_ctrl() {
+        local ttyUSB_num=$1
+
+#        ln -sf ${ttyUSB_num} /usr/sbin/at_ctrl
+	ln -sf ${ttyUSB_num} /tmp/at_ctrl
+}
+#
+# According to the idProduct and the idVendor, determine the 3g module type
+#
+at_model() {
+        get_slot
+        rm -rf /tmp/at_ctrl >/dev/null 2>&1
+        local slot_file=/tmp/3g/slot
+        local slot_num=$(cat ${slot_file} |sed -n '$p' 2>/dev/null)
+        local model_3g_file=/tmp/3g/3g_model
+        local idVendor=$(cat /sys/bus/usb/devices/${slot_num}/idVendor)
+        local idProduct=$(cat /sys/bus/usb/devices/${slot_num}/idProduct)
+
+        case "${idVendor}" in
+                "19d2")
+                        if [[ "${idProduct}" == "ffed" ]]; then
+                                echo "MC271X" > ${model_3g_file}
+                                set_at_ctrl /usr/sbin/at_ttyUSB1
+                                return
+                        fi
+                        ;;
+                "1435")
+                        if [[ "${idProduct}" == "d111" ]]; then
+                                echo "DM111" > ${model_3g_file}
+                                set_at_ctrl /usr/sbin/at_ttyUSB1
+                                return
+                        fi
+                        ;;
+                "05c6")
+                        if [[ "${idProduct}" == "9000" ]]; then
+                                echo "SIM6320C" > ${model_3g_file}
+                                set_at_ctrl /usr/sbin/at_ttyUSB3
+                                return
+                        fi
+                        ;;
+                "1c9e")
+                        if [[ "${idProduct}" == "9e00" ]]; then
+                                echo "C5300V" > ${model_3g_file}
+                                set_at_ctrl /usr/sbin/at_ttyUSB3
+                                return
+                        fi
+                        ;;
+                *)
+                        echo "The idVendor is ${idVendor}, the idProduct is ${idProduct}, not support !"
+                        ;;
+        esac
+}
+
+main() {
+        at_model
+}
+
+main "$@"
