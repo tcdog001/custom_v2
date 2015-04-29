@@ -1,0 +1,13 @@
+#!/bin/bash
+main() {
+        killall -9 do_get_3ginfo.sh 2>/dev/null
+        killall -9 get_hdrcsq.sh 2>/dev/null
+        killall -9 check_sim_state.sh 2>/dev/null
+        killall -9 3g_connect.sh 2>/dev/null
+        killall -9 get_3g_state.sh 2>/dev/null
+        killall -9 get_3g_flow.sh 2>/dev/null
+        killall -9 pppd 2>/dev/null
+	killall -9 check_3gdown_result.sh 2>/dev/null	
+}
+
+main "$@"
