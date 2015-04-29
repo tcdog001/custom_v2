@@ -1,0 +1,26 @@
+#!/bin/sh
+
+#
+# $1: reason
+#
+write_onoff_log() {
+	local reason="$1"
+	local file_path=/data/opt/log/onoff
+	local ontime_file=/tmp/.startup
+	local ontime=$(cat ${ontime_file} |sed -n '$p')
+	local offtime=$(date '+%F-%H:%M:%S')
+
+	printf '{"ontime":"%s","offtime":"%s","offreason":"%s"}\n' \
+		"${ontime}"  \
+		"${offtime}" \
+		"${reason}" > ${file_path}/onoff-${ontime}"
+}
+
+main() {
+	local reason="DROP-OFF"
+	
+	[[ $1 ]] && reason="$1"
+	write_onoff_log ${reason}
+}
+
+main "$@"

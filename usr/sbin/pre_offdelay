@@ -1,0 +1,42 @@
+#!/bin/bash
+
+echo "--ACC off about $(cat /tmp/.acc/duration)s--"
+echo "--Prepare to SHUT DOWN!--"
+
+#close all the leds
+acc_closeled() {
+	sysled main off
+}
+
+#save vcc log
+acc_vcclog() {
+	sleep 1
+}
+
+#save 3g drop
+acc_3glog() {
+	sleep 1
+}
+
+#write onoff log
+acc_onfflog() {
+	onofflog "ACC-OFF"
+}
+
+#device shutdown
+acc_shutdown() {
+	echo "--SHUT DOWN!--"
+	sysreboot
+}
+
+main() {
+	acc_closeled
+	acc_vcclog
+	acc_3glog
+	acc_onfflog
+	
+	sync
+	acc_shutdown
+}
+
+main "$@"

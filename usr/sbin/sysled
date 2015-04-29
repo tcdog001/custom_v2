@@ -3,7 +3,8 @@
 
 usage() {
 	echo "$0 usage:"
-	echo "$0 [sys/sata/pwr/alarm/gps] [on/off/blink]"
+	echo "$0 [main/sys/sata/pwr/alarm/gps/3g_led1/3g_led2] [on/off/blink]"
+	echo "    main: all the leds"
 	echo "    sys: sys led"
 	echo "    sata: sata led"
 	echo "    pwr: pwr led"
@@ -30,7 +31,7 @@ main() {
 	fi
 
 	case "${led}" in
-	"sys"|"sata"|"gps"|"alarm"|"pwr")
+	"main"|"sys"|"sata"|"gps"|"alarm"|"pwr"|"3g_led1"|"3g_led2")
 		;;
 	*)
 		echo "no support ${led} led"
