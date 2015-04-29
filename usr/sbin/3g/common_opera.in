@@ -119,7 +119,7 @@ get_3g_flow() {
 #
 # write the log of 3g drop
 #
-3g_drop_log() {
+drop_3g_log() {
         get_dbm
         local type=$(check_file "${path_3g}/net" "INVALID DATA")
         local recordtime=$(get_now_time)
