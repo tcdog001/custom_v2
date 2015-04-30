@@ -12,7 +12,8 @@ start_3g_dial() {
 }
 
 main() {
-        local slot=$(cat /tmp/3g/slot 2>/dev/null)
+	sleep 3
+	local slot=$(cat /tmp/3g/slot 2>/dev/null)
 
         if [[ ! -z  ${slot} ]];then
                 start_3g_dial
