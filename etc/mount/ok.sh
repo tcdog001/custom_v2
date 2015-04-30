@@ -3,6 +3,7 @@
 rootfs0_ok() {
 	mkdir -p /tmp/appkey;
 	cp -fpR /etc/appkey/* /tmp/appkey/
+	echo "copy appkey"
 
 	mkfiles \
 		${file_jlog_ap_file} \
@@ -10,6 +11,7 @@ rootfs0_ok() {
 		${file_jlog_ap_afile} \
 		${file_jlog_md_afile} \
 		#end
+	echo "create jlog files"
 }
 
 config_ok() {
