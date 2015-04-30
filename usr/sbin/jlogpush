@@ -6,7 +6,7 @@ main() {
 	#
 	# todo: use curl
 	#
-	echo "jlogpush:${json}"
+	echo "$0:$*"
 }
 
 main "$@"

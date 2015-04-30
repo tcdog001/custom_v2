@@ -1,0 +1,13 @@
+#!/bin/bash
+
+main() {
+	local file="$1"
+	local count="$2"
+
+	#
+	# todo: cut the file
+	#
+	echo "$0:$*"
+}
+
+main "$@"
