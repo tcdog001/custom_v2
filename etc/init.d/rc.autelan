@@ -24,14 +24,11 @@ phase1() {
 	vconfig add eth0 9
 	vconfig set_flag eth0.9  1 1
 	ifconfig eth0.9 1.0.0.6 netmask 255.255.255.252 up
-
-	udhcpd -f /mnt/flash/config/udhcpd.conf & 2>/dev/null
-
-	sysctl -p 2>/dev/null
-	dnsmasq -C /mnt/flash/config/dnsmasq.conf -x /tmp/dnsmasq.pid & 2>/dev/null
 	
-	xinetd -f /mnt/flash/config/xinetd.conf -pidfile /tmp/xinetd.pid &
-
+	# copy conf files to run config path
+	cp /etc/config/* /tmp/config/
+	cp /config/*     /tmp/config/
+	
 	# run acc processes, use acc_exit to quit acc
 	acc_init &
 
@@ -40,6 +37,14 @@ phase1() {
 
 	# run gps processes, use gps_exit to quit gps
 	gps_init &
+
+	udhcpd -f /tmp/config/udhcpd.conf & 2>/dev/null
+
+	sysctl -p 2>/dev/null
+	dnsmasq -C /tmp/config/dnsmasq.conf -x /tmp/dnsmasq.pid & 2>/dev/null
+	
+	xinetd -f /tmp/config/xinetd.conf -pidfile /tmp/xinetd.pid &
+
 }
 
 phase2() {
