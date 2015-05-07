@@ -1,0 +1,19 @@
+#!/bin/bash
+
+sys_file="/etc/utils/sysinfo_dir.in"
+
+main() {
+	local key=$1
+	local file=$(cat ${sys_file} | awk '/<'"${key}"'>/{print $2}')
+	local value="none"
+	if [ -f "${file}" ];then
+		value=$(cat ${file})
+		if [[ -z "${value}" ]];then
+			#error_action "${target}"
+			echo "null"
+		fi
+	fi
+	echo "${value}"
+}
+
+main "$@"
