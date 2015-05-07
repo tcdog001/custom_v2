@@ -1,0 +1,123 @@
+#!/bin/bash
+
+#common
+pro_path="/tmp/.product"
+force_pro_path="/etc/force/pro"
+pro_cmd="/bin/atenv"
+aute_pro_path="/tmp/.autelan/product"
+
+softwareinfo_path="/tmp/.software_info"
+force_softwareinfo_path="/etc/force/sf"
+softwareinfo_default_path="/etc/.sf_version"
+aute_softwareinfo_path="/tmp/.autelan/softwareinfo"
+
+sys_file="/etc/utils/sysinfo_dir.in"
+
+erro_action() {
+	touch /tmp/erro
+}
+
+get_pro_info_func() {
+	
+	local target=$1
+	local board_info=$2
+	
+	local file="${force_pro_path}/${target}"
+	local oem_info=$(${pro_cmd} infos/oem/${target})
+	local pro_info=$(${pro_cmd} infos/product/${target})
+	if [ -f "${file}" ];then
+		board_info=$(cat ${file})
+
+	else if [[ -z "${oem_info}" ]];then
+			
+			if [[ -z "${pro_info}" ]];then
+				erro_action "$1"
+			else
+				board_info="${pro_info}"
+			fi
+		else
+			board_info="${oem_info}"
+		fi
+	fi
+	
+	echo "${board_info}" > ${pro_path}/${target}
+	echo "${pro_info}" > ${aute_pro_path}/${target}
+	
+}
+
+
+
+
+get_software_info_func() {
+	local target=$1
+	local sf_info=$2
+	
+	local file="${force_softwareinfo_path}/${target}"
+	local aute_softwareinfo=$(cat ${softwareinfo_default_path}/${target})
+	if [ -f "${file}" ];then
+		sf_info=$(cat ${file})
+	else if [[ -z "${aute_softwareinfo}" ]];then
+			sf_info=${aute_softwareinfo}
+		else
+			erro_action "$1"
+		fi
+	fi
+	
+	echo "${sf_info}" > ${softwareinfo_path}/${target}
+	echo "${aute_softwareinfo}" > ${aute_softwareinfo_path}/${target}
+}
+
+
+get_info_func() {
+	local array_target=$1
+	local array_default=$2
+	local func=$3
+	local count=${#array_target[*]}
+	local i
+	
+	for ((i=0; i<count; i++)); do
+		local key="${array_target[$i]}"
+		local value="${array_default[$i]}"
+		${func} "${key}" "${value}"
+	done
+}
+
+get_pro_info() {
+	local array_target=('lms' 'mac' 'sn' 'vendor' 'company' 'model')
+	local array_default=('lms1.autelan.com' '00-1F-64-00-00-01' 'null' 'null' 'null' 'null')
+	
+	local count=${#array_target[*]}
+	local i
+	
+	for ((i=0; i<count; i++)); do
+		local key="${array_target[$i]}"
+		local value="${array_default[$i]}"
+		get_pro_info_func "${key}" "${value}"
+	done
+	
+}
+
+get_software_info() {
+	local array_target=('owner.id' 'owner.grouping' 'sw.version' 'cfg.version' 'portal.version' 'content.version')
+	local array_default=('null' 'null' 'invalid' 'null' 'null' 'null')
+	
+	local count=${#array_target[*]}
+	local i
+	
+	for ((i=0; i<count; i++)); do
+		local key="${array_target[$i]}"
+		local value="${array_default[$i]}"
+		get_software_info_func "${key}" "${value}"
+	done
+}
+
+main() {
+	mkdir -p ${pro_path}
+	mkdir -p ${aute_pro_path}
+	mkdir -p ${softwareinfo_path}
+	mkdir -p ${aute_softwareinfo_path}
+	get_pro_info
+	get_software_info
+}
+
+main "$@"

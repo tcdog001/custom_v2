@@ -1,0 +1,125 @@
+#!/bin/bash
+
+#common
+
+dev_hd=/dev/udiskp1
+HDINFO=/tmp/hdinfo
+hd_info_path="/tmp/.hd_info"
+bd_info_path=""
+force_hd_info_path=""
+pro_cmd="/bin/atenv"
+
+erro_action() {
+	touch /tmp/erro
+}
+
+get_design_info() {
+	local pcba_model=$(${pro_cmd} infos/pcba/model)
+	local pcba_version=$(${pro_cmd} infos/pcba/version)
+	local factory_sn=$(${pro_cmd} infos/product/sn)
+	local hw_version=$(${pro_cmd} infos/product/version)
+	
+	echo ${pcba_model} > ${hd_info_path}/pcba.model
+	echo ${pcba_version} > ${hd_info_path}/pcba.version
+	echo ${factory_sn} > ${hd_info_path}/factory.sn
+	echo ${hw_version} > ${hd_info_path}/hw.version
+}
+get_board_info_func() {	
+	local target=$1
+	local bd_info=$2
+	
+	local file="${force_hd_info_path}/${target}"
+	#local aute_bdinfo=$(cat ${bd_info_path}/${target})
+	if [ -f "${file}" ];then
+		bd_info=$(cat ${file})
+	fi
+	
+	echo "${bd_info}" > ${hd_info_path}/"${target}"
+	
+
+}
+
+get_board_info() {
+	local array_target=('cpu.model' 'cpu.clockspeed' 'memory.size' 'hdd.count' '2gwifi.model' '5gwifi.model' 'lan.model' 'cellular.count')
+	local array_default=('Hi3718c' '2*1.2GHz' '2GB' '1' 'AR9531' 'AR9582' 'AR9531' '1')
+	local count=${#array_target[*]}
+	local i
+	
+	for ((i=0; i<count; i++)); do
+		local key="${array_target[$i]}"
+		local value="${array_default[$i]}"
+		get_board_info_func "${key}" "${value}"
+	done
+
+
+}
+
+
+
+get_disk_model() {
+	#disk_model="`hdparm -I ${dev_hd} | awk -F ':' '/Model Number/{print $2}'| awk -F ' ' '{print $2}' 2>/dev/null`"
+	if [ -f ${HDINFO} ];then
+		disk_model_temp="`cat ${HDINFO} | awk -F ',' '/Model=/{print $1}' | awk -F '=' '{print $2}'`"
+		disk_model="`echo "${disk_model_temp}" | sed 's/[ \t]*$//g'`"
+	fi
+	if [ -z "${disk_model}" ];then
+		disk_model="error"
+		erro_action "disk_model"
+	fi
+	echo "${disk_model}"  > ${hd_info_path}/hdd.model
+}
+
+get_disk_sn() {
+	#disk_sn="`hdparm -I ${dev_hd} | awk -F ':' '/Serial Number/{print $2}'| awk -F ' ' '{print $2}' 2>/dev/null`"
+	if [ -f ${HDINFO} ];then
+		disk_sn_temp="`cat ${HDINFO} | awk -F ',' '/SerialNo=/{print $3}'| awk -F '=' '{print $2}'`"
+		disk_sn="`echo "${disk_sn_temp}" | sed 's/[ \t]*$//g'`"
+	fi
+	if [ -z "${disk_sn}" ];then
+		disk_sn="error"
+		erro_action "disk_sn"
+	fi
+	echo "${disk_sn}" > ${hd_info_path}/hdd.sn
+}
+
+get_disk_version() {
+	sleep 1
+}
+
+get_disk_size() {
+	sleep 1
+}
+
+get_disk_vendor() {
+	local disk_vendor=$(cat ${hd_info_path}/hdd.model | awk '{print $1}')
+	
+	case ${disk_vendor} in
+	FORESEE)
+		echo "${disk_vendor}" > ${hd_info_path}/hdd.vendor
+		;;
+	*)
+		echo "error" > ${hd_info_path}/hdd.vendor
+		erro_action "disk_vendor"
+		;;
+	esac
+}
+
+get_disk_info() {
+	hdparm -i ${dev_hd} > ${HDINFO} 2>/dev/null
+	
+	get_disk_model
+	get_disk_sn
+	get_disk_version
+	get_disk_size
+	get_disk_vendor
+	
+}
+
+main() {
+	mkdir -p ${hd_info_path}
+	get_design_info
+	get_disk_info
+	get_board_info
+}
+
+main "$@"
