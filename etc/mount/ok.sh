@@ -5,7 +5,7 @@ rootfs0_ok() {
 	cp -fpR /etc/appkey/* /tmp/appkey/
 	echo "copy appkey"
 
-	mkdir -p /tmp/jlog
+	mkdir -p /tmp/log
 }
 
 config_ok() {

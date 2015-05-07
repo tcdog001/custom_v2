@@ -3,14 +3,15 @@
 phase1() {
 	clock_set
 	. /etc/cp1.in
+	mount
 	atsys mount
 	. /etc/cp2.in
 
 	ifconfig lo up
 	#
-	# try use bootm's pcba.mac
+	# try use oem mac
 	#
-	local mac="$(bootm pcba.mac)"
+	local mac="$(atenv infos/oem/mac)"
 	if [ -n "${mac}" ]; then
 		ifconfig eth0 hw ether ${mac}
 	fi
@@ -44,7 +45,6 @@ phase1() {
 	dnsmasq -C /tmp/config/dnsmasq.conf -x /tmp/dnsmasq.pid & 2>/dev/null
 	
 	xinetd -f /tmp/config/xinetd.conf -pidfile /tmp/xinetd.pid &
-
 }
 
 phase2() {
