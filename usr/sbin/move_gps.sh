@@ -14,10 +14,10 @@ do_move() {
 	if [ ${time} ]; then
 		cp ${LOCAL_GPS_FILE} ${LOCAL_TMP_FILE} 2> /dev/null
 		if [ $? = 0 ];then
-			echo "$0: MOVE OK" $DEBUG_LOG_LOCAL
 			> ${LOCAL_GPS_FILE}
 		else
 			echo "$0: MOVE NOK" $DEBUG_LOG_LOCAL
+			mkdir -p /tmp/log/gps/
 		fi
 	fi
 }
