@@ -9,11 +9,12 @@ write_onoff_log() {
 	local ontime_file=/tmp/.startup
 	local ontime=$(cat ${ontime_file} |sed -n '$p')
 	local offtime=$(date '+%F-%H:%M:%S')
-
+	echo "${offtime}" >> /data/.offtime
+	
 	printf '{"ontime":"%s","offtime":"%s","offreason":"%s"}\n' \
 		"${ontime}"  \
 		"${offtime}" \
-		"${reason}" > ${file_path}/onoff-${ontime}"
+		"${reason}" > ${file_path}/onoff-"${ontime}"
 }
 
 main() {

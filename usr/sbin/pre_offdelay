@@ -35,6 +35,9 @@ main() {
 	acc_3glog
 	acc_onfflog
 	
+	#/ect/platform/cancellation.sh
+	echo "ACC-OFF" > /data/.off_reason
+	
 	sync
 	acc_shutdown
 }

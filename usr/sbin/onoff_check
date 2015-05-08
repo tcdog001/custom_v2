@@ -1,0 +1,19 @@
+#!/bin/bash
+
+acc_check() {
+	local delay_acc=$1
+	local acc_time=$(/usr/sbin/get_sysinfo acc.duration)
+	
+	if [[ ${acc_time} -gt ${delay_acc} ]]; then
+		/usr/sbin/pre_offdelay
+	fi
+
+}
+
+main() {
+	local acc_delay=300
+	[[ $1 ]] && delay_acc="$1"
+	acc_check ${acc_delay}
+}
+
+main "$@"
