@@ -51,7 +51,7 @@ phase2() {
 	#
 	# set 3g model and set at_ctrl
 	#
-	/usr/sbin/3g/set_3g_model &
+	/usr/sbin/set_3g_model &
 	/etc/init.d/php-fpm_start.sh &
 	/etc/init.d/nginx_start.sh &
 	/usr/sbin/sshd -f /mnt/flash/config/ssh/sshd_config -h /mnt/flash/config/ssh/ssh_host_rsa_key -p 22 &
@@ -73,7 +73,8 @@ phase2() {
 #	wifidog -c /usr/local/etc/wifidog.conf 2>/dev/null
 
 #	/usr/sbin/sync_3gstatus_MD.sh &
-#	/usr/sbin/auto_reboot_md.sh &
+	/usr/sbin/timeout_reboot.sh &
+
 	#
 	# try start cp's init
 	#
@@ -84,7 +85,9 @@ phase2() {
 	#start 3g
 	#
 	/usr/sbin/start_3g &
-	/usr/sbin/3g/add_nat.sh &
+	/usr/sbin/add_nat.sh &
+
+	/usr/sbin/check_gps.sh &
 
 	echo $(date '+%F-%H-%M-%S') > /tmp/.startup
 
