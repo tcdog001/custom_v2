@@ -31,7 +31,7 @@ record_dialcount() {
         echo ${num} >${path_3g}/dialcount; fsync ${path_3g}/dialcount
 }
 #
-# According to the apn and tel, start the 3g_sample
+# According to the apn and tel, start the 3g dial
 #
 start_3g() {
         local tel=$(cat ${path_3g}/tel 2>/dev/null)
@@ -40,19 +40,19 @@ start_3g() {
         local data_apn=$(cat ${path_data_3g}/apn 2>/dev/null)
 
         if [[ "${tel}" && "${apn}" ]];then
-                3g_sample ${tel} "card" "card" ${apn} &
+                ppp_dial ${tel} "card" "card" ${apn} &
         else
                 if [[ "${data_tel}" && "${data_apn}" ]];then
                         logger -t $0 "NOT find tel and apn !"
-                        3g_sample ${data_tel} "card" "card" ${data_apn} &
+                        ppp_dial ${data_tel} "card" "card" ${data_apn} &
                 else
                         logger -t $0 "NOT find tel, apn, data_tel and data_apn !"
-                        3g_sample "#777" "card" "card"  "ctnet" &
+                        ppp_dial "#777" "card" "card"  "ctnet" &
                 fi
         fi
 }
 #
-# Remove excess the 3g_sample and start 3g_sample
+# Remove excess the ppp_dial and start ppp_dial
 #
 start_ppp() {
         start_3g
@@ -70,7 +70,7 @@ main() {
                 local state_3g=$(cat ${state_file} 2>/dev/null)
 
                 if [[ -z ${state_3g} || ${state_3g} != 0 ]];then
-                        local ps_line=$(ps |grep 3g_sample |wc -l 2>/dev/null)
+                        local ps_line=$(ps |grep ppp_dial |wc -l 2>/dev/null)
                         case ${ps_line} in
                                 "1")
                                         report_enddial_time
@@ -80,7 +80,7 @@ main() {
                                 "2")
                                         ;;
                                 *)
-                                        killall -9 3g_sample 2>/dev/null
+                                        killall -9 ppp_dial 2>/dev/null
                                         report_enddial_time
                                         record_dialcount
                                         start_ppp
