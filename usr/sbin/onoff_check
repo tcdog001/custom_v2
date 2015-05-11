@@ -12,8 +12,16 @@ acc_check() {
 
 main() {
 	local acc_delay=300
-	[[ $1 ]] && delay_acc="$1"
-	acc_check ${acc_delay}
+	local acc_intval=10
+
+	[[ $1 ]] && acc_delay="$1"
+	[[ $2 ]] && acc_intval="$2"
+
+	while :
+	do
+		acc_check ${acc_delay}
+		sleep ${acc_intval}
+	done
 }
 
 main "$@"

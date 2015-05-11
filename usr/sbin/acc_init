@@ -5,6 +5,18 @@ acc_config=${acc_path}/acc.conf
 acc_config_tmp=${acc_path}/.config_acc
 
 #
+# $1: delay, $2:interval, $3:command
+#
+start_onoff_check() {
+	local delay="$1"
+	local interval="$2"
+	local command="$3"
+
+	echo "${delay} ${interval} ${command}"
+	[[ ${interval} ]] && ${command} ${delay} ${interval} &
+}
+
+#
 # $1: delay, $2:interval, $3:command, $4:file, $5:file1, $6:interval1, $7:interval2
 #
 start_upload_vcc() {
@@ -58,8 +70,8 @@ main() {
 
 	local alias delay interval command file file1 interval1 interval2
 	while read alias delay interval command file file1 interval1 interval2; do
-		[[ "${alias}" = "acc_monitor" ]] && start_${alias} ${delay} ${interval} ${command} ${file} ${file1} ${interval1} ${interval2} &
-		[[ "${alias}" = "upload_vcc" ]] && start_${alias} ${delay} ${interval} ${command} ${file} ${file1} ${interval1} ${interval2} &
+		[[ "${alias}" = "acc_monitor" || "${alias}" = "upload_vcc" || "${alias}" = "onoff_check" ]] \
+			&& start_${alias} ${delay} ${interval} ${command} ${file} ${file1} ${interval1} ${interval2} &
 	done < ${tmp}
 }
 
