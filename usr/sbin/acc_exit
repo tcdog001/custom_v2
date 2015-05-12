@@ -3,30 +3,6 @@
 acc_path=/tmp/config
 acc_config=${acc_path}/acc.conf
 acc_config_tmp=${acc_path}/.config_acc
-acc_string_tmp=/tmp/.string_acc
-
-#
-# $1: command
-#
-command_kill() {
-	local command=$1
-	local pid=""
-	local line=0
-		
-	while :
-	do
-		ps | grep "${command}" > ${acc_string_tmp}
-		sed -i '/grep/d' ${acc_string_tmp}
-		line=$(cat ${acc_string_tmp} | wc -l)
-		
-		[[ ${line} -eq 0 ]] && break
-		#echo "line=${line}"
-		
-		pid=$(cat ${acc_string_tmp} | awk '{if(NR==1){print $1}}')
-		echo "pid=${pid}"
-		[[ ${pid} ]] && kill -9 ${pid}
-	done
-}
 
 #
 # $1: delay, $2:interval, $3:command, $4:file, $5:file1, $6:interval1, $7:interval2

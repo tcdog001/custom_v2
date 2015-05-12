@@ -3,49 +3,11 @@
 led_path=/tmp/config
 led_config=${led_path}/led.conf
 led_config_tmp=${led_path}/.config_led
-led_string_tmp=/tmp/.string_led
-
-#
-# $1: command
-#
-command_kill() {
-	local command=$1
-	local pid=""
-	local line=0
-		
-	while :
-	do
-		ps | grep "${command}" > ${led_string_tmp}
-		sed -i '/grep/d' ${led_string_tmp}
-		line=$(cat ${led_string_tmp} | wc -l)
-		
-		[[ ${line} -eq 0 ]] && break
-		#echo "line=${line}"
-		
-		pid=$(cat ${led_string_tmp} | awk '{if(NR==1){print $1}}')
-		echo "pid=${pid}"
-		[[ ${pid} ]] && kill -9 ${pid}
-	done
-}
-
-#
-# $1: delay, $2: interval, $3: input file, $4: command, $3: output path
-#
-stop_led_reload() {
-	local delay="$1"
-	local interval="$2"
-	local input="$3"
-	local command="$4"
-	local output="$3"
-
-	echo "${command}"
-	command_kill ${command}
-}
 
 #
 # $1: delay, $2: interval, $3: input path, $4: command, $5: output file
 #
-stop_led_main() {
+stop_function() {
 	local delay=$1
 	local interval=$2
 	local input=$3
@@ -67,8 +29,7 @@ main() {
 
 	local alias delay interval file command file1
 	while read alias delay interval file command file1; do
-		[[ "${alias}" = "led_reload" ]] && stop_${alias} ${delay} ${interval} ${file} ${command} ${file1}
-		[[ "${alias}" = "led_main" ]] && stop_${alias} ${delay} ${interval} ${file} ${command} ${file1}
+		[[ "${alias}" = "led_reload" || "${alias}" = "led_main" ]] && stop_function ${delay} ${interval} ${file} ${command} ${file1}
 	done < ${tmp}
 	stop_main
 }

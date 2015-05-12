@@ -1,0 +1,30 @@
+#!/bin/bash
+
+#
+# $1: command
+#
+main() {
+	local string_tmp=/tmp/.string_$(cat /proc/uptime | awk '{print $1}')
+	local command=$1
+	local pid=""
+	local line=0
+		
+	[[ -z ${command} ]] && exit 1
+
+	while :
+	do
+		ps | grep "${command}" > ${string_tmp}
+		sed -i '/grep/d;/command_kill/d' ${string_tmp}
+		line=$(cat ${string_tmp} | wc -l)
+		
+		[[ ${line} -eq 0 ]] && break
+		#echo "line=${line}"
+		
+		pid=$(cat ${string_tmp} | awk '{if(NR==1){print $1}}')
+		echo "pid=${pid}"
+		[[ ${pid} ]] && kill -9 ${pid}
+	done
+	rm ${string_tmp}
+}
+
+main "$@"
