@@ -17,11 +17,12 @@ main() {
 	[[ $1 ]] && acc_delay="$1"
 	[[ $2 ]] && acc_intval="$2"
 
-	while :
-	do
-		acc_check ${acc_delay}
-		sleep ${acc_intval}
-	done
+	acc_check ${acc_delay}
+#	while :
+#	do
+#		acc_check ${acc_delay}
+#		sleep ${acc_intval}
+#	done
 }
 
 main "$@"
