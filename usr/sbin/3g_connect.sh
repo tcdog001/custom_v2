@@ -59,7 +59,7 @@ start_ppp() {
 	syn_net_time
 }
 main() {
-        local interval=$(cat /usr/sbin/interval.in | awk '/3g_connect/{print $2}' 2>/dev/null)
+        local interval=$(cat /tmp/config/interval_3g.in | awk '/3g_connect/{print $2}' 2>/dev/null)
         if [[ -z ${interval} ]];then
                 interval=10
         fi

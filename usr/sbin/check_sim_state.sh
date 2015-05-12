@@ -12,7 +12,7 @@ main() {
         local j=1
         local sim_log=${path_3g}/sim.log
         local time=$(get_now_time)
-        local interval=$(cat "/usr/sbin/interval.in" | awk '/check_sim_state/{print $2}' 2>/dev/null)
+        local interval=$(cat "/tmp/config/interval_3g.in" | awk '/check_sim_state/{print $2}' 2>/dev/null)
         if [[ -z ${interval} ]];then
                 interval=300
         fi

@@ -77,7 +77,7 @@ record_log() {
 # delete the old data in the file of 3g signal strength
 #
 main() {
-        local interval=$(cat "/usr/sbin/interval.in" | awk '/get_hdrcsq/{print $2}' 2>/dev/null)
+        local interval=$(cat "/tmp/config/interval_3g.in" | awk '/get_hdrcsq/{print $2}' 2>/dev/null)
 
         if [[ -z ${interval} ]];then
                 interval=30
