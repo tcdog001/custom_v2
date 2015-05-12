@@ -6,6 +6,7 @@ phase1() {
 	mount
 	atsys mount
 	. /etc/cp2.in
+	/etc/upgrade/set_dir.sh
 
 	ifconfig lo up
 	#

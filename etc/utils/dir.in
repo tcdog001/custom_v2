@@ -177,8 +177,8 @@ readonly dir_opt_log_flow_3g=${dir_opt_log_flow}/3g
 readonly dir_opt_log_nginx=${dir_opt_log}/nginx
 readonly dir_opt_log_nginx_error=${dir_opt_log_nginx}/error
 readonly dir_opt_log_nginx_access=${dir_opt_log_nginx}/access
-readonly file_nginx_access_log=${dir_opt_log_nginx_access}/nginx.log
-readonly file_nginx_error_log=${dir_opt_log_nginx_error}/nginx.log
+#readonly file_nginx_access_log=${dir_opt_log_nginx_access}/nginx.log
+#readonly file_nginx_error_log=${dir_opt_log_nginx_error}/nginx.log
 
 readonly dir_opt_log_squid=${dir_opt_log}/squid
 readonly dir_opt_log_squid_error=${dir_opt_log_squid}/error
