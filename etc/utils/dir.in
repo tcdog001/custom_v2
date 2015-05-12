@@ -209,6 +209,57 @@ readonly dir_opt_log_sys_ap_ulog=${dir_opt_log_sys_ap}/ulog
 readonly dir_opt_data=${dir_opt}/data
 readonly dir_opt_data_gps=${dir_opt_data}/gps
 readonly dir_opt_data_3g=${dir_opt_data}/3g
+#
+# tmp log dir
+#
+readonly dir_tmp_log=/tmp/.log
+readonly dir_tmp_log_dev=${dir_tmp_log}/dev
+readonly dir_tmp_log_dev_info=${dir_tmp_log_dev}/info
+readonly dir_tmp_log_dev_monitor=${dir_tmp_log_dev}/monitor
+readonly dir_tmp_log_gps=${dir_tmp_log}/gps
+readonly dir_tmp_log_vcc=${dir_tmp_log}/vcc
+readonly dir_tmp_log_onoff=${dir_tmp_log}/onoff
+             
+readonly dir_tmp_log_drop=${dir_tmp_log}/drop
+readonly dir_tmp_log_drop_wifi=${dir_tmp_log_drop}/wifi
+readonly dir_tmp_log_drop_3g=${dir_tmp_log_drop}/3g
+readonly dir_tmp_log_drop_gps=${dir_tmp_log_drop}/gps
+             
+readonly dir_tmp_log_flow=${dir_tmp_log}/flow
+readonly dir_tmp_log_flow_user=${dir_tmp_log_flow}/user
+readonly dir_tmp_log_flow_3g=${dir_tmp_log_flow}/3g
+             
+readonly dir_tmp_log_nginx=${dir_tmp_log}/nginx
+readonly dir_tmp_log_nginx_error=${dir_tmp_log_nginx}/error
+readonly dir_tmp_log_nginx_access=${dir_tmp_log_nginx}/access
+readonly filetmpinx_access_log=${dir_tmp_log_nginx_access}/nginx.log
+readonly filetmpinx_error_log=${dir_tmp_log_nginx_error}/nginx.log
+             
+readonly dir_tmp_log_squid=${dir_tmp_log}/squid
+readonly dir_tmp_log_squid_error=${dir_tmp_log_squid}/error
+readonly dir_tmp_log_squid_access=${dir_tmp_log_squid}/access
+readonly file_squid_access_log=${dir_tmp_log_squid_access}/squid.log
+readonly file_squid_error_log=${dir_tmp_log_squid_error}/squid.log
+
+readonly dir_tmp_log_php=${dir_tmp_log}/php
+readonly dir_tmp_log_phpfpm_error=${dir_tmp_log_php}/error
+             
+readonly dir_tmp_log_upgrade=${dir_tmp_log}/upgrade
+readonly dir_tmp_log_upgrade_content=${dir_tmp_log_upgrade}/content
+readonly dir_tmp_log_upgrade_system=${dir_tmp_log_upgrade}/system
+             
+readonly dir_tmp_log_usr=${dir_tmp_log}/usr
+readonly dir_tmp_log_auth=${dir_tmp_log}/auth
+             
+readonly dir_tmp_log_sys=${dir_tmp_log}/sys
+readonly dir_tmp_log_sys_md=${dir_tmp_log_sys}/md
+readonly dir_tmp_log_sys_md_init=${dir_tmp_log_sys_md}/init
+readonly dir_tmp_log_sys_md_klog=${dir_tmp_log_sys_md}/klog
+readonly dir_tmp_log_sys_md_ulog=${dir_tmp_log_sys_md}/ulog
+readonly dir_tmp_log_sys_ap=${dir_tmp_log_sys}/ap
+readonly dir_tmp_log_sys_ap_init=${dir_tmp_log_sys_ap}/init
+readonly dir_tmp_log_sys_ap_klog=${dir_tmp_log_sys_ap}/klog
+readonly dir_tmp_log_sys_ap_ulog=${dir_tmp_log_sys_ap}/ulog
 
 #
 # tftp dir
