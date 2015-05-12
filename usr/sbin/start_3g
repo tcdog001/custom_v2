@@ -3,23 +3,36 @@
 #start 3g
 #
 start_3g_dial() {
-        /usr/sbin/3g/do_get_3ginfo.sh &
-        /usr/sbin/3g/get_hdrcsq.sh &
-        /usr/sbin/3g/check_sim_state.sh &
-        /usr/sbin/3g/3g_connect.sh &
-        /usr/sbin/3g/get_3g_state.sh &
-        /usr/sbin/3g/get_3g_flow.sh &
+        /usr/sbin/do_get_3ginfo.sh &
+        /usr/sbin/get_hdrcsq.sh &
+        sleep 3
+        /usr/sbin/check_sim_state.sh &
+        /usr/sbin/3g_connect.sh &
+        /usr/sbin/get_3g_state.sh &
+        /usr/sbin/get_3g_flow.sh &
 }
 
 main() {
-	sleep 3
-	local slot=$(cat /tmp/3g/slot 2>/dev/null)
+        sleep 3
+        local slot=$(cat /tmp/.3g/slot 2>/dev/null)
 
-        if [[ ! -z  ${slot} ]];then
-                start_3g_dial
-        else
-                logger -t $0 "NO find the 3g module !"
-                return 0
+        if [[ -z  ${slot} ]];then
+                local i=0
+                while (( $i < 3 ))
+                do
+                        killall -9 set_3g_model 2>/dev/null
+                        sleep 1
+                        /usr/sbin/set_3g_model &
+                        sleep 3
+                        slot=$(cat /tmp/.3g/slot 2>/dev/null)
+                        if [[ -z  ${slot} ]];then
+                                ((i++))
+                                logger -t $0 "count: $((i+1)) : NOT find the 3g module !"
+                        else
+                                break
+                        fi
+                done
         fi
+        start_3g_dial
 }
 main "$@"

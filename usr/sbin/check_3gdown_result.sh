@@ -1,11 +1,9 @@
 #!/bin/bash
 
-. /usr/sbin/3g/get_3ginfo.in
-. /usr/sbin/3g/common_opera.in
-#. /tmp/get_3ginfo.in
-#. /tmp/common_opera.in
+. /usr/sbin/get_3ginfo.in
+. /usr/sbin/common_opera.in
 
-path_3g=/tmp/3g
+path_3g=/tmp/.3g
 #
 # restart the lte modules
 #
@@ -16,17 +14,17 @@ restart_lte_modules() {
         else
                 resetcount=$((${resetcount}+1))
         fi
-        echo ${resetcount} >${path_3g}/resetcount
-        cdma_off 2>/dev/null
+        echo ${resetcount} >${path_3g}/resetcount; fsync ${path_3g}/resetcount
+        /usr/sbin/cdma_off 2>/dev/null
         sleep 1
-        cdma_on 2>/dev/null
+        /usr/sbin/cdma_on 2>/dev/null
 }
 #
 # check the number of /dev/ttyUSB*
 # MC271X : 4
 # SIM6320C : 5
 # DM111 : 2
-# if the number of /dev/ttyUSB* is error, restart the module
+# if the number of /dev/ttyUSB* is error, restart the 3g module
 #
 check_lte_modules() {
         local model=$(cat ${path_3g}/3g_model 2>/dev/null)
@@ -122,7 +120,9 @@ start_check() {
         check_sim
         check_hdrcsq
         killall -9 3g_connect.sh 2>/dev/null
-        killall -9 pppd 2>/dev/null
-        /usr/sbin/3g/3g_connect.sh &
-#	    /tmp/3g_connect.sh &
+#        killall -9 3g_sample 2>/dev/null
+	killall -9 ppp_dial 2>/dev/null
+	killall -9 pppd 2>/dev/null
+        sleep 1
+        /usr/sbin/3g_connect.sh &
 }

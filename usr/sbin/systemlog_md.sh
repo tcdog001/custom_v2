@@ -3,7 +3,7 @@
 . /etc/utils/dir.in
 ERROR_NOSUPPORT="Not supported"
 
-car_system_now=$(getnow)
+car_system_now=$(date '+%F-%H:%M:%S')
 
 get_temp() {
     local string=$(temperature_show | awk '{print $3}')
@@ -181,8 +181,8 @@ main() {
     #jsonstr=$(str_systemlog_ap ${jsonstr})
 	jsonstr=$(str_systemlog_3g ${jsonstr})
 
-    # dir_opt_log_dev_monitor from etc/upgrade/dir.in
-    str_output "{ ${jsonstr} }" "${dir_opt_log_dev_monitor}/${logname}"
+    # dir_opt_log_dev_monitor from etc/utils/dir.in
+    str_output "{ ${jsonstr} }" "${dir_tmp_log_dev_monitor}/${logname}"
 }
 
 main "$@"

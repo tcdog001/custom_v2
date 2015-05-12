@@ -1,0 +1,9 @@
+#
+#the file  is to set the time interval 3G script
+#
+#command         interval
+3g_connect          10
+get_hdrcsq          30
+check_sim_state     300
+get_3g_flow         300
+get_3g_state        10

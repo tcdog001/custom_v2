@@ -1,6 +1,7 @@
 #!/bin/bash
 
-path_3g=/tmp/3g
+path_3g=/tmp/.3g
+path_data_3g=/data/3g
 #
 # get 3G module type
 #
@@ -36,30 +37,26 @@ get_sim_iccid() {
 }
 
 report_sim_iccid() {
-        local iccid_success=${path_3g}/iccid_success
-        local iccid_succ_num=""
-        local iccid_fail=${path_3g}/iccid_fail
-        local iccid_fail_num=""
-        local sim_iccid=$(get_sim_iccid)
-        local iccid_path=${path_3g}/iccid
-
-        if [[ ${sim_iccid} ]]; then
-                echo ${sim_iccid} > ${iccid_path}
-                fsync ${iccid_path}
-                iccid_succ_num=$(cat ${iccid_success} 2> /dev/null)
-                ((iccid_succ_num++))
-                echo ${iccid_succ_num} > ${iccid_success}
-                logger -t $0 "get iccid=${sim_iccid}"
-        else
-                sim_iccid=$(cat ${iccid_path} 2> /dev/null)
-                iccid_fail_num=$(cat ${iccid_fail} 2> /dev/null)
-                ((iccid_fail_num++))
-                echo ${iccid_fail_num} > ${iccid_fail}
+        local iccid_tmp=${path_3g}/iccid
+        local iccid_data=${path_data_3g}/iccid
+        local sim_iccid=""
+        local i=0
+        while (( $i < 10 ))
+        do
+                sim_iccid=$(get_sim_iccid)
+                if [[ ${sim_iccid} ]]; then
+                        break
+                else
+                        ((i++))
+                        sleep 1
+                fi
+        done
+        if [[ -z ${sim_iccid} ]];then
+                sim_iccid=$(cat ${iccid_data} 2> /dev/null)
                 logger -t $0 "fake iccid=${sim_iccid}"
         fi
-
-#        [[ -z ${sim_iccid} ]] && sim_iccid="INVALID DATA"
-        echo ${sim_iccid}
+        [[ -z ${sim_iccid} ]] && sim_iccid="null"
+        echo ${sim_iccid} > ${iccid_tmp}; fsync ${iccid_tmp}
 }
 #
 # get meid and sn
@@ -80,23 +77,29 @@ get_meid_of3g() {
 }
 
 report_meid_of3g() {
-        local meid_path=${path_3g}/meid
-        local sn_3g_path=${path_3g}/sn
-        local meid=$(get_meid_of3g)
+        local meid_tmp=${path_3g}/meid
+        local sn_tmp=${path_3g}/sn
+        local meid_data=${path_data_3g}/meid
+        local meid=""
+        local j=0
 
-        if [[ ${meid} ]]; then
-                echo ${meid} > ${meid_path}
-                echo ${meid} > ${sn_3g_path}
-                fsync ${meid_path}
-                fsync ${sn_3g_path}
-                logger -t $0 "get meid=${meid}"
-        else
-                meid=$(cat ${meid_path} 2> /dev/null)
+        while (( $j < 10 ))
+        do
+                meid=$(get_meid_of3g)
+                if [[ ${meid} ]]; then
+                        break
+                else
+                        ((j++))
+                        sleep 1
+                fi
+        done
+        if [[ -z ${meid} ]];then
+                meid=$(cat ${meid_data} 2> /dev/null)
                 logger -t $0 "fake meid=${meid}"
         fi
-
-#        [[ -z ${meid} ]] && meid="INVALID DATA"
-        echo ${meid}
+        [[ -z ${meid} ]] && meid="null"
+        echo ${meid} > ${meid_tmp}; fsync ${meid_tmp}
+        echo ${meid} > ${sn_tmp}; fsync ${sn_tmp}
 }
 #
 # get imsi
@@ -109,20 +112,16 @@ get_sim_imsi() {
 }
 
 report_imsi_of3g() {
-        local imsi_path=${path_3g}/imsi
+        local imsi_tmp=${path_3g}/imsi
+        local imsi_data=${path_data_3g}/imsi
         local imsi=$(get_sim_imsi)
 
-        if [[ ${imsi} ]]; then
-                echo ${imsi} > ${imsi_path}
-                fsync ${imsi_path}
-                logger -t $0 "get imsi=${imsi}"
-        else
-                imsi=$(cat ${imsi_path} 2> /dev/null)
-                logger -t $0 "fake meid=${imsi}"
+        if [[ -z ${imsi} ]]; then
+                imsi=$(cat ${imsi_data} 2> /dev/null)
+                logger -t $0 "fake imsi=${imsi}"
         fi
-
-        [[ -z ${imsi} ]] && imsi="INVALID DATA"
-        echo ${imsi}
+        [[ -z ${imsi} ]] && imsi="null"
+        echo ${imsi} > ${imsi_tmp}; fsync ${imsi_tmp}
 }
 #
 # get the 3g module manufacturer
@@ -150,26 +149,22 @@ get_company_of3g() {
 }
 
 report_company_of3g() {
-        local company_path=${path_3g}/company
+        local company_tmp=${path_3g}/company
+        local company_data=${path_data_3g}/company
         local company=$(get_company_of3g)
 
-        if [[ ${company} ]]; then
-                echo ${company} > ${company_path}
-                fsync ${company_path}
-                logger -t $0 "get company=${company}"
-        else
-                company=$(cat ${company_path} 2> /dev/null)
+        if [[ -z ${company} ]]; then
+                company=$(cat ${company_data} 2> /dev/null)
                 logger -t $0 "fake meid=${company}"
         fi
-
-        [[ -z ${company} ]] && company="INVALID DATA"
-        echo ${company}
+        [[ -z ${company} ]] && company="null"
+        echo ${company} > ${company_tmp}; fsync ${company_tmp}
 }
 #
 # get the 3g net, CMDA or WADMA or TD-SCDMA
 #
 get_3g_net() {
-        local sim_iccid=$(report_sim_iccid)
+        local sim_iccid=$(cat ${path_3g}/iccid 2>/dev/null)
         local code=$(echo ${sim_iccid} | awk -F '' '{print $5$6}')
         local net=""
 
@@ -183,19 +178,15 @@ get_3g_net() {
 
 report_net_3g() {
         local net_3g_path=${path_3g}/net
+        local net_data=${path_data_3g}/net
         local net_3g=$(get_3g_net)
 
-        if [[ ${net_3g} ]]; then
-                echo ${net_3g} > ${net_3g_path}
-                fsync ${net_3g_path}
-                logger -t $0 "get net_3g=${net_3g}"
-        else
-                net_3g=$(cat ${net_3g_path} 2> /dev/null)
+        if [[ -z ${net_3g} ]]; then
+                net_3g=$(cat ${net_data} 2> /dev/null)
                 logger -t $0 "fake meid=${net_3g}"
         fi
-
-        [[ -z ${net_3g} ]] && net_3g="INVALID DATA"
-        echo ${net_3g}
+        [[ -z ${net_3g} ]] && net_3g=""
+        echo ${net_3g} > ${net_3g_path}; fsync ${net_3g_path}
 }
 #
 # WCDMA ,GSM/TD-SCDMA ,TD-SCDMA do not dial-up internet access
@@ -228,10 +219,8 @@ get_apn() {
                     logger -t $0 "net is ${net},no support !"
                     ;;
         esac
-        echo ${telephone} > ${tel_file}
-        echo ${apn} > ${apn_file}
-        fsync ${tel_file}
-        fsync ${apn_file}
+        echo ${telephone} > ${tel_file}; fsync ${tel_file}
+        echo ${apn} > ${apn_file}; fsync ${apn_file}
 }
 
 #
@@ -299,24 +288,22 @@ get_dbm() {
 get_sim_state() {
         local sim_state=""
         local sim_file=${path_3g}/sim_state
-        local i=0
-
-        while(( $i < 5 ))
+        local m=0
+        while(( $m < 5 ))
         do
                 sim_state=$(/tmp/at_ctrl  AT+CPIN? |awk '/CPIN:/{print $2}' |sed -n '$p')
                 if [[ ${sim_state} == "READY" ]];then
                         break
                 else
-                        ((i++))
+                        ((m++))
                         sleep 1
                 fi
         done
         if [[ ${sim_state} != "READY" ]];then
-                sim_state="NO SIM card"
-                logger -t $0 "NO find SIM card !"
+                sim_state="no sim card"
+                logger -t $0 "no sim card !"
         fi
-        echo ${sim_state} >${sim_file}
-        fsync ${sim_file}
+        echo ${sim_state} >${sim_file}; fsync ${sim_file}
         cat ${sim_file}
 }
 

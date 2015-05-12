@@ -7,5 +7,6 @@ else
 fi
 
 readonly FILE_REGISTER=/data/.register.json
+readonly FILE_CANCELLATION=/data/.cancellation.json
 readonly BACKUP_LOG=/mnt/flash/rootfs_data/backup/log/
 

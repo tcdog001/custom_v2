@@ -1,7 +1,27 @@
 #!/bin/bash
 
+do_register() {
+	/usr/sbin/wr_product_info &
+	/usr/sbin/wr_hd_info &
+	sleep 1
+	/etc/platform/bin/register.sh &
+	stimerc insert command 10 300 0 /etc/platform/bin/command.sh
+}
+
+do_acc_check() {
+	/usr/sbin/off_check.sh &
+	stimerc insert onoff_check 5 300 0 "/usr/sbin/onoff_check 300"
+	stimerc insert onoff_monitor 5 3600 0 "/usr/sbin/onoff-monite.sh 43500"
+	
+}
+
 main() {
 	echo "rc.last"
+	do_register
+	
+	stimerc insert car_system_log 5 300 0 /usr/sbin/systemlog_md.sh
+	
+	do_acc_check
 }
 
 main "$@"

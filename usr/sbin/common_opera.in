@@ -1,7 +1,7 @@
 #!/bin/bash
-. /usr/sbin/3g/get_3ginfo.in
+. /usr/sbin/get_3ginfo.in
 #. /tmp/get_3ginfo.in
-path_3g=/tmp/3g
+path_3g=/tmp/.3g
 #
 # check file,if there is not the file,mkdir the file and echo ${default_content} >file
 #
@@ -47,10 +47,32 @@ add_nat() {
 # control 3g led
 #
 led_3g_on() {
-        echo "up" > /tmp/leds/3g_led1/status
+				local slot=$(cat ${path_3g}/slot 2>/dev/null)
+				case ${slot} in
+                        "2-2")
+        						sysled 3g_led1 on
+        						;;
+                        "2-3")
+                                sysled 3g_led2 on
+                                ;;
+                        *)
+						        logger -t $0 "The 3g module is not support !"
+						        ;;
+                esac
 }
 led_3g_off() {
-        echo "down" > /tmp/leds/3g_led1/status
+				local slot=$(cat ${path_3g}/slot 2>/dev/null)
+				case ${slot} in
+                        "2-2")
+                                sysled 3g_led1 off
+                                ;;
+                        "2-3")
+                                sysled 3g_led2 off
+                                ;;
+                        *)
+						        logger -t $0 "The 3g module is not support !"
+						        ;;
+                esac
 }
 
 #
@@ -64,14 +86,14 @@ syn_net_time() {
 # get now time
 #
 get_now_time() {
-        local time=$(date '+%F:%H:%M:%S')
+        local time=$(date '+%F-%H:%M:%S')
         echo ${time}
 }
 #
 # get 3g up flow
 #
 get_3gup_flow() {
-        local up_flow=$(ifconfig ppp0 | awk '/TX bytes/{print $2}' | awk -F ':' '{print $2}' 2>/dev/null)
+        local up_flow=$(ifconfig ppp0 | awk '/RX bytes/{print $6}' | awk -F ':' '{print $2}' 2>/dev/null)
         local up_flow_file=${path_3g}/3gup_flow
         local up_flow_old=$(cat ${up_flow_file} 2>/dev/null)
         if [[ -z ${up_flow_old} ]];then
@@ -80,7 +102,7 @@ get_3gup_flow() {
         if [[ ${up_flow_old} -gt ${up_flow} ]];then
                 up_flow=$(( ${up_flow_old} + ${up_flow} ))
         fi
-        echo ${up_flow} >${up_flow_file}
+        echo ${up_flow} > ${up_flow_file}
 }
 #
 # get 3g down flow
@@ -121,13 +143,13 @@ get_3g_flow() {
 #
 drop_3g_log() {
         get_dbm
-        local type=$(check_file "${path_3g}/net" "INVALID DATA")
+        local type=$(check_file "${path_3g}/net" "null")
         local recordtime=$(get_now_time)
         local starttime=$(cat ${path_3g}/start_dial_time 2>/dev/null)
         local endtime=$(cat ${path_3g}/end_dial_time 2>/dev/null)
         local dialcount=$(check_file "${path_3g}/dialcount" "0")
         local resetcount=$(check_file "${path_3g}/resetcount" "0")
-        local ICCID=$(check_file "${path_3g}/iccid" "INVALID DATA")
+        local ICCID=$(check_file "${path_3g}/iccid" "null")
         local dbm=$(check_file "${path_3g}/dbm" "0")
         local csq=$(cat ${path_3g}/hdrcsq |sed -n '$p' 2>/dev/null)
         local startup=$(cat /tmp/.startup 2>/dev/null)

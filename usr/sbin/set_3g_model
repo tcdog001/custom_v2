@@ -1,14 +1,14 @@
 #!/bin/bash
 
-#add by autelan
-mkdir /tmp/3g 2>/dev/null
+mkdir /tmp/.3g 2>/dev/null
+mkdir /data/3g 2>/dev/null
 #
 # Get the 3g module slot num (2-2 or 2-3)
 #
 get_slot() {
         ls -la /sys/bus/usb/devices/2-3/ >/dev/null 2>&1; local ret_3=$?
         ls -la /sys/bus/usb/devices/2-2/ >/dev/null 2>&1; local ret_2=$?
-        local slot_file=/tmp/3g/slot
+        local slot_file=/tmp/.3g/slot
 
         if [[ ${ret_3} -eq 0 ]];then
                 echo "2-3" >>${slot_file}
@@ -33,9 +33,9 @@ set_at_ctrl() {
 at_model() {
         get_slot
         rm -rf /tmp/at_ctrl >/dev/null 2>&1
-        local slot_file=/tmp/3g/slot
+        local slot_file=/tmp/.3g/slot
         local slot_num=$(cat ${slot_file} |sed -n '$p' 2>/dev/null)
-        local model_3g_file=/tmp/3g/3g_model
+        local model_3g_file=/tmp/.3g/3g_model
         local idVendor=$(cat /sys/bus/usb/devices/${slot_num}/idVendor)
         local idProduct=$(cat /sys/bus/usb/devices/${slot_num}/idProduct)
 

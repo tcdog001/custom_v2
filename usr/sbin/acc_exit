@@ -3,52 +3,14 @@
 acc_path=/tmp/config
 acc_config=${acc_path}/acc.conf
 acc_config_tmp=${acc_path}/.config_acc
-acc_string_tmp=/tmp/.string_acc
-
-#
-# $1: command
-#
-command_kill() {
-	local command=$1
-	local pid=""
-	local line=0
-		
-	while :
-	do
-		ps | grep "${command}" > ${acc_string_tmp}
-		sed -i '/grep/d' ${acc_string_tmp}
-		line=$(cat ${acc_string_tmp} | wc -l)
-		
-		[[ ${line} -eq 0 ]] && break
-		#echo "line=${line}"
-		
-		pid=$(cat ${acc_string_tmp} | awk '{if(NR==1){print $1}}')
-		echo "pid=${pid}"
-		[[ ${pid} ]] && kill -9 ${pid}
-	done
-}
 
 #
 # $1: delay, $2:interval, $3:command, $4:file, $5:file1, $6:interval1, $7:interval2
 #
-stop_acc_monitor() {
+stop_function() {
 	local delay="$1"
 	local interval="$2"
 	local command="$3"
-
-	echo "${command}"
-	command_kill ${command}
-}
-
-#
-# $1: delay, $2: interval, $3: input path, $4: command, $5: output file
-#
-stop_acc_monitor() {
-	local delay=$1
-	local interval=$2
-	local input=$3
-	local command=$4
-	local output=$5
 
 	echo "${command}"
 	command_kill ${command}
@@ -65,7 +27,8 @@ main() {
 
 	local alias delay interval command file file1 interval1 interval2
 	while read alias delay interval command file file1 interval1 interval2; do
-		[[ "${alias}" = "acc_monitor" ]] && stop_${alias} ${delay} ${interval} ${command} ${file} ${file1} ${interval1} ${interval2}
+		[[ "${alias}" = "acc_monitor" || "${alias}" = "upload_vcc" || "${alias}" = "onoff_check" ]] \
+			&& stop_function ${delay} ${interval} ${command}
 	done < ${tmp}
 	stop_main
 }
