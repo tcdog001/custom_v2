@@ -1,6 +1,7 @@
 #!/bin/bash
 
 if [[ ! -x /tmp/config/nginx ]]; then
+	mkdir -p /tmp/config/
 	cp -r /usr/local/nginx/conf/ /tmp/config/nginx
 fi
 
