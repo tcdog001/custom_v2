@@ -9,5 +9,6 @@ set_tmp_log_dir() {
 
 main() {
 	set_tmp_log_dir
+	mkdir -p ${dir_opt_log_onoff}
 }
 main "$@"
