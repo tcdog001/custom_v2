@@ -27,7 +27,7 @@ main() {
 
 	local alias delay interval command file file1 interval1 interval2
 	while read alias delay interval command file file1 interval1 interval2; do
-		[[ "${alias}" = "acc_monitor" || "${alias}" = "upload_vcc" || "${alias}" = "onoff_check" ]] \
+		[[ "${alias}" = "acc_monitor" || "${alias}" = "move_log" || "${alias}" = "onoff_check" ]] \
 			&& stop_function ${delay} ${interval} ${command}
 	done < ${tmp}
 	stop_main

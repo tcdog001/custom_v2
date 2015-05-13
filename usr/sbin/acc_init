@@ -19,7 +19,7 @@ start_onoff_check() {
 #
 # $1: delay, $2:interval, $3:command, $4:file, $5:file1, $6:interval1, $7:interval2
 #
-start_upload_vcc() {
+start_move_log() {
 	local delay="$1"
 	local interval="$2"
 	local command="$3"
@@ -70,7 +70,7 @@ main() {
 
 	local alias delay interval command file file1 interval1 interval2
 	while read alias delay interval command file file1 interval1 interval2; do
-		[[ "${alias}" = "acc_monitor" || "${alias}" = "upload_vcc" || "${alias}" = "onoff_check" ]] \
+		[[ "${alias}" = "acc_monitor" || "${alias}" = "move_log" || "${alias}" = "onoff_check" ]] \
 			&& start_${alias} ${delay} ${interval} ${command} ${file} ${file1} ${interval1} ${interval2} &
 	done < ${tmp}
 }

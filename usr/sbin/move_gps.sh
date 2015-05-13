@@ -1,23 +1,28 @@
 #!/bin/bash
 
-LOCAL_GPS_MOVE=/tmp/log/gps/gps-
+. /etc/utils/dir.in
+
+LOCAL_GPS_PATH=/tmp/.log/gps
+LOCAL_GPS_MOVE=gps-
 LOCAL_GPS_FILE=/tmp/gps.log
 LOCAL_GPS_INTVAL=0
 
 do_move() {
-	local time=""
-	local LOCAL_TMP_FILE=${LOCAL_GPS_MOVE}${time}
+	local time=$(get_gps_time)
+	[[ -z ${time} ]] && time=$(date '+%F-%H:%M:%S')
 
-	time=$(get_gps_time)
-	[ -z ${time} ] && time=$(date '+%F-%H:%M:%S')
+	local gps_log=${LOCAL_GPS_MOVE}${time}
+
+	[[ -z ${dir_tmp_log_gps} ]] && dir_tmp_log_gps=${LOCAL_GPS_PATH}
+	gps_log=${dir_tmp_log_gps}/${gps_log}
 
 	if [ ${time} ]; then
-		cp ${LOCAL_GPS_FILE} ${LOCAL_TMP_FILE} 2> /dev/null
+		[ ! -d ${dir_tmp_log_gps} ] && mkdir -p ${dir_tmp_log_gps}
+		cp ${LOCAL_GPS_FILE} ${gps_log} 2> /dev/null
 		if [ $? = 0 ];then
 			> ${LOCAL_GPS_FILE}
 		else
 			echo "$0: MOVE NOK" $DEBUG_LOG_LOCAL
-			mkdir -p /tmp/log/gps/
 		fi
 	fi
 }

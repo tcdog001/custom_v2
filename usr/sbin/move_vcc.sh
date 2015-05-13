@@ -1,18 +1,23 @@
 #!/bin/bash
 
+. /etc/utils/dir.in
+
 LOCAL_VCC_FILE=/tmp/vcc.log
-LOCAL_VCC_MOVE_FILE=/root/vcc/vcc-quality-
-LOCAL_VCC_INTVAL="0"
+LOCAL_VCC_PATH=/opt/log/vcc
+LOCAL_VCC_MOVE_FILE=vcc-quality-
+LOCAL_VCC_INTVAL=0
 
 save_file() {
-	local time="$@"
-
-	time=$(get_vcc_time)
+	local time=$(get_vcc_time)
 	[ -z ${time} ] && time=$(date '+%F-%H:%M:%S')
 
-	[[ ${time} ]] && cp ${LOCAL_VCC_FILE} ${LOCAL_VCC_MOVE_FILE}${time}
+	local vcc_log=${LOCAL_VCC_MOVE_FILE}${time}
+	[[ -z ${dir_opt_log_vcc} ]] && dir_opt_log_vcc=${LOCAL_VCC_PATH} 
+	vcc_log=${dir_opt_log_vcc}/${vcc_log}
+	
+	[ ! -d ${dir_opt_log_vcc} ] && mkdir -p ${dir_opt_log_vcc}
+	cp ${LOCAL_VCC_FILE} ${vcc_log} 2> /dev/null
 	if [ $? = 0 ]; then
-		echo "$0: MOVE OK"
 		> ${LOCAL_VCC_FILE}
 	else
 		echo "$0: MOVE NOK"
