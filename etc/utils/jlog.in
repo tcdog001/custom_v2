@@ -17,7 +17,7 @@ readonly -A JLOG_PRI=(
 
 readonly JLOG_ECHO_PRI=3
 
-readonly dir_jlog=/tmp/jlog
+readonly dir_jlog=/tmp/log
 readonly file_jlog_ap_file=${dir_jlog}/ap.log
 readonly file_jlog_md_file=${dir_jlog}/md.log
 readonly file_jlog_ap_afile=${dir_jlog}/.ap.log
@@ -44,6 +44,7 @@ jlog_obj() {
 	local pri="$1"
 	local app="$2"; shift 2
 	local json="$*"
+	local npri=$(jlog_pri ${pri})
 
 	if [[ "_" == "${app}" ]]; then
 		app=common
@@ -56,10 +57,9 @@ jlog_obj() {
 	#$2:app
 	#$3:json
 	#
-	jlogger "${PRI}" "${app}" "${json}"
+	jlogger "${npri}" "${app}" "${json}"
 
 	if [[ -n "${__JLOG_ECHO__}" ]]; then
-		local npri=$(jlog_pri ${pri})
 		local epri=${__JLOG_ECHO_PRI__:-${JLOG_ECHO_PRI}}
 
 		if ((npri<=epri)); then
