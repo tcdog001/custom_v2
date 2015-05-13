@@ -4,13 +4,14 @@ do_register() {
 	/usr/sbin/wr_product_info &
 	/usr/sbin/wr_hd_info &
 	sleep 1
+	/usr/sbin/get_device_info.sh &
 	/etc/platform/bin/register.sh &
-	stimerc insert command 10 300 0 /etc/platform/bin/command.sh
+	stimerc insert command 10 600 0 "/etc/platform/bin/command.sh 1>/dev/null"
 }
 
 do_acc_check() {
 	/usr/sbin/off_check.sh &
-	stimerc insert onoff_check 5 300 0 "/usr/sbin/onoff_check 300"
+	stimerc insert onoff_check 5 60 0 "/usr/sbin/onoff_check 300"
 	stimerc insert onoff_monitor 5 3600 0 "/usr/sbin/onoff-monite.sh 43500"
 	
 }
