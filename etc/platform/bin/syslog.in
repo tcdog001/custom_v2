@@ -1,7 +1,7 @@
 #!/bin/bash
 
 . /etc/platform/bin/platform.in
-. /etc/upgrade/dir.in 
+. /etc/utils/dir.in 
 
 declare -A logs
 declare -A functions
@@ -19,7 +19,7 @@ log_limit() {
 	local size=$(du -c ${files} | grep total | awk '{print $1}')
 	local file
 	while ((size>limit)); do
-		file=$(get_list_first ${files})
+		file=$(list_first ${files})
 		rm -f ${file}
 
 		files=$(get_list_tail ${files})
@@ -68,7 +68,7 @@ get_private_log() {
 	#
 	# copy new to temp
 	#
-	local old=$(get_list_first ${files})
+	local old=$(list_first ${files})
 	local new=${dir_temp}/${log}
 	cp -f ${old} ${new}; fsync ${new}
 
@@ -212,6 +212,6 @@ get_mac() {
 get_filename() {
 	local mac="$1"
 
-	echo "${dir_backup_log}/sys-${mac}-$(getnow).tar.gz"
+	echo "${dir_tmp_log_backup}/sys-${mac}-$(date '+%F-%H:%M:%S').tar.gz"
 }
 
