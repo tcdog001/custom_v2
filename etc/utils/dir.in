@@ -183,8 +183,8 @@ readonly dir_opt_log_nginx_access=${dir_opt_log_nginx}/access
 readonly dir_opt_log_squid=${dir_opt_log}/squid
 readonly dir_opt_log_squid_error=${dir_opt_log_squid}/error
 readonly dir_opt_log_squid_access=${dir_opt_log_squid}/access
-readonly file_squid_access_log=${dir_opt_log_squid_access}/squid.log
-readonly file_squid_error_log=${dir_opt_log_squid_error}/squid.log
+#readonly file_squid_access_log=${dir_opt_log_squid_access}/squid.log
+#readonly file_squid_error_log=${dir_opt_log_squid_error}/squid.log
 
 readonly dir_opt_log_php=${dir_opt_log}/php
 readonly dir_opt_log_phpfpm_error=${dir_opt_log_php}/error

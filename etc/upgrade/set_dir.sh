@@ -1,4 +1,6 @@
 #!/bin/bash
+. /etc/utils/dir.in
+
 set_tmp_log_dir() {
     local dir
 
