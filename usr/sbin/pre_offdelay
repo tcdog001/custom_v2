@@ -10,17 +10,18 @@ acc_closeled() {
 
 #save vcc log
 acc_vcclog() {
-	sleep 1
-}
-
-#save 3g drop
-acc_3glog() {
-	sleep 1
+	move_vcc.sh
 }
 
 #write onoff log
 acc_onfflog() {
 	onofflog "ACC-OFF"
+	echo "ACC-OFF" > /data/.off_reason
+}
+
+acc_unregister() {
+	echo "--Unregister--"
+	#/ect/platform/bin/cancellation.sh
 }
 
 #device shutdown
@@ -32,12 +33,8 @@ acc_shutdown() {
 main() {
 	acc_closeled
 	acc_vcclog
-	acc_3glog
 	acc_onfflog
-	
-	#/ect/platform/cancellation.sh
-	echo "ACC-OFF" > /data/.off_reason
-	
+	acc_unregister
 	sync
 	acc_shutdown
 }
