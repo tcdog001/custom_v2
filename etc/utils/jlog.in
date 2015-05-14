@@ -15,7 +15,18 @@ readonly -A JLOG_PRI=(
 	[debug]=7
 )
 
-readonly JLOG_ECHO_PRI=3
+readonly -A DEBUG_LEVEL=(
+	[ok]=1
+	[bug]=2
+	[error]=4
+	[trace]=8
+	[event]=16
+	[entry]=32
+	[packet]=64
+	[signal]=128
+	[timeout]=256
+	[test]=512
+)
 
 readonly dir_jlog=/tmp/log
 readonly file_jlog_ap_file=${dir_jlog}/ap.log
@@ -44,30 +55,14 @@ jlog_obj() {
 	local pri="$1"
 	local app="$2"; shift 2
 	local json="$*"
-	local npri=$(jlog_pri ${pri})
 
 	if [[ "_" == "${app}" ]]; then
-		app=common
+		local filename=$(basename $0)
+
+		app=${filename%.*}
 	fi
 
-	#
-	# busybox jlogger
-	#
-	#$1:pri
-	#$2:app
-	#$3:json
-	#
-	jlogger "${npri}" "${app}" "${json}"
-
-	if [[ -n "${__JLOG_ECHO__}" ]]; then
-		local epri=${__JLOG_ECHO_PRI__:-${JLOG_ECHO_PRI}}
-
-		if ((npri<=epri)); then
-			local obj="$(json_create_bykvs app ${app} pri ${pri})"
-
-			echo $(json_merge "${obj}" "${json}") | jq .
-		fi
-	fi
+	jlogger "$(jlog_pri ${pri})" "${app}" "${json}"
 }
 
 #
@@ -243,6 +238,128 @@ __test_jlog() {
 		name/obj1/obj2 '{"name":"SB"}' \
 		name/big1/big2 '{"name":"DSB","obj":{"name":"SB"}}' \
 		#end
+}
+
+__is_debug_level() {
+	local level="$1"
+	local val
+
+	val=$((__DEBUG_LEVEL__ & level))
+	if ((val == level)); then
+		echo "yes"
+	else
+		echo "no"
+	fi
+}
+
+__debug_by_level() {
+	local app="$1"
+	local level="$2"; shift 2
+	local info="$*"
+
+	if [[ "yes" == "$(__is_debug_level ${level})" ]]; then
+		jdebug_kvs "${app}" appinfo "${info}"
+	fi
+}
+
+__debug_ok() {
+	local app="$1"; shift
+
+	__debug_by_level ${app} ${DEBUG_LEVEL[ok]} "$@"
+}
+
+debug_ok() {
+	__debug_ok _ "$@"
+}
+
+__debug_bug() {
+	local app="$1"; shift
+
+	__debug_by_level ${app} ${DEBUG_LEVEL[bug]} "$@"
+}
+
+debug_bug() {
+	__debug_bug _ "$@"
+}
+
+__debug_error() {
+	local app="$1"; shift
+
+	__debug_by_level ${app} ${DEBUG_LEVEL[error]} "$@"
+}
+
+debug_error() {
+	__debug_error _ "$@"
+}
+
+__debug_trace() {
+	local app="$1"; shift
+
+	__debug_by_level ${app} ${DEBUG_LEVEL[trace]} "$@"
+}
+
+debug_trace() {
+	__debug_trace _ "$@"
+}
+
+__debug_event() {
+	local app="$1"; shift
+
+	__debug_by_level ${app} ${DEBUG_LEVEL[event]} "$@"
+}
+
+debug_event() {
+	__debug_event _ "$@"
+}
+
+__debug_entry() {
+	local app="$1"; shift
+
+	__debug_by_level ${app} ${DEBUG_LEVEL[entry]} "$@"
+}
+
+debug_entry() {
+	__debug_entry _ "$@"
+}
+
+__debug_packet() {
+	local app="$1"; shift
+
+	__debug_by_level ${app} ${DEBUG_LEVEL[packet]} "$@"
+}
+
+debug_packet() {
+	__debug_packet _ "$@"
+}
+
+__debug_signal() {
+	local app="$1"; shift
+
+	__debug_by_level ${app} ${DEBUG_LEVEL[signal]} "$@"
+}
+
+debug_signal() {
+	__debug_signal _ "$@"
+}
+
+__debug_timeout() {
+	local app="$1"; shift
+
+	__debug_by_level ${app} ${DEBUG_LEVEL[timeout]} "$@"
+}
+
+debug_timeout() {
+	__debug_timeout _ "$@"
+}
+
+__debug_test() {
+	local app="$1"; shift
+
+	__debug_by_level ${app} ${DEBUG_LEVEL[test]} "$@"
+}
+
+debug_test() {
+	__debug_test _ "$@"
 }
 
 #
