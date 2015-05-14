@@ -1,6 +1,7 @@
 #!/bin/bash
 
 . /etc/utils/dir.in
+. /etc/utils/jlog.in
 
 LOCAL_VCC_FILE=/tmp/vcc.log
 LOCAL_VCC_PATH=/opt/log/vcc
@@ -20,7 +21,7 @@ save_file() {
 	if [ $? = 0 ]; then
 		> ${LOCAL_VCC_FILE}
 	else
-		echo "$0: MOVE NOK"
+		jdebug_error "$0: MOVE NOK"
 	fi
 }
 
@@ -46,7 +47,7 @@ main() {
 	if [[ -f "${LOCAL_VCC_FILE}" ]]; then
 		do_service
 	else
-		echo "$0: ${LOCAL_VCC_FILE} not found"
+		jdebug_error "$0: ${LOCAL_VCC_FILE} not found"
 	fi	
 }
 
