@@ -240,8 +240,12 @@ __test_jlog() {
 		#end
 }
 
-__get_debug_level() {
-	local level=$(cat /tmp/.debug_level 2>/dev/null); level=${level:-0}
+__get_jdebug_app() {
+	cat /tmp/.jdebug_app 2>/dev/null
+}
+
+__get_jdebug_level() {
+	local level=$(cat /tmp/.jdebug_level 2>/dev/null); level=${level:-0}
 
 	number_check ${level} || {
 		level=0
@@ -250,9 +254,9 @@ __get_debug_level() {
 	echo ${level}
 }
 
-__is_debug_level() {
+__is_jdebug_level() {
 	local level="$1"
-	local global=$(__get_debug_level)
+	local global=$(__get_jdebug_level)
 
 	if ((level == (global & level) )); then
 		echo "yes"
@@ -261,114 +265,59 @@ __is_debug_level() {
 	fi
 }
 
-__debug_by_level() {
-	local app="$1"
-	local level="$2"; shift 2
+__jdebug_by() {
+	local level="$1"
+	local app="$2"; shift 2
 	local info="$*"
 
-	if [[ "yes" == "$(__is_debug_level ${level})" ]]; then
+	if [[ "yes" == "$(__is_jdebug_level ${level})" && \
+	      "app" == "$(__get_jdebug_app)" ]]; then
 		jdebug_kvs "${app}" appinfo "${info}"
 	fi
 }
 
-__jdebug_ok() {
-	local app="$1"; shift
-
-	__debug_by_level ${app} ${JDEBUG_LEVEL[ok]} "$@"
-}
-
+#
+#$1:app name
+#$2...:app info
+#
 jdebug_ok() {
-	__jdebug_ok _ "$@"
-}
-
-__jdebug_bug() {
-	local app="$1"; shift
-
-	__debug_by_level ${app} ${JDEBUG_LEVEL[bug]} "$@"
+	__jdebug_by ${JDEBUG_LEVEL[ok]} "$@"
 }
 
 jdebug_bug() {
-	__jdebug_bug _ "$@"
-}
-
-__jdebug_error() {
-	local app="$1"; shift
-
-	__debug_by_level ${app} ${JDEBUG_LEVEL[error]} "$@"
+	__jdebug_by ${JDEBUG_LEVEL[bug]} "$@"
 }
 
 jdebug_error() {
-	__jdebug_error _ "$@"
-}
-
-__jdebug_trace() {
-	local app="$1"; shift
-
-	__debug_by_level ${app} ${JDEBUG_LEVEL[trace]} "$@"
+	__jdebug_by ${JDEBUG_LEVEL[error]} "$@"
 }
 
 jdebug_trace() {
-	__jdebug_trace _ "$@"
-}
-
-__jdebug_event() {
-	local app="$1"; shift
-
-	__debug_by_level ${app} ${JDEBUG_LEVEL[event]} "$@"
+	__jdebug_by ${JDEBUG_LEVEL[trace]} "$@"
 }
 
 jdebug_event() {
-	__jdebug_event _ "$@"
-}
-
-__jdebug_entry() {
-	local app="$1"; shift
-
-	__jdebug_by_level ${app} ${JDEBUG_LEVEL[entry]} "$@"
+	__jdebug_by ${JDEBUG_LEVEL[event]} "$@"
 }
 
 jdebug_entry() {
-	__jdebug_entry _ "$@"
-}
-
-__jdebug_packet() {
-	local app="$1"; shift
-
-	__debug_by_level ${app} ${JDEBUG_LEVEL[packet]} "$@"
+	__jdebug_by ${JDEBUG_LEVEL[entry]} "$@"
 }
 
 jdebug_packet() {
-	__jdebug_packet _ "$@"
-}
-
-__jdebug_signal() {
-	local app="$1"; shift
-
-	__debug_by_level ${app} ${JDEBUG_LEVEL[signal]} "$@"
+	__jdebug_by ${JDEBUG_LEVEL[packet]} "$@"
 }
 
 jdebug_signal() {
-	__jdebug_signal _ "$@"
-}
-
-__jdebug_timeout() {
-	local app="$1"; shift
-
-	__jdebug_by_level ${app} ${JDEBUG_LEVEL[timeout]} "$@"
+	__jdebug_by ${JDEBUG_LEVEL[signal]} "$@"
 }
 
 jdebug_timeout() {
-	__jdebug_timeout _ "$@"
-}
-
-__jdebug_test() {
-	local app="$1"; shift
-
-	__debug_by_level ${app} ${JDEBUG_LEVEL[test]} "$@"
+	__jdebug_by ${JDEBUG_LEVEL[timeout]} "$@"
 }
 
 jdebug_test() {
-	__jdebug_test _ "$@"
+	__jdebug_by ${JDEBUG_LEVEL[test]} "$@"
 }
 
 #
