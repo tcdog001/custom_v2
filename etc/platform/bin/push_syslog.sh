@@ -10,7 +10,7 @@ main() {
 	local output=/tmp/syslog.out
 
 	local file
-	for file in $(ls ${dir_backup_log}/sys-* | sort -r); do
+	for file in $(ls ${dir_tmp_log_backup}/sys-* | sort -r); do
 		local newname=$(basename ${file})
 		newname=${newname#sys-}
 		newname=${newname//:/-}

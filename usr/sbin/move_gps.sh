@@ -1,6 +1,7 @@
 #!/bin/bash
 
 . /etc/utils/dir.in
+. /etc/utils/jlog.in
 
 LOCAL_GPS_PATH=/tmp/.log/gps
 LOCAL_GPS_MOVE=gps-
@@ -22,7 +23,7 @@ do_move() {
 		if [ $? = 0 ];then
 			> ${LOCAL_GPS_FILE}
 		else
-			echo "$0: MOVE NOK" $DEBUG_LOG_LOCAL
+			jdebug_error "$0: MOVE NOK"
 		fi
 	fi
 }

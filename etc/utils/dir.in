@@ -2,6 +2,8 @@
 
 if [[ -z "${__UTILS_DIR_IN__}" ]]; then __UTILS_DIR_IN__=_; else return; fi
 
+. ${__ROOTFS__}/etc/utils/utils.in
+
 readonly file_ap=sysupgrade.bin
 readonly file_ap_long=openwrt-ar71xx-generic-db120-squashfs-sysupgrade.bin
 readonly file_ap_boot=u-boot.bin
@@ -213,6 +215,9 @@ readonly dir_opt_data_3g=${dir_opt_data}/3g
 # tmp log dir
 #
 readonly dir_tmp_log=/tmp/.log
+
+readonly dir_tmp_log_backup=${dir_tmp_log}/backup
+
 readonly dir_tmp_log_dev=${dir_tmp_log}/dev
 readonly dir_tmp_log_dev_info=${dir_tmp_log_dev}/info
 readonly dir_tmp_log_dev_monitor=${dir_tmp_log_dev}/monitor

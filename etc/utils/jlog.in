@@ -15,9 +15,20 @@ readonly -A JLOG_PRI=(
 	[debug]=7
 )
 
-readonly JLOG_ECHO_PRI=3
+readonly -A JDEBUG_LEVEL=(
+	[ok]=1
+	[bug]=2
+	[error]=4
+	[trace]=8
+	[event]=16
+	[entry]=32
+	[packet]=64
+	[signal]=128
+	[timeout]=256
+	[test]=512
+)
 
-readonly dir_jlog=/tmp/jlog
+readonly dir_jlog=/tmp/log
 readonly file_jlog_ap_file=${dir_jlog}/ap.log
 readonly file_jlog_md_file=${dir_jlog}/md.log
 readonly file_jlog_ap_afile=${dir_jlog}/.ap.log
@@ -46,28 +57,12 @@ jlog_obj() {
 	local json="$*"
 
 	if [[ "_" == "${app}" ]]; then
-		app=common
+		local filename=$(basename $0)
+
+		app=${filename%.*}
 	fi
 
-	#
-	# busybox jlogger
-	#
-	#$1:pri
-	#$2:app
-	#$3:json
-	#
-	jlogger "${PRI}" "${app}" "${json}"
-
-	if [[ -n "${__JLOG_ECHO__}" ]]; then
-		local npri=$(jlog_pri ${pri})
-		local epri=${__JLOG_ECHO_PRI__:-${JLOG_ECHO_PRI}}
-
-		if ((npri<=epri)); then
-			local obj="$(json_create_bykvs app ${app} pri ${pri})"
-
-			echo $(json_merge "${obj}" "${json}") | jq .
-		fi
-	fi
+	jlogger "$(jlog_pri ${pri})" "${app}" "${json}"
 }
 
 #
@@ -243,6 +238,86 @@ __test_jlog() {
 		name/obj1/obj2 '{"name":"SB"}' \
 		name/big1/big2 '{"name":"DSB","obj":{"name":"SB"}}' \
 		#end
+}
+
+__get_jdebug_app() {
+	cat /tmp/.jdebug_app 2>/dev/null
+}
+
+__get_jdebug_level() {
+	local level=$(cat /tmp/.jdebug_level 2>/dev/null); level=${level:-0}
+
+	number_check ${level} || {
+		level=0
+	}
+
+	echo ${level}
+}
+
+__is_jdebug_level() {
+	local level="$1"
+	local global=$(__get_jdebug_level)
+
+	if ((level == (global & level) )); then
+		echo "yes"
+	else
+		echo "no"
+	fi
+}
+
+__jdebug_by() {
+	local level="$1"
+	local app="$2"; shift 2
+	local info="$*"
+
+	if [[ "yes" == "$(__is_jdebug_level ${level})" && \
+	      "${app}" == "$(__get_jdebug_app)" ]]; then
+		jdebug_kvs "${app}" appinfo "${info}"
+	fi
+}
+
+#
+#$1:app name
+#$2...:app info
+#
+jdebug_ok() {
+	__jdebug_by ${JDEBUG_LEVEL[ok]} "$@"
+}
+
+jdebug_bug() {
+	__jdebug_by ${JDEBUG_LEVEL[bug]} "$@"
+}
+
+jdebug_error() {
+	__jdebug_by ${JDEBUG_LEVEL[error]} "$@"
+}
+
+jdebug_trace() {
+	__jdebug_by ${JDEBUG_LEVEL[trace]} "$@"
+}
+
+jdebug_event() {
+	__jdebug_by ${JDEBUG_LEVEL[event]} "$@"
+}
+
+jdebug_entry() {
+	__jdebug_by ${JDEBUG_LEVEL[entry]} "$@"
+}
+
+jdebug_packet() {
+	__jdebug_by ${JDEBUG_LEVEL[packet]} "$@"
+}
+
+jdebug_signal() {
+	__jdebug_by ${JDEBUG_LEVEL[signal]} "$@"
+}
+
+jdebug_timeout() {
+	__jdebug_by ${JDEBUG_LEVEL[timeout]} "$@"
+}
+
+jdebug_test() {
+	__jdebug_by ${JDEBUG_LEVEL[test]} "$@"
 }
 
 #

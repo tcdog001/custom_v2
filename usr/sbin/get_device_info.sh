@@ -160,8 +160,8 @@ get_register_info() {
 	local Operators="CTCC"	
 	local disk_model=$(${get_devinfo_cmd} "hdd.model")
 	local disk_sn=$(${get_devinfo_cmd} "hdd.sn")
-	local gateway_version=$(get_gateway_version)
-	local content_version=$(get_content_version)
+	local gateway_version=$(${get_devinfo_cmd} "portal.version")
+	local content_version=$(${get_devinfo_cmd} "content.version")
 	printf '{"hostCompany":"%s","hostModel":"%s","hostsn":"%s","mac":"%s","cpuModel":"%s","cpuSN":"%s","memoryModel":"%s","memorySN":"%s","boardSN":"%s","networkCardMac":"%s","lowFreModel":"%s","lowFreSN":"%s","hignFreModel":"%s","hignFreSN":"%s","gpsModel":"%s","gpsSN":"%s","MEID_3g":"%s","Company_3g":"%s","modelOf3g":"%s","snOf3g":"%s","iccid":"%s","Operators":"%s","hardVersion":"%s","firmwareVersion":"%s","diskModel":"%s","diskSN":"%s","gateWayVersion":"%s","contentVersion":"%s"\n}'   \
 		"${device_company}" 	\
 		"${host_model}" 	\
