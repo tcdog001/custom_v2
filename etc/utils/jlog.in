@@ -15,7 +15,7 @@ readonly -A JLOG_PRI=(
 	[debug]=7
 )
 
-readonly -A DEBUG_LEVEL=(
+readonly -A JDEBUG_LEVEL=(
 	[ok]=1
 	[bug]=2
 	[error]=4
@@ -271,104 +271,104 @@ __debug_by_level() {
 	fi
 }
 
-__debug_ok() {
+__jdebug_ok() {
 	local app="$1"; shift
 
-	__debug_by_level ${app} ${DEBUG_LEVEL[ok]} "$@"
+	__debug_by_level ${app} ${JDEBUG_LEVEL[ok]} "$@"
 }
 
-debug_ok() {
-	__debug_ok _ "$@"
+jdebug_ok() {
+	__jdebug_ok _ "$@"
 }
 
-__debug_bug() {
+__jdebug_bug() {
 	local app="$1"; shift
 
-	__debug_by_level ${app} ${DEBUG_LEVEL[bug]} "$@"
+	__debug_by_level ${app} ${JDEBUG_LEVEL[bug]} "$@"
 }
 
-debug_bug() {
-	__debug_bug _ "$@"
+jdebug_bug() {
+	__jdebug_bug _ "$@"
 }
 
-__debug_error() {
+__jdebug_error() {
 	local app="$1"; shift
 
-	__debug_by_level ${app} ${DEBUG_LEVEL[error]} "$@"
+	__debug_by_level ${app} ${JDEBUG_LEVEL[error]} "$@"
 }
 
-debug_error() {
-	__debug_error _ "$@"
+jdebug_error() {
+	__jdebug_error _ "$@"
 }
 
-__debug_trace() {
+__jdebug_trace() {
 	local app="$1"; shift
 
-	__debug_by_level ${app} ${DEBUG_LEVEL[trace]} "$@"
+	__debug_by_level ${app} ${JDEBUG_LEVEL[trace]} "$@"
 }
 
-debug_trace() {
-	__debug_trace _ "$@"
+jdebug_trace() {
+	__jdebug_trace _ "$@"
 }
 
-__debug_event() {
+__jdebug_event() {
 	local app="$1"; shift
 
-	__debug_by_level ${app} ${DEBUG_LEVEL[event]} "$@"
+	__debug_by_level ${app} ${JDEBUG_LEVEL[event]} "$@"
 }
 
-debug_event() {
-	__debug_event _ "$@"
+jdebug_event() {
+	__jdebug_event _ "$@"
 }
 
-__debug_entry() {
+__jdebug_entry() {
 	local app="$1"; shift
 
-	__debug_by_level ${app} ${DEBUG_LEVEL[entry]} "$@"
+	__jdebug_by_level ${app} ${JDEBUG_LEVEL[entry]} "$@"
 }
 
-debug_entry() {
-	__debug_entry _ "$@"
+jdebug_entry() {
+	__jdebug_entry _ "$@"
 }
 
-__debug_packet() {
+__jdebug_packet() {
 	local app="$1"; shift
 
-	__debug_by_level ${app} ${DEBUG_LEVEL[packet]} "$@"
+	__debug_by_level ${app} ${JDEBUG_LEVEL[packet]} "$@"
 }
 
-debug_packet() {
-	__debug_packet _ "$@"
+jdebug_packet() {
+	__jdebug_packet _ "$@"
 }
 
-__debug_signal() {
+__jdebug_signal() {
 	local app="$1"; shift
 
-	__debug_by_level ${app} ${DEBUG_LEVEL[signal]} "$@"
+	__debug_by_level ${app} ${JDEBUG_LEVEL[signal]} "$@"
 }
 
-debug_signal() {
-	__debug_signal _ "$@"
+jdebug_signal() {
+	__jdebug_signal _ "$@"
 }
 
-__debug_timeout() {
+__jdebug_timeout() {
 	local app="$1"; shift
 
-	__debug_by_level ${app} ${DEBUG_LEVEL[timeout]} "$@"
+	__jdebug_by_level ${app} ${JDEBUG_LEVEL[timeout]} "$@"
 }
 
-debug_timeout() {
-	__debug_timeout _ "$@"
+jdebug_timeout() {
+	__jdebug_timeout _ "$@"
 }
 
-__debug_test() {
+__jdebug_test() {
 	local app="$1"; shift
 
-	__debug_by_level ${app} ${DEBUG_LEVEL[test]} "$@"
+	__debug_by_level ${app} ${JDEBUG_LEVEL[test]} "$@"
 }
 
-debug_test() {
-	__debug_test _ "$@"
+jdebug_test() {
+	__jdebug_test _ "$@"
 }
 
 #
