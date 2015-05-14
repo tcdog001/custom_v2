@@ -271,7 +271,7 @@ __jdebug_by() {
 	local info="$*"
 
 	if [[ "yes" == "$(__is_jdebug_level ${level})" && \
-	      "app" == "$(__get_jdebug_app)" ]]; then
+	      "${app}" == "$(__get_jdebug_app)" ]]; then
 		jdebug_kvs "${app}" appinfo "${info}"
 	fi
 }
