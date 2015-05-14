@@ -240,12 +240,21 @@ __test_jlog() {
 		#end
 }
 
+__get_debug_level() {
+	local level=$(cat /tmp/.debug_level 2>/dev/null); level=${level:-0}
+
+	number_check ${level} || {
+		level=0
+	}
+
+	echo ${level}
+}
+
 __is_debug_level() {
 	local level="$1"
-	local val
+	local global=$(__get_debug_level)
 
-	val=$((__DEBUG_LEVEL__ & level))
-	if ((val == level)); then
+	if ((level == (global & level) )); then
 		echo "yes"
 	else
 		echo "no"
