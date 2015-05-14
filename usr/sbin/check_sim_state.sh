@@ -2,6 +2,7 @@
 
 . /usr/sbin/get_3ginfo.in
 . /usr/sbin/common_opera.in
+. /etc/utils/utils.in
 #
 # check the SIM card, the interval is 300s
 #
@@ -10,8 +11,7 @@ main() {
         local sim_state=""
         local i=1
         local j=1
-        local sim_log=${path_3g}/sim.log
-        local time=$(get_now_time)
+        local sign=0
         local interval=$(cat "/tmp/config/interval_3g.in" | awk '/check_sim_state/{print $2}' 2>/dev/null)
         if [[ -z ${interval} ]];then
                 interval=300
@@ -20,13 +20,17 @@ main() {
         do
                 sim_state=$(get_sim_state)
                 if [[ ${sim_state} != "READY" ]];then
-                        printf '{"time":"%s", "num":"%d", "sum":"%d"}\n'   \
-                                "${time}"       \
-                                "$i"            \
-                                "$j"      >> ${sim_log}
+                        if [[ ${sign} -eq 0 ]];then
+                                jerror_kvs 3g_sim       \
+                                        num '${i}'      \
+                                        sum '${j}'      \
+                                        #end
+                                sign=1
+                        fi
                         ((i++))
                         ((j++))
                 else
+                        sign=0
                         i=1
                 fi
                 sleep ${interval}

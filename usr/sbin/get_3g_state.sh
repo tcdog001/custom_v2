@@ -2,23 +2,47 @@
 
 . /usr/sbin/check_3gdown_result.sh
 . /usr/sbin/common_opera.in
+. /etc/utils/utils.in
 
 path_3g=/tmp/.3g
 path_data_3g=/data/3g
 state_file=/tmp/.3g/3g_state.log
+sign_3g_state=0
 
+write_jlog() {
+        local info=$1
+        jwaring_kvs 3g  \
+                inter 'ppp0'    \
+                waring ${info}   \
+                #end
+}
+#
+# record the state of 3g
+# 0: 3g connect
+# 1: 3g disconnect
+#
 write_state() {
         local old_state=$(cat ${state_file} 2>/dev/null)
         local time=$(get_now_time)
         local ontime=${path_3g}/ontime
         local offtime=${path_3g}/offtime
         local new_state=$1
+        local info=$2
+         
+        if [[ ${new_state} -eq 1 ]];then
+                if [[ ${sign_3g_state} -eq 0 ]];then
+                        write_jlog ${info}
+                        sign_3g_state=1
+                fi
+        else
+                sign_3g_state=0
+        fi
         if [[ ${new_state} != ${old_state} ]];then
                 echo ${new_state} > ${state_file}
                 if [[ ${new_state} -eq 0 ]];then
                         echo ${time} > ${ontime}
-			syn_net_time
-		else
+                        syn_net_time
+                else
                         if [[ ${old_state} -eq 0 ]];then
                                 echo ${time} > ${offtime}
                         fi
@@ -27,6 +51,7 @@ write_state() {
 }
 #
 # write the info that can dial to data/3g
+# $1:file_name: meid imsi sn iccid net apn tel company 3g_model ...
 #
 diff_data_tmp() {
         local file_name=$1
@@ -52,10 +77,11 @@ write_data() {
 #
 record_log() {
         local time=$(get_now_time)
+        local startup=$(cat /tmp/.startup 2>/dev/null)
         local ontime=$(check_file "${path_3g}/ontime" "null" 2>/dev/null)
         local offtime=$(check_file "${path_3g}/offtime" "null" 2>/dev/null)
         local duration=$1
-        local log_file=${path_3g}/3g_offline.log
+        local log_file=${path_3g}/3g_offline_${startup}.log
 
         printf '{"time":"%s", "ontime":"%s", "offtime":"%s", "duration":"%s"}\n'    \
                 "${time}"       \
@@ -83,8 +109,7 @@ ping_net() {
                 else
                         ((j++))
                         if [[ $j -eq 2 ]];then
-                                write_state "${ret}"
-                                logger -t $0 "ping ${ping_addr} ERROR, ret=${ret} !"
+                                write_state "${ret}" "ping_fail"
                         fi
                 fi
         done
@@ -97,8 +122,7 @@ dns_resolve() {
         nslookup www.baidu.com  >/dev/null 2>&1; local ret_baidu=$?
 
         if [[ ${ret_163} -ne 0 && ${ret_baidu} -ne 0 ]];then
-                write_state "1"
-                logger -t $0 "dns resolve 163 and baidu ERROR !"
+                write_state "1" "dns_fail"
         else
                 write_state "0"
         fi
@@ -119,15 +143,13 @@ check_ppp0() {
         if [[ ${ret_inter} -eq 0 ]];then
                 local ppp_ip=$(get_ppp0_ip)
                 if [[ -z ${ppp_ip} ]];then
-                        write_state "1"
-                        logger -t $0 "interface ppp0 do not have IP address!"
+                        write_state "1" "noip"
                 else
                         write_data
                         ping_net
                 fi
         else
-                write_state "${ret_inter}"
-                logger -t $0 "Do not have interface ppp0 !"
+                write_state "${ret_inter}" "nointer"
         fi
 }
 

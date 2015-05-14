@@ -2,6 +2,7 @@
 
 . /usr/sbin/get_3ginfo.in
 . /usr/sbin/common_opera.in
+. /etc/utils/utils.in
 
 path_3g=/tmp/.3g
 
@@ -41,7 +42,6 @@ check_hdrcsq() {
                        fi
                        ;;
                *)
-                        logger -t $0 "Model=${model} Not Support !"
                         return 1
                         ;;
        esac
@@ -65,12 +65,11 @@ record_log() {
                 gps_Lat=$(cat /tmp/.gps/gps_Lat 2>/dev/null)
                 gps_location=${east_west}${gps_Lng}${north_south}${gps_Lat}
         fi
-        local log_file=/tmp/.3g/hdrcsq.log
-        printf '{"time":"%s", "signal1":"%s", "signal2":"%s", "gps":"%s"}\n'   \
-                "${time}"       \
-                "${signal_1}"   \
-                "${signal_2}"   \
-                "${gps_location}"    >> ${log_file}
+        jnotice_kvs '3g'  \
+                notice 'hdrcsq_weak'    \
+                signal1 '${signal1}'    \
+                signal2 '${signal2}'    \
+                #end
 }
 #
 # get the 3g signal stringth , the interval is 30s

@@ -1,6 +1,7 @@
 #!/bin/bash
 
 . /usr/sbin/common_opera.in
+. /etc/utils/utils.in
 
 path_3g=/tmp/.3g
 path_data_3g=/data/3g
@@ -43,10 +44,12 @@ start_3g() {
                 ppp_dial ${tel} "card" "card" ${apn} 1>/dev/null &
         else
                 if [[ "${data_tel}" && "${data_apn}" ]];then
-                        logger -t $0 "NOT find tel and apn !"
+                        jdebug_event "3g_info" "no_dialinfo"
                         ppp_dial ${data_tel} "card" "card" ${data_apn} 1>/dev/null &
                 else
-                        logger -t $0 "NOT find tel, apn, data_tel and data_apn !"
+                        jinfo_kvs "3g_info"  \
+                                info 'no_data_dialinfo'	\
+				                #end
                         ppp_dial "#777" "card" "card"  "ctnet" 1>/dev/null &
                 fi
         fi
@@ -56,7 +59,6 @@ start_3g() {
 #
 start_ppp() {
         start_3g
-	syn_net_time
 }
 main() {
         local interval=$(cat /tmp/config/interval_3g.in | awk '/3g_connect/{print $2}' 2>/dev/null)

@@ -1,7 +1,6 @@
 #!/bin/bash
-#
-#start 3g
-#
+. /etc/utils/utils.in
+
 start_3g_dial() {
         /usr/sbin/do_get_3ginfo.sh &
         /usr/sbin/get_hdrcsq.sh &
@@ -14,25 +13,27 @@ start_3g_dial() {
 
 main() {
         sleep 3
-        local slot=$(cat /tmp/.3g/slot 2>/dev/null)
+        local i=0
 
-        if [[ -z  ${slot} ]];then
-                local i=0
-                while (( $i < 3 ))
-                do
-                        killall -9 set_3g_model 2>/dev/null
-                        sleep 1
-                        /usr/sbin/set_3g_model &
-                        sleep 3
-                        slot=$(cat /tmp/.3g/slot 2>/dev/null)
-                        if [[ -z  ${slot} ]];then
-                                ((i++))
-                                logger -t $0 "count: $((i+1)) : NOT find the 3g module !"
-                        else
-                                break
+        while :
+        do
+                killall -9 set_3g_model 2>/dev/null
+                sleep 1
+                /usr/sbin/set_3g_model &
+                sleep 3
+                slot=$(cat /tmp/.3g/slot 2>/dev/null)
+                if [[ -z  ${slot} ]];then
+                        if [[ $i -eq 0 ]];then
+                                jerror_kvs 3g   \
+                                        error 'no_module'       \
+                                        #end
+                                i=1
                         fi
-                done
-        fi
-        start_3g_dial
+                else
+                        start_3g_dial
+                        break
+                fi
+        done
 }
+
 main "$@"
