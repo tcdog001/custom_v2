@@ -13,6 +13,11 @@ acc_vcclog() {
 	move_vcc.sh
 }
 
+#save 3g log
+acc_3glog() {
+	move_3g.sh
+}
+
 #write onoff log
 acc_onfflog() {
 	onofflog "ACC-OFF"
@@ -34,6 +39,7 @@ main() {
 	acc_closeled
 	acc_vcclog
 	acc_onfflog
+	acc_3glog
 	acc_unregister
 	sync
 	acc_shutdown

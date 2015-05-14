@@ -40,14 +40,14 @@ start_3g() {
         local data_apn=$(cat ${path_data_3g}/apn 2>/dev/null)
 
         if [[ "${tel}" && "${apn}" ]];then
-                ppp_dial ${tel} "card" "card" ${apn} &
+                ppp_dial ${tel} "card" "card" ${apn} 1>/dev/null &
         else
                 if [[ "${data_tel}" && "${data_apn}" ]];then
                         logger -t $0 "NOT find tel and apn !"
-                        ppp_dial ${data_tel} "card" "card" ${data_apn} &
+                        ppp_dial ${data_tel} "card" "card" ${data_apn} 1>/dev/null &
                 else
                         logger -t $0 "NOT find tel, apn, data_tel and data_apn !"
-                        ppp_dial "#777" "card" "card"  "ctnet" &
+                        ppp_dial "#777" "card" "card"  "ctnet" 1>/dev/null &
                 fi
         fi
 }
