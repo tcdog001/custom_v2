@@ -32,6 +32,8 @@
 <cellular1.strength> 	/tmp/.3g/hdrcsq
 <cellular1.status> 		/tmp/.3g/3g_state.log
 <cellular.flow> 		/tmp/.3g/3gdown_flow
+<cellular1.sn> 			/tmp/.3g/sn
+<cellular1.vendor> 		/tmp/.3g/company
 <owner.id> 				/tmp/.software_info/owner.id
 <owner.grouping> 		/tmp/.software_info/owner.grouping
 <sw.version> 			/tmp/.software_info/sw.version

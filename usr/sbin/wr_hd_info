@@ -8,10 +8,7 @@ hd_info_path="/tmp/.hd_info"
 bd_info_path=""
 force_hd_info_path=""
 pro_cmd="/bin/atenv"
-
-erro_action() {
-	touch /tmp/erro
-}
+. /etc/utils/jlog.in
 
 get_design_info() {
 	local pcba_model=$(${pro_cmd} infos/pcba/model)
@@ -51,10 +48,7 @@ get_board_info() {
 		get_board_info_func "${key}" "${value}"
 	done
 
-
 }
-
-
 
 get_disk_model() {
 	#disk_model="`hdparm -I ${dev_hd} | awk -F ':' '/Model Number/{print $2}'| awk -F ' ' '{print $2}' 2>/dev/null`"
@@ -64,7 +58,7 @@ get_disk_model() {
 	fi
 	if [ -z "${disk_model}" ];then
 		disk_model="error"
-		erro_action "disk_model"
+		jcrit_kvs "wr_hd_info" "warning" "cannot get disk_model"
 	fi
 	echo "${disk_model}"  > ${hd_info_path}/hdd.model
 }
@@ -77,7 +71,7 @@ get_disk_sn() {
 	fi
 	if [ -z "${disk_sn}" ];then
 		disk_sn="error"
-		erro_action "disk_sn"
+		jcrit_kvs "wr_hd_info" "warning" "cannot get disk_sn"
 	fi
 	echo "${disk_sn}" > ${hd_info_path}/hdd.sn
 }
@@ -99,7 +93,7 @@ get_disk_vendor() {
 		;;
 	*)
 		echo "error" > ${hd_info_path}/hdd.vendor
-		erro_action "disk_vendor"
+		jcrit_kvs "wr_hd_info" "warning" "cannot get disk_vendor"
 		;;
 	esac
 }

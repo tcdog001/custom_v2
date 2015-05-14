@@ -1,4 +1,5 @@
 #!/bin/bash
+. /etc/utils/jlog.in
 
 poweroff_num_check() {
 	local limit=$1
@@ -8,6 +9,7 @@ poweroff_num_check() {
 	
 		if [[ "${count}" -gt "${limit}" ]]; then
 			logger "Start too frequently"
+			jcrit_kvs "acc" "warning" "Start too much"
 		fi
 	fi
 }
@@ -18,7 +20,7 @@ poweroff_check() {
 		rm -rf "${file}"
 	else
 		onofflog
-		logger "last start is drop off"
+		jwaring_kvs "acc" "warning" "last start is drop off"
 	fi
 }
 
