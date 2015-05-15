@@ -33,10 +33,10 @@ at_model() {
         get_slot
         rm -rf /tmp/at_ctrl >/dev/null 2>&1
         local slot_file=/tmp/.3g/slot
-        local slot_num=$(cat ${slot_file} |sed -n '$p' 2>/dev/null)
+        local slot_num=$(cat ${slot_file} 2>/dev/null |sed -n '$p' 2>/dev/null)
         local model_3g_file=/tmp/.3g/3g_model
-        local idVendor=$(cat /sys/bus/usb/devices/${slot_num}/idVendor)
-        local idProduct=$(cat /sys/bus/usb/devices/${slot_num}/idProduct)
+        local idVendor=$(cat /sys/bus/usb/devices/${slot_num}/idVendor 2>/dev/null)
+        local idProduct=$(cat /sys/bus/usb/devices/${slot_num}/idProduct 2>/dev/null)
 
         case "${idVendor}" in
                 "19d2")
