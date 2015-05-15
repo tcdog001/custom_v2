@@ -1,13 +1,5 @@
 #!/bin/bash
 
-rootfs0_ok() {
-	mkdir -p /tmp/appkey
-	cp -fpR /etc/appkey/* /tmp/appkey/
-	echo "copy appkey"
-
-	mkdir -p /tmp/log
-}
-
 config_ok() {
 	local file
 	local cfile #cloud config file
@@ -62,9 +54,6 @@ main() {
 	dir=${dir##*/}
 
 	case ${dir} in
-	rootfs0)
-		rootfs0_ok
-		;;
 	config)
 		config_ok
 		;;
