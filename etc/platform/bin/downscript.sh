@@ -60,7 +60,7 @@ if [ -f ${FILE_REGISTER} ];then
 		logger "platform" "command:${myCommand}"
 
 		#eval "$myCommand"
-		doscript.sh "${myCommand}"
+		pullscript.sh "${myCommand}"
 	done
 	if [ -f $COMMAND_FILE ];then
 		rm $COMMAND_FILE
