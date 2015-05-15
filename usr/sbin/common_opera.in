@@ -48,32 +48,30 @@ add_nat() {
 # control 3g led
 #
 led_3g_on() {
-	local slot=$(cat ${path_3g}/slot 2>/dev/null)
-	case ${slot} in
-		"2-2")
-			sysled 3g_led1 on
-			;;
-		"2-3")
-			sysled 3g_led2 on
-			;;
-		*)
-			logger -t $0 "The 3g module is not support !"
-			;;
-	esac
+				local slot=$(cat ${path_3g}/slot 2>/dev/null)
+				case ${slot} in
+                        "2-2")
+        						sysled 3g_led1 on
+        						;;
+                        "2-3")
+                                sysled 3g_led2 on
+                                ;;
+                        *)
+						        ;;
+                esac
 }
 led_3g_off() {
-	local slot=$(cat ${path_3g}/slot 2>/dev/null)
-	case ${slot} in
-		"2-2")
-			sysled 3g_led1 off
-			;;
-		"2-3")
-			sysled 3g_led2 off
-			;;
-		*)
-			logger -t $0 "The 3g module is not support !"
-			;;
-	esac
+				local slot=$(cat ${path_3g}/slot 2>/dev/null)
+				case ${slot} in
+                        "2-2")
+                                sysled 3g_led1 off
+                                ;;
+                        "2-3")
+                                sysled 3g_led2 off
+                                ;;
+                        *)
+						        ;;
+                esac
 }
 
 #

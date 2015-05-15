@@ -34,7 +34,6 @@ do_server() {
                         return 1
                 fi
         else
-                logger -t $0 "${tmp_path}/${tmp_file} do not exist !"
                 return 1
         fi
 }

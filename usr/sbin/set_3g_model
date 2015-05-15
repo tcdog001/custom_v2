@@ -24,8 +24,7 @@ get_slot() {
 set_at_ctrl() {
         local ttyUSB_num=$1
 
-#        ln -sf ${ttyUSB_num} /usr/sbin/at_ctrl
-	ln -sf ${ttyUSB_num} /tmp/at_ctrl
+        ln -sf ${ttyUSB_num} /tmp/at_ctrl
 }
 #
 # According to the idProduct and the idVendor, determine the 3g module type
@@ -69,7 +68,6 @@ at_model() {
                         fi
                         ;;
                 *)
-                        echo "The idVendor is ${idVendor}, the idProduct is ${idProduct}, not support !"
                         ;;
         esac
 }

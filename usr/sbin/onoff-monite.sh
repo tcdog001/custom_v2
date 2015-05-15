@@ -1,5 +1,6 @@
 #!/bin/bash
 
+. /etc/utils/jlog.in
 
 clean_off_time_file() {
 	local on_time=$1
@@ -17,7 +18,7 @@ check_on_time() {
 	local limit=$2
 	
 	if [[ "${on_time}" -gt "limit" ]];then
-		logger "online over 12 hours"
+		jcrit_kvs "acc" "warning" "online over 12 hours"
 	fi
 }
 

@@ -1,4 +1,5 @@
 #!/bin/bash
+. /etc/utils/utils.in
 
 path_3g=/tmp/.3g
 path_data_3g=/data/3g
@@ -30,7 +31,9 @@ get_sim_iccid() {
                         sim_iccid=$(/tmp/at_ctrl at+zgeticcid | awk '/ZGETICCID/{print $2}' |sed -n '$p')
                         ;;
                 *)
-                        logger -t $0 "Model=${model} Not Support"
+                        jerror_kvs '3g'  \
+                                error 'no_support_${model}'      \
+                                #end
                         ;;
         esac
         echo ${sim_iccid}
@@ -53,7 +56,9 @@ report_sim_iccid() {
         done
         if [[ -z ${sim_iccid} ]];then
                 sim_iccid=$(cat ${iccid_data} 2> /dev/null)
-                logger -t $0 "fake iccid=${sim_iccid}"
+                jinfo_kvs '3g'  \
+                        info 'fake_iccid'       \
+                        #end
         fi
         [[ -z ${sim_iccid} ]] && sim_iccid="null"
         echo ${sim_iccid} > ${iccid_tmp}; fsync ${iccid_tmp}
@@ -95,7 +100,9 @@ report_meid_of3g() {
         done
         if [[ -z ${meid} ]];then
                 meid=$(cat ${meid_data} 2> /dev/null)
-                logger -t $0 "fake meid=${meid}"
+                jinfo_kvs '3g'  \
+                        info 'fake_meid'
+                        #end
         fi
         [[ -z ${meid} ]] && meid="null"
         echo ${meid} > ${meid_tmp}; fsync ${meid_tmp}
@@ -118,7 +125,9 @@ report_imsi_of3g() {
 
         if [[ -z ${imsi} ]]; then
                 imsi=$(cat ${imsi_data} 2> /dev/null)
-                logger -t $0 "fake imsi=${imsi}"
+                jinfo_kvs '3g'  \
+                        info 'fake_imsi'        \
+                        #end
         fi
         [[ -z ${imsi} ]] && imsi="null"
         echo ${imsi} > ${imsi_tmp}; fsync ${imsi_tmp}
@@ -141,8 +150,6 @@ get_company_of3g() {
                         company_of3g="ZTEMT INCORPORATED"
                         ;;
                 *)
-                        #company_of3g=$(/tmp/at_ctrl AT+CGMI 2> /dev/null)
-                        logger -t $0 "Model=${model} Not Support"
                         ;;
         esac
         echo ${company_of3g}
@@ -155,7 +162,9 @@ report_company_of3g() {
 
         if [[ -z ${company} ]]; then
                 company=$(cat ${company_data} 2> /dev/null)
-                logger -t $0 "fake meid=${company}"
+                jinfo_kvs '3g'  \
+                        info 'fake_company'     \
+                        #end
         fi
         [[ -z ${company} ]] && company="null"
         echo ${company} > ${company_tmp}; fsync ${company_tmp}
@@ -183,7 +192,9 @@ report_net_3g() {
 
         if [[ -z ${net_3g} ]]; then
                 net_3g=$(cat ${net_data} 2> /dev/null)
-                logger -t $0 "fake meid=${net_3g}"
+                jinfo_kvs '3g'  \
+                        info 'fake_net' \
+                        #end
         fi
         [[ -z ${net_3g} ]] && net_3g=""
         echo ${net_3g} > ${net_3g_path}; fsync ${net_3g_path}
@@ -216,7 +227,9 @@ get_apn() {
                     apn="lte"
                     ;;
             *)
-                    logger -t $0 "net is ${net},no support !"
+                    jinfo_kvs '3g'  \
+                        info 'fake_tel_apn'     \
+                        #end
                     ;;
         esac
         echo ${telephone} > ${tel_file}; fsync ${tel_file}
@@ -244,7 +257,6 @@ get_hdrcsq() {
                         signal=$(/tmp/at_ctrl at^hdrcsq |awk '/HDRCSQ:/{print $2}' |sed -n '$p')
                         ;;
                 *)
-                        logger -t $0 "Model=${model} Not Support !"
                         ;;
         esac
         echo ${signal}
@@ -301,7 +313,6 @@ get_sim_state() {
         done
         if [[ ${sim_state} != "READY" ]];then
                 sim_state="no sim card"
-                logger -t $0 "no sim card !"
         fi
         echo ${sim_state} >${sim_file}; fsync ${sim_file}
         cat ${sim_file}

@@ -1,5 +1,6 @@
 #!/bin/bash
 . /usr/sbin/common_opera.in
+. /etc/utils/utils.in
 
 write_gps_log() {
         local gps_path=/tmp/.gps
@@ -42,8 +43,6 @@ main() {
         local gps_path=/tmp/.gps
         local state_file=${gps_path}/status
         local log_file=/tmp/.gps.log
-        local warn_log=${gps_path}/warn.log
-        local error_log=${gps_path}/error.log
         local gps_state=""
         local gps_log=""
         local duration=""
@@ -65,16 +64,22 @@ main() {
                 fi
                 if [[ $j -ge 10 ]];then
                         duration=$((${j} * ${interval}))
-                        echo "time=${time}: duration=${duration}: gps location fail !" >> ${warn_log}
-                        fsync ${warn_log}
+                        jwaring_kvs GPS \
+                                waring 'location_FAIL'   \
+                                duration '${duration}'  \
+                                #end
                         ((i++))
                         if [[ $i -ge 6 ]];then
                                 duration=$((${i} * ${j} * ${interval}))
-                                echo "time=${time}: duration=${duration}: gps location fail !" >>${error_log}
-                                fsync ${error_log}
+                                jerror_kvs GPS \
+                                        error 'location_FAIL'   \
+                                        duration '${duration}'  \
+                                        #end
                                 gps_log=$(cat ${log_file} 2>/dev/null)
                                 if [[ -z ${gps_log} ]];then
-                                        echo "time=${time}: duration=${duration}: gps module is bad !" >>${error_log}
+                                        jnotice_kvs GPS \
+                                                notice 'module_bad'        \
+                                                #end
                                 fi
                                 i=0
                         fi
