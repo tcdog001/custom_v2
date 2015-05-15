@@ -22,8 +22,8 @@ main() {
                 if [[ ${sim_state} != "READY" ]];then
                         if [[ ${sign} -eq 0 ]];then
                                 jerror_kvs 3g_sim       \
-                                        num '${i}'      \
-                                        sum '${j}'      \
+                                        num ${i}      \
+                                        sum ${j}      \
                                         #end
                                 sign=1
                         fi

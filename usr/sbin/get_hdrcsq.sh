@@ -67,8 +67,8 @@ record_log() {
         fi
         jnotice_kvs '3g'  \
                 notice 'hdrcsq_weak'    \
-                signal1 '${signal1}'    \
-                signal2 '${signal2}'    \
+                signal1 ${signal1}    \
+                signal2 ${signal2}    \
                 #end
 }
 #

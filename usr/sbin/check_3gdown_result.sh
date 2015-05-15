@@ -79,8 +79,8 @@ check_hdrcsq() {
                "MC271X")
                        if [[ ${signal1} < 20 && ${signal2} < 20 ]];then
                                 jnotice_kvs 3g  \
-                                        signal1 '${signal1}'    \
-                                        signal2 '${signal2}'    \
+                                        signal1 ${signal1}    \
+                                        signal2 ${signal2}    \
                                         notice 'signal_weak'    \
                                         #end
                                 return 1
@@ -89,8 +89,8 @@ check_hdrcsq() {
                "C5300V")
                        if [[ ${signal1} < 20 && ${signal2} < 20 ]];then
                                 jnotice_kvs 3g  \
-                                        signal1 '${signal1}'    \
-                                        signal2 '${signal2}'    \
+                                        signal1 ${signal1}    \
+                                        signal2 ${signal2}    \
                                         notice 'signal_weak'    \
                                         #end
                                 return 1
@@ -100,8 +100,8 @@ check_hdrcsq() {
                        if [[ ${signal1} < 10 || ${signal1} == 99 ]];then
                                 if [[ ${signal2} == 99 || ${signal2} < 10 ]];then
                                 jnotice_kvs 3g  \
-                                        signal1 '${signal1}'    \
-                                        signal2 '${signal2}'    \
+                                        signal1 ${signal1}    \
+                                        signal2 ${signal2}    \
                                         notice 'signal_weak'    \
                                         #end
                                         return 1
@@ -112,8 +112,8 @@ check_hdrcsq() {
                        if [[ ${signal1} < 10 || ${signal1} == 99 ]];then
                                 if [[ ${signal2} == 99 || ${signal2} < 10 ]];then
                                 jnotice_kvs 3g  \
-                                        signal1 '${signal1}'    \
-                                        signal2 '${signal2}'    \
+                                        signal1 ${signal1}    \
+                                        signal2 ${signal2}    \
                                         notice 'signal_weak'    \
                                         #end
                                         return 1

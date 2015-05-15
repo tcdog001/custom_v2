@@ -66,14 +66,14 @@ main() {
                         duration=$((${j} * ${interval}))
                         jwaring_kvs GPS \
                                 waring 'location_FAIL'   \
-                                duration '${duration}'  \
+                                duration ${duration}  \
                                 #end
                         ((i++))
                         if [[ $i -ge 6 ]];then
                                 duration=$((${i} * ${j} * ${interval}))
                                 jerror_kvs GPS \
                                         error 'location_FAIL'   \
-                                        duration '${duration}'  \
+                                        duration ${duration}  \
                                         #end
                                 gps_log=$(cat ${log_file} 2>/dev/null)
                                 if [[ -z ${gps_log} ]];then

@@ -32,7 +32,7 @@ get_sim_iccid() {
                         ;;
                 *)
                         jerror_kvs '3g'  \
-                                error 'no_support_${model}'      \
+                                error no_support_${model}      \
                                 #end
                         ;;
         esac
