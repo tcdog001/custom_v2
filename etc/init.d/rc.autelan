@@ -1,10 +1,15 @@
 #!/bin/bash
 
+copy_appkey() {
+	mkdir -p /tmp/appkey
+	cp -fpR /etc/appkey/* /tmp/appkey/
+	appkey reload &> /dev/null
+}
+
 phase1() {
 	clock_set
 	. /etc/cp1.in
-	mount
-	mkdir -p /tmp/appkey; cp -fpR /etc/appkey/* /tmp/appkey/
+	mount; copy_appkey
 	atsys mount
 	. /etc/cp2.in
 	/etc/upgrade/set_dir.sh
