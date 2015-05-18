@@ -1,77 +1,43 @@
 #!/bin/bash
 
-um_init() {
-	#
-	# todo
-	# 1. init global iptable
-	# 2. init global ipset
-	#
-	echo "init $@"
-}
-
-um_fini() {
-	#
-	# todo
-	# 
-	# 1. clear global iptable
-	# 2. clear global ipset 
-	#
-	echo "fini $@"
-}
-
-um_bind() {
-	local argc=$#
-	local mac="$1"
-	local ip="$2"
-
-	if ((2!=argc)); then
-		return 1
-	fi
-
-	#
-	# todo
-	# 1. move ip to ipset 'unauth'
-	# 1. set tc default
-	# 2. set nginx default
-	#
-	echo "bind $@"
-}
-
-um_unbind() {
-	local argc=$#
-	local mac="$1"
-	local ip="$2"
-
-	if ((2!=argc)); then
-		reutrn 1
-	fi
-	
-	#
-	# todo
-	# 1. move ip to ipset 'unauth'
-	# 2. set tc default
-	# 3. set nginx default
-	#
-	echo "unbind $@"
-}
-
-um_auth() {
+do_limit() {
 	local argc=$#
 	local mac="$1"
 	local ip="$2"; shift 2
 	local json="$*"
 
-	if ((argc<3)); then
+	if ((argc<2)); then
 		return 1
 	fi
-	
-	#
-	# todo
-	# 1. move ip to ipset 'auth'
-	# 2. set tc by json
-	# 3. set nginx by json
-	#
-	echo "auth $@"
+
+	echo todo
+	echo 1. move ip to ipset 'unauth'
+	echo 2. set tc default
+	echo 3. set nginx default
+}
+
+um_init() {
+	echo todo
+	echo 1. init global iptable
+	echo 2. init global ipset
+}
+
+um_fini() {
+	echo todo
+	echo 1. clear global iptable
+	echo 2. clear global ipset 
+}
+
+um_bind() {
+	do_limit "$@"
+}
+
+um_unbind() {
+	do_limit "$@"
+}
+
+um_auth() {
+	do_limit "$@"
 }
 
 um_deauth() {
@@ -84,12 +50,10 @@ um_deauth() {
 		return 1
 	fi
 
+	do_limit "${mac}" "${ip}"
 	#
 	# todo
-	# 1. move ip to ipset 'unauth'
-	# 2. set tc default
-	# 3. set nginx default
-	# 4. update website reason
+	# 1. update website reason
 	#
 	echo "deauth $@"
 }
