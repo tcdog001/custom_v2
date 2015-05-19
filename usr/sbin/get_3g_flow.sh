@@ -2,7 +2,7 @@
 . /usr/sbin/common_opera.in
 
 main() {
-        local interval=$(cat "/tmp/config/interval_3g.in" | awk '/get_3g_flow/{print $2}' 2>/dev/null)
+        local interval=$(get_confinfo "3g.conf.get_3g_flow.interval" 2>/dev/null)
         if [[ -z ${interval} ]];then
                 interval=300
         fi

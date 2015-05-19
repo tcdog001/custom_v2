@@ -12,7 +12,7 @@ main() {
         local i=1
         local j=1
         local sign=0
-        local interval=$(cat "/tmp/config/interval_3g.in" | awk '/check_sim_state/{print $2}' 2>/dev/null)
+        local interval=$(get_confinfo "3g.conf.check_sim_state.interval" 2>/dev/null)
         if [[ -z ${interval} ]];then
                 interval=300
         fi

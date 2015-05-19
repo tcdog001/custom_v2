@@ -61,7 +61,7 @@ start_ppp() {
         start_3g
 }
 main() {
-        local interval=$(cat /tmp/config/interval_3g.in | awk '/3g_connect/{print $2}' 2>/dev/null)
+        local interval=$(get_confinfo "3g.conf.3g_connect.interval" 2>/dev/null)
         if [[ -z ${interval} ]];then
                 interval=10
         fi

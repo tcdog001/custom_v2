@@ -33,3 +33,10 @@
 <led.conf.led_main.delay>		5
 <led.conf.led_main.interval>		1
 <led.conf.led_main.file>		/tmp/led.log
+
+<3g.conf.3g_connect.interval>		10
+<3g.conf.get_hdrcsq.interval>		30
+<3g.conf.check_sim_state.interval>	300
+<3g.conf.get_3g_flow.interval>		300
+<3g.conf.get_3g_state.interval>		10
+

@@ -155,7 +155,7 @@ check_ppp0() {
 
 main () {
         local num=0
-        local interval=$(cat "/tmp/config/interval_3g.in" | awk '/get_3g_state/{print $2}' 2>/dev/null)
+        local interval=$(get_confinfo "3g.conf.get_3g_state.interval" 2>/dev/null)
         if [[ -z ${interval} ]];then
                 interval=10
         fi
