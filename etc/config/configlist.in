@@ -1,0 +1,35 @@
+
+<gps.path>				/tmp/config
+<gps.conf.gps_device>			/dev/ttyAMA2
+<gps.conf.anlysis_data.file>		/tmp/gps.log
+<gps.conf.anlysis_data.path>		/tmp/.gps
+<gps.conf.anlysis_data.delay>		60
+<gps.conf.anlysis_data.interval>	30
+<gps.conf.move_log.file>		gps-
+<gps.conf.move_log.delay>		300
+<gps.conf.move_log.interval>		300
+<gps.conf.obtain_data.delay>		30
+<gps.conf.obtain_data.interval>		10
+
+<acc.path>				/tmp/config
+<acc.conf.acc_monitor.delay>		0
+<acc.conf.acc_monitor.interval>		1
+<acc.conf.acc_monitor.timeout>		900
+<acc.conf.acc_monitor.path>		/tmp/.acc
+<acc.conf.acc_monitor.vcc.interval>	10
+<acc.conf.acc_monitor.vcc.file>		/tmp/vcc.log
+<acc.conf.onoff_check.delay>		0
+<acc.conf.onoff_check.interval>		5
+<acc.conf.onoff_check.timeout>		600
+<acc.conf.move_log.delay>		0
+<acc.conf.move_log.interval>		0
+<acc.conf.move_log.file>		vcc-quality-
+
+<led.path>				/tmp/config
+<led.conf.led_reload.delay>		0
+<led.conf.led_reload.interval>		0
+<led.conf.led_reload.file>		/tmp/config/led.def
+<led.conf.led_reload.path>		/tmp/leds
+<led.conf.led_main.delay>		5
+<led.conf.led_main.interval>		1
+<led.conf.led_main.file>		/tmp/led.log

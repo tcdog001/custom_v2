@@ -1,78 +1,112 @@
 #!/bin/bash
 
-gps_path=/tmp/config
-gps_config=${gps_path}/gps.conf
-gps_config_tmp=${gps_path}/.config_gps
-gps_device="/dev/ttyAMA2"
-gps_device_tmp=${gps_device}
-gps_data_file="/tmp/gps.log"
+func_path=/tmp/config
+gps_device=/dev/ttyAMA2
+gps_data_file=/tmp/gps.log
 
 #
-# $1: delay, $2: interval, $3: output file, $4: command
+# $1: command
 #
 start_move_log() {
-	local delay=$1
-	local interval=$2
-	local output=$3
-	local command=$4
+	local command=$1
+	local delay=300
+	local interval=300
+	local output=gps-
 	local input=${gps_data_file}
+	local str_tmp=""
 
-	echo "${delay} ${interval} ${output} ${command}"
+	str_tmp=$(get_confinfo gps.conf.move_log.delay)
+	[[ "${str_tmp}" != "null" ]] && delay=${str_tmp}
+
+	str_tmp=$(get_confinfo gps.conf.move_log.interval)
+	[[ "${str_tmp}" != "null" ]] && interval=${str_tmp}
+
+	str_tmp=$(get_confinfo gps.conf.anlysis_data.file)
+	[[ "${str_tmp}" != "null" ]] && input=${str_tmp}
+
+	echo "${delay} ${interval} ${input} ${output} ${command}"
+
 	sleep ${delay}
-	${command} ${output} ${input} ${interval} &
+	${command} "${output}" "${input}" "${interval}" &
 }
 
 #
-# $1: delay, $2: interval, $3: output file, $4: command
+# $1: command
 #
 start_obtain_data() {
-	local delay="$1"
-	local interval="$2"
-	local output="$3"; shift 3
-	local command="$*"
+	local command=$1
+	local delay=30
+	local interval=10
+	local output=${gps_data_file}
+	local str_tmp=""
+
+	str_tmp=$(get_confinfo gps.conf.obtain_data.delay)
+	[[ "${str_tmp}" != "null" ]] && delay=${str_tmp}
+
+	str_tmp=$(get_confinfo gps.conf.obtain_data.interval)
+	[[ "${str_tmp}" != "null" ]] && interval=${str_tmp}
+
+	str_tmp=$(get_confinfo gps.conf.anlysis_data.file)
+	[[ "${str_tmp}" != "null" ]] && output=${str_tmp}
 
 	echo "${delay} ${interval} ${output} ${command} ${gps_device}"
+
 	sleep ${delay}
 	while :
 	do
-		${command} ${gps_device} > ${output}
+		${command} "${gps_device}" > "${output}"
 		sleep ${interval}
 	done
 }
 
 #
-# $1: delay, $2: interval, $3: output file, $4: command, $5: debug path
+# $1: command
 #
 start_anlysis_data() {
-	local delay=$1
-	local interval=$2
-	local output=$3
-	local command=$4
-	local dpath=$5
+	local command=$1
+	local delay=60
+	local interval=30
+	local output=${gps_data_file}
+	local dpath=/tmp/.gps
+	local str_tmp=""
 
-	echo "${delay} ${interval} ${output} ${command} ${dpath} ${gps_device_tmp}"
+	str_tmp=$(get_confinfo gps.conf.anlysis_data.delay)
+	[[ "${str_tmp}" != "null" ]] && delay=${str_tmp}
+	
+	str_tmp=$(get_confinfo gps.conf.anlysis_data.interval)
+	[[ "${str_tmp}" != "null" ]] && interval=${str_tmp}
+	
+	str_tmp=$(get_confinfo gps.conf.anlysis_data.file)
+	[[ "${str_tmp}" != "null" ]] && output=${str_tmp}
+
+	str_tmp=$(get_confinfo gps.conf.anlysis_data.path)
+	[[ "${str_tmp}" != "null" ]] && dpath=${str_tmp}
+
+	echo "${delay} ${interval} ${output} ${command} ${dpath} ${gps_device}"
+	
 	sleep ${delay}
-	${command} -t ${interval} -l ${output} -p ${dpath} -d ${gps_device_tmp} 1>/dev/null &
+	${command} -t "${interval}" -l "${output}" -p "${dpath}" -d "${gps_device}" 1> /dev/null &
 }
 
 main() {
-	local tmp=${gps_config_tmp}
+	local func_path_tmp=$(get_confinfo gps.path)
+	[[ "${func_path_tmp}" != "null" ]] && func_path=${func_path_tmp}
+	
+	local gps_config=${func_path}/gps.conf
+	local tmp=${func_path}/.config_gps
+	local alias command
 
 	sed '/#/d;/^$/d' ${gps_config} > ${tmp}
 
-	local alias delay interval file command file1
-	while read alias delay interval file command file1; do
-		[[ "${alias}" = "gps_device" ]] && [[ ${file} ]] && gps_device=${file}
-		if [[ "${alias}" = "obtain_data" ]]; then
-			[[ "${file}" ]] && gps_device_tmp=${file}
-			start_${alias} ${delay} ${interval} ${file} ${command} ${file1} &
-		fi
-		if [[ "${alias}" = "anlysis_data" ]]; then
-			[[ $file ]] && gps_data_file=${file}
-			start_${alias} ${delay} ${interval} ${file} ${command} ${file1} &
-		fi
-		[[ "${alias}" = "move_log" ]] && start_${alias} ${delay} ${interval} ${file} ${command} ${file1} &
+	gps_device_tmp=$(get_confinfo gps.conf.gps_device)
+	[[ ${gps_device_tmp} ]] && gps_device=${gps_device_tmp}
+
+	while read alias command; do
+		[[ "${alias}" = "move_log" || "${alias}" = "obtain_data" || "${alias}" = "anlysis_data" ]] \
+			&& start_${alias} ${command} &
 	done < ${tmp}
+
+	rm ${tmp}
 }
 
 main "$@"
