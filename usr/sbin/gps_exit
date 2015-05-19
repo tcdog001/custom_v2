@@ -1,20 +1,13 @@
 #!/bin/bash
 
-gps_path=/tmp/config
-gps_config=${gps_path}/gps.conf
-gps_config_tmp=${gps_path}/.config_gps
+func_path=/tmp/config
 gps_device="/dev/ttyAMA2"
-gps_device_tmp=${gps_device}
 
 #
-# $1: delay, $2: interval, $3: output file, $4: command, $5: debug path
+# $1: command
 #
 stop_function() {
-	local delay=$1
-	local interval=$2
-	local output=$3
-	local command=$4
-	local dpath=$5
+	local command=$1
 
 	echo "${command}"
 	command_kill ${command}
@@ -25,16 +18,23 @@ stop_main() {
 }
 
 main() {
-	local tmp=${gps_config_tmp}
+	local func_path_tmp=$(get_confinfo gps.path)
+	[[ "${func_path_tmp}" != "null" ]] && func_path=${func_path_tmp}
+	
+	local gps_config=${func_path}/gps.conf
+	local tmp=${func_path}/.config_gps
+	local alias command
 
 	sed '/#/d;/^$/d' ${gps_config} > ${tmp}
 
-	local alias delay interval file command file1
-	while read alias delay interval file command file1; do
+	while read alias command; do
 		[[ "${alias}" = "move_log" || "${alias}" = "obtain_data" || "${alias}" = "anlysis_data" ]] \
-			&& stop_function ${delay} ${interval} ${file} ${command} ${file1}
+			&& stop_function ${command}
 	done < ${tmp}
+	
 	stop_main
+	
+	rm ${tmp}
 }
 
 main "$@"

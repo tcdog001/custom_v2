@@ -1,16 +1,12 @@
 #!/bin/bash
 
-acc_path=/tmp/config
-acc_config=${acc_path}/acc.conf
-acc_config_tmp=${acc_path}/.config_acc
+func_path=/tmp/config
 
 #
-# $1: delay, $2:interval, $3:command, $4:file, $5:file1, $6:interval1, $7:interval2
+# $1: command
 #
 stop_function() {
-	local delay="$1"
-	local interval="$2"
-	local command="$3"
+	local command=$1
 
 	echo "${command}"
 	command_kill ${command}
@@ -21,16 +17,23 @@ stop_main() {
 }
 
 main() {
-	local tmp=${acc_config_tmp}
-
+	local func_path_tmp=$(get_confinfo acc.path)
+	[[ "${func_path_tmp}" != "null" ]] && func_path=${func_path_tmp}
+	
+	local acc_config=${func_path}/acc.conf
+	local tmp=${func_path}/.config_acc
+	local alias command
+	
 	sed '/#/d;/^$/d' ${acc_config} > ${tmp}
 
-	local alias delay interval command file file1 interval1 interval2
-	while read alias delay interval command file file1 interval1 interval2; do
+	while read alias command; do
 		[[ "${alias}" = "acc_monitor" || "${alias}" = "move_log" || "${alias}" = "onoff_check" ]] \
-			&& stop_function ${delay} ${interval} ${command}
+			&& stop_function ${command}
 	done < ${tmp}
+	
 	stop_main
+
+	rm ${tmp}
 }
 
 main "$@"

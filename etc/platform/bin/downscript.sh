@@ -39,7 +39,7 @@ if [ -f ${FILE_REGISTER} ];then
 			rm ${RESULT_FILE}
 			exit ${code}
 			;;
-		-2)
+		-2|*)
 			echo "ERROR:$0:code=${code},get null"
 			rm ${RESULT_FILE}
 			exit ${code}

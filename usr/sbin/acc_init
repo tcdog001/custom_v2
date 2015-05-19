@@ -1,78 +1,109 @@
 #!/bin/bash
 
-acc_path=/tmp/config
-acc_config=${acc_path}/acc.conf
-acc_config_tmp=${acc_path}/.config_acc
+func_path=/tmp/config
+vcc_log=/tmp/vcc.log
 
 #
-# $1: delay, $2:interval, $3:command
+# $1: command
 #
 start_onoff_check() {
-	local delay="$1"
-	local interval="$2"
-	local command="$3"
+	local command=$1
+	local delay=0
+	local interval=5
+	local timeout=600
+	local str_tmp=""
+	
+	str_tmp=$(get_confinfo acc.conf.onoff_check.delay)
+	[[ ${str_tmp} != "null" ]] && delay=${str_tmp}
 
-	echo "${delay} ${interval} ${command}"
-	[[ ${interval} ]] && ${command} ${delay} ${interval} &
+	str_tmp=$(get_confinfo acc.conf.onoff_check.interval)
+	[[ ${str_tmp} != "null" ]] && interval=${str_tmp}
+
+	str_tmp=$(get_confinfo acc.conf.onoff_check.timeout)
+	[[ ${str_tmp} != "null" ]] && timeout=${str_tmp}
+
+	sleep ${delay}
+	${command} "${timeout}" "${interval}" &
 }
 
 #
-# $1: delay, $2:interval, $3:command, $4:file, $5:file1, $6:interval1, $7:interval2
+# $1: command
 #
 start_move_log() {
-	local delay="$1"
-	local interval="$2"
-	local command="$3"
-	local file="$4"
-	local file1="$5"
-	local interval1="$6"
-	local interval2="$7"
+	local command=$1
+	local delay=0
+	local interval=0
+	local file=${vcc_log}
+	local file1=vcc-quality-
+	local str_tmp=""
 
-	echo "${delay} ${interval} ${command} ${file} ${file1} ${interval1} ${interval2}"
+	str_tmp=$(get_confinfo acc.conf.acc_monitor.vcc.file)
+	[[ ${str_tmp} != "null" ]] && file=${str_tmp}
+
+	str_tmp=$(get_confinfo acc.conf.move_log.delay)
+	[[ ${str_tmp} != "null" ]] && delay=${str_tmp}
+
+	str_tmp=$(get_confinfo acc.conf.move_log.file)
+	[[ ${str_tmp} != "null" ]] && file1=${str_tmp}
+
+	echo "${delay} ${interval} ${command} ${file} ${file1}"
+
 	sleep ${delay}
-	[[ -f ${file} && -d ${file1} ]] && ${command} ${file} ${file1}
+	${command} ${file} ${file1}
 }
 
 #
-# $1: delay, $2:interval, $3:command, $4:file, $5:file1, $6:interval1, $7:interval2
+# $1: command
 #
 start_acc_monitor() {
-	local delay="$1"
-	local interval="$2"
-	local command="$3"
-	local file="$4"
-	local file1="$5"
-	local interval1="$6"
-	local interval2="$7"
+	local command=$1
+	local delay=0
+	local interval=1
+	local file=${vcc_log}
+	local file1=/tmp/.acc
+	local interval1=900
+	local interval2=10
+
+	str_tmp=$(get_confinfo acc.conf.acc_monitor.delay)
+	[[ ${str_tmp} != "null" ]] && delay=${str_tmp}
+
+	str_tmp=$(get_confinfo acc.conf.acc_monitor.interval)
+	[[ ${str_tmp} != "null" ]] && interval=${str_tmp}
+
+	str_tmp=$(get_confinfo acc.conf.acc_monitor.timeout)
+	[[ ${str_tmp} != "null" ]] && interval1=${str_tmp}
+
+	str_tmp=$(get_confinfo acc.conf.acc_monitor.path)
+	[[ ${str_tmp} != "null" ]] && file1=${str_tmp}
+	
+	str_tmp=$(get_confinfo acc.conf.acc_monitor.vcc.file)
+	[[ ${str_tmp} != "null" ]] && file=${str_tmp}
+
+	str_tmp=$(get_confinfo acc.conf.acc_monitor.vcc.interval)
+	[[ ${str_tmp} != "null" ]] && interval2=${str_tmp}
+
 
 	echo "${delay} ${interval} ${command} ${file} ${file1} ${interval1} ${interval2}"
 	sleep ${delay}
-	if [[ ${interval1} || ${interval2} || ${file} || ${file1} ]]; then
-		${command} -t ${interval} -v ${interval1} -d ${interval2} -l ${file} -p ${file1} 1>/dev/null &
-	else if [[ ${interval1} || ${interval2} || ${file} ]]; then
-		${command} -t ${interval} -v ${interval1} -d ${interval2} -l ${file} 1>/dev/null &
-	else if [[ ${interval1} || ${interval2} ]]; then
-		${command} -t ${interval} -v ${interval1} -d ${interval2} 1>/dev/null &
-	else if [[ ${interval1} ]]; then
-		${command} -t ${interval} -v ${interval1} 1>/dev/null &
-	else
-		${command} -t ${interval} 1>/dev/null &
-	fi
-	fi
-	fi
-	fi
+	${command} -t "${interval}" -v "${interval2}" -d "${interval1}" -l "${file}" -p "${file1}" 1>/dev/null &
 }
 
 main() {
-	local tmp=${acc_config_tmp}
-
+	local func_path_tmp=$(get_confinfo acc.path)
+	[[ "${func_path_tmp}" != "null" ]] && func_path=${func_path_tmp}
+	
+	local acc_config=${func_path}/acc.conf
+	local tmp=${func_path}/.config_acc
+	local alias command
+	
 	sed '/#/d;/^$/d' ${acc_config} > ${tmp}
 
-	local alias delay interval command file file1 interval1 interval2
-	while read alias delay interval command file file1 interval1 interval2; do
+	while read alias command; do
 		[[ "${alias}" = "acc_monitor" || "${alias}" = "move_log" || "${alias}" = "onoff_check" ]] \
-			&& start_${alias} ${delay} ${interval} ${command} ${file} ${file1} ${interval1} ${interval2} &
+			&& start_${alias} ${command} &
 	done < ${tmp}
+
+	rm ${tmp}
 }
 
 main "$@"

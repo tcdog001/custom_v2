@@ -1,18 +1,12 @@
 #!/bin/bash
 
-led_path=/tmp/config
-led_config=${led_path}/led.conf
-led_config_tmp=${led_path}/.config_led
+func_path=/tmp/config
 
 #
-# $1: delay, $2: interval, $3: input path, $4: command, $5: output file
+# $1: command
 #
 stop_function() {
-	local delay=$1
-	local interval=$2
-	local input=$3
-	local command=$4
-	local output=$5
+	local command=$1
 
 	echo "${command}"
 	command_kill ${command}
@@ -23,15 +17,23 @@ stop_main() {
 }
 
 main() {
-	local tmp=${led_config_tmp}
-
+	local func_path_tmp=$(get_confinfo led.path)
+	[[ "${func_path_tmp}" != "null" ]] && func_path=${func_path_tmp}
+	
+	local led_config=${func_path}/led.conf
+	local tmp=${func_path}/.config_led
+	local alias command
+	
 	sed '/#/d;/^$/d' ${led_config} > ${tmp}
 
-	local alias delay interval file command file1
-	while read alias delay interval file command file1; do
-		[[ "${alias}" = "led_reload" || "${alias}" = "led_main" ]] && stop_function ${delay} ${interval} ${file} ${command} ${file1}
+	while read alias command; do
+		[[ "${alias}" = "led_reload" || "${alias}" = "led_main" ]] \
+			&& stop_function ${command}
 	done < ${tmp}
+
 	stop_main
+	
+	rm ${tmp}
 }
 
 main "$@"

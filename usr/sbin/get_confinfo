@@ -1,0 +1,16 @@
+#!/bin/bash
+
+sys_file="/tmp/config/configlist.in"
+
+main() {
+	local key=$1
+	local file=$(cat ${sys_file} | awk '/<'"${key}"'>/{print $2}')
+
+	if [[ "${file}" ]]; then
+		echo ${file}
+	else
+		echo "null"
+	fi
+}
+
+main "$@"
