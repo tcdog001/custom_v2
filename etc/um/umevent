@@ -3,10 +3,11 @@
 do_limit() {
 	local argc=$#
 	local mac="$1"
-	local ip="$2"; shift 2
+	local ip="$2"
+	local group="$3"; shift 3
 	local json="$*"
 
-	if ((argc<2)); then
+	if ((argc<3)); then
 		return 1
 	fi
 
@@ -28,16 +29,37 @@ um_fini() {
 	echo 2. clear global ipset 
 }
 
+do_xbind() {
+	local argc=$#
+	local mac="$1"
+	local ip="$2"
+
+	if ((2!=argc)); then
+		return 1
+	fi
+
+	do_limit "${mac}" "${ip}" 0
+}
+
 um_bind() {
-	do_limit "$@"
+	do_xbind "$@"
 }
 
 um_unbind() {
-	do_limit "$@"
+	do_xbind "$@"
 }
 
 um_auth() {
 	do_limit "$@"
+}
+
+do_offline() {
+	local ip="$1"
+	local reason="$2"
+
+	#
+	# todo: update user offline reason
+	#
 }
 
 um_deauth() {
@@ -50,12 +72,8 @@ um_deauth() {
 		return 1
 	fi
 
-	do_limit "${mac}" "${ip}"
-	#
-	# todo
-	# 1. update website reason
-	#
-	echo "deauth $@"
+	do_limit "${mac}" "${ip}" 0
+	do_offline "${ip}" "${reason}"
 }
 
 main() {
