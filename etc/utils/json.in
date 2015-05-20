@@ -120,25 +120,8 @@ json_merge() {
 __json_create_bykv() {
 	local key="$1"; shift
 	local value="$*"
-	local name type
 
-	#
-	# key maybe as name:type
-	#
-	type=${key##*:}
-	name=${key%:*}
-
-	case ${type} in
-	o|object|n|number|b|bool)
-		printf '{"%s":%s}' "${name}" "${value}"
-		;;
-	s|string)
-		printf '{"%s":"%s"}' "${name}" "${value}"
-		;;
-	*)
-		printf '{"%s":"%s"}' "${key}" "${value}"
-		;;
-	esac
+	printf '{"%s":"%s"}' "${key}" "${value}"
 }
 
 #
