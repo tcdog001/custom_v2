@@ -120,8 +120,25 @@ json_merge() {
 __json_create_bykv() {
 	local key="$1"; shift
 	local value="$*"
+	local name type
 
-	printf '{"%s":"%s"}' "${key}" "${value}"
+	#
+	# key maybe as name:type
+	#
+	type=${key##*:}
+	name=${key%:*}
+
+	case ${type} in
+	o|object|n|number|b|bool)
+		printf '{"%s":%s}' "${name}" "${value}"
+		;;
+	s|string)
+		printf '{"%s":"%s"}' "${name}" "${value}"
+		;;
+	*)
+		printf '{"%s":"%s"}' "${key}" "${value}"
+		;;
+	esac
 }
 
 #
@@ -261,7 +278,7 @@ __json_create_bylv_reversed() {
 #$2:value
 #   value(maybe a json)
 #
-# json_create_bylo "a b c" "value"
+# json_create_bylv "a b c" "value"
 #   ==>
 # {"a":{"b":{"c":"value"}}}
 #
