@@ -10,10 +10,20 @@ main() {
 		return 1
 	fi
 
+	if [ -d "${src}" ]; then
+		src=${src%/}/
+	elif [ -f "${src}" ]; then
+		src=${src%/}
+	fi
+
 	rsync -acq --delete --force --stats --partial "${src}" "${dst}"; err=$?
 	if ((0!=err)); then
-		rm -fr ${dst}/*
-		cp -fpR ${src}/* ${dst}
+		if [ -d "${src}" ]; then
+			rm -fr ${dst}/*
+			cp -fpR ${src}/* ${dst}
+		else
+			cp -f ${src} ${dst}
+		fi
 	fi
 
        	sync	
