@@ -1,0 +1,21 @@
+#!/bin/bash
+
+main() {
+	local obj="$1"
+
+	case $obj in
+	local)
+		/etc/jsock/jcmd.sh asyn network_local.sh
+		route add default gw 1.0.0.1
+		;;
+	normal)
+		/etc/jsock/jcmd.sh asyn network_normal.sh
+		route del default gw 1.0.0.1
+		;;
+	*)
+		return 1
+		;;
+	esac
+}
+
+main "$@"
