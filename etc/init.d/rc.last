@@ -1,27 +1,54 @@
 #!/bin/bash
 
+#
+# name delay(second) interval(second) command
+#
+add_timer() {
+        local name="$1"
+        local delay="$2"
+        local interval="$3"; shift 3
+        local command="$*"
+        local err=0
+
+        stimerc insert "${name}" "${delay}" "${interval}" 0 "${command}"; err=$?
+        if ((0!=err)); then
+                echo "insert timer ${name} error:${err}"
+        fi
+
+        return ${err}
+}
+
+add_timers() {
+	add_timer onoff_check   0  60 "/usr/sbin/onoff_check 300"
+
+	add_timer push_syslog   0 120 /etc/platform/bin/push_syslog.sh
+
+	add_timer md_syslog     0 300 /usr/sbin/systemlog_md.sh
+	add_timer tar_syslog   60 300 /etc/platform/bin/tar_syslog.sh
+	add_timer push_gps    120 300 /etc/platform/bin/curlhttpgps.sh
+
+	add_timer ntpclient     0 600 "ntpclient -h cn.pool.ntp.org -s -c 1"
+	add_timer command      60 600 /etc/platform/bin/command.sh
+
+	add_timer onoff_monitor 0 3600 "/usr/sbin/onoff-monite.sh 43500"
+}
+
 do_register() {
 	/usr/sbin/wr_product_info &
 	/usr/sbin/wr_hd_info &
 	sleep 1
 	/usr/sbin/get_device_info.sh &
 	/etc/platform/bin/register.sh &
-	stimerc insert command 10 600 0 "/etc/platform/bin/command.sh 1>/dev/null"
 }
 
 do_acc_check() {
 	/usr/sbin/off_check.sh &
-	stimerc insert onoff_check 5 60 0 "/usr/sbin/onoff_check 300"
-	stimerc insert onoff_monitor 5 3600 0 "/usr/sbin/onoff-monite.sh 43500"
 	
 }
 
 main() {
-	echo "rc.last"
+	add_timers
 	do_register
-	
-	stimerc insert car_system_log 5 300 0 /usr/sbin/systemlog_md.sh
-	
 	do_acc_check
 }
 
