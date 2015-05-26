@@ -104,7 +104,6 @@ ping_net() {
                 ping ${ping_addr} -w 2 -q >/dev/null 2>&1 ; local ret=$?
                 if [[ ${ret} -eq 0 ]];then
                         write_state "${ret}"
-                        add_route
                         dns_resolve
                         break
                 else
