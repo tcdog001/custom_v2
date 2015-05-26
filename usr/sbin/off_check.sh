@@ -8,7 +8,6 @@ poweroff_num_check() {
 		local count=$(cat "${file}" | awk '/'$(date '+%F-%H')'/{print }' | wc -l)
 	
 		if [[ "${count}" -gt "${limit}" ]]; then
-			logger "Start too frequently"
 			jcrit_kvs "acc" "warning" "Start too much"
 		fi
 	fi
