@@ -40,8 +40,10 @@ write_state() {
         if [[ ${new_state} != ${old_state} ]];then
                 echo ${new_state} > ${state_file}
                 if [[ ${new_state} -eq 0 ]];then
-                        echo ${time} > ${ontime}
-                        syn_net_time
+			ntpclient -h cn.pool.ntp.org -s -c 1 && \
+				ntpclient -h cn.pool.ntp.org -s -c 1
+			echo ${time} > ${ontime}
+#                        syn_net_time
                 else
                         if [[ ${old_state} -eq 0 ]];then
                                 echo ${time} > ${offtime}
@@ -103,7 +105,6 @@ ping_net() {
                 ping ${ping_addr} -w 2 -q >/dev/null 2>&1 ; local ret=$?
                 if [[ ${ret} -eq 0 ]];then
                         write_state "${ret}"
-                        add_route
                         dns_resolve
                         break
                 else

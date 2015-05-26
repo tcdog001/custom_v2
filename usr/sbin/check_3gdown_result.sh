@@ -133,8 +133,6 @@ start_check() {
         check_sim
         check_hdrcsq
         killall -9 3g_connect.sh 2>/dev/null
-	    killall -9 ppp_dial 2>/dev/null
-	    killall -9 pppd 2>/dev/null
-        sleep 1
-        /usr/sbin/3g_connect.sh &
+	killall -9 ppp_dial 2>/dev/null
+	killall -9 pppd 2>/dev/null
 }

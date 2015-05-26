@@ -1,0 +1,6 @@
+#!/bin/bash
+main() {
+	local at_num=$(cat /tmp/.3g/at_ctrl 2>/dev/null)
+	${at_num} "$@"
+}
+main "$@"

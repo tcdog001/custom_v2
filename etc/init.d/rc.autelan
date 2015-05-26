@@ -56,9 +56,11 @@ phase1() {
 
 phase2() {
 	#
-	# set 3g model and set at_ctrl
+	# set 3g model, start_3g, add default route, add nat
 	#
-	/usr/sbin/set_3g_model &
+	/usr/sbin/set_3g_model
+	/usr/sbin/start_3g &
+
 	/etc/init.d/php-fpm_start.sh &
 	/etc/init.d/nginx_start.sh &
 	/etc/init.d/sshd_start.sh &
@@ -79,24 +81,19 @@ phase2() {
 
 #	wifidog -c /usr/local/etc/wifidog.conf 2>/dev/null
 
-#	/usr/sbin/sync_3gstatus_MD.sh &
-	/usr/sbin/timeout_reboot.sh &
-
 	#
 	# try start cp's init
 	#
 	if [[ -n "${__CP_DEVMAC__}" ]]; then
 			/etc/init.d/${__CP__}/init.sh 2>/dev/null &
 	fi
-	#
-	#start 3g
-	#
-	/usr/sbin/start_3g &
-	/usr/sbin/add_nat.sh &
-
 	/usr/sbin/check_gps.sh &
 
 	echo $(date '+%F-%H-%M-%S') > /tmp/.startup
+	#
+	# auto reboot after running 12h
+	#
+	/usr/sbin/timeout_reboot.sh &
 
 	#
 	# keep it last !!!

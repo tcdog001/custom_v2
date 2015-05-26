@@ -44,6 +44,7 @@ readonly dir_flash=/mnt/flash
 readonly dir_sd=/mnt/sd
 readonly dir_hd=/mnt/hd
 readonly dir_usb=/mnt/usb
+readonly dir_config=/config
 readonly dir_tftp=/tmp/tftp
 readonly dir_status=/tmp/status
 readonly dir_plt=/tmp/plt
@@ -53,6 +54,10 @@ readonly file_plt_cache=${dir_plt}/.plt.cache
 readonly dir_website_upgrade=${dir_hd}/website_upgrade
 readonly dir_website_config=${dir_hd}/website_config
 readonly file_website_config=${dir_website_config}/website.conf
+
+readonly dir_sysconfig_upgrade=${dir_config}/download_rsync
+readonly dir_sysconfig_config=${dir_config}/download_config
+readonly file_sysconfig_config=${dir_sysconfig_config}/sysconfig.conf
 
 declare link_data
 declare link_data_master
@@ -217,6 +222,7 @@ readonly dir_opt_data_3g=${dir_opt_data}/3g
 readonly dir_tmp_log=/tmp/.log
 
 readonly dir_tmp_log_backup=${dir_tmp_log}/backup
+readonly dir_tmp_log_aute=${dir_tmp_log}/.aute
 
 readonly dir_tmp_log_dev=${dir_tmp_log}/dev
 readonly dir_tmp_log_dev_info=${dir_tmp_log_dev}/info
