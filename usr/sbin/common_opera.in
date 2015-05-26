@@ -29,22 +29,6 @@ kill_process() {
         fi
 }
 #
-# add default route
-#
-add_route() {
-        route |grep default |grep ppp0 >/dev/null 2>&1; local ret_route=$?
-
-        if [[ ${ret_route} -ne 0 ]];then
-                route add default ppp0
-        fi
-}
-#
-# add nat
-#
-add_nat() {
-        iptables -t nat  -A POSTROUTING -o ppp0  -j  MASQUERADE
-}
-#
 # control 3g led
 #
 led_3g_on() {
