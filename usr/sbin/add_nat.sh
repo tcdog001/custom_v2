@@ -1,7 +1,7 @@
 #!/bin/bash
 
 add_nat() {
-	iptable -t nat --list |grep MASQUERADE >/dev/null 2>&1; local ret_nat=$?
+	iptables -t nat --list |grep MASQUERADE >/dev/null 2>&1; local ret_nat=$?
 	if [[ ${ret_nat} -ne 0 ]];then
 		iptables -t nat  -A POSTROUTING -o ppp0  -j  MASQUERADE
 	fi
