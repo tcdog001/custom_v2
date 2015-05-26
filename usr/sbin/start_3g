@@ -6,6 +6,7 @@ start_3g_dial() {
         /usr/sbin/get_hdrcsq.sh &
         /usr/sbin/check_sim_state.sh &
         /usr/sbin/get_3g_flow.sh &
+	/usr/sbin/add_nat.sh &
 }
 
 main() {
