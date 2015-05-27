@@ -1,7 +1,7 @@
 #!/bin/bash
 
 copy_appkey() {
-	mkdir -p /tmp/appkey
+	mkdir -p /tmp/appkey /tmp/.backtrace
 	cp -fpR /etc/appkey/* /tmp/appkey/
 	appkey reload &> /dev/null
 }
