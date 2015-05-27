@@ -168,11 +168,10 @@ main () {
                 local starttime=$(cat ${starttime_file} 2>/dev/null)
                 if [[ (! -z ${state}) && (${state} -eq 0) ]];then
                         num=0
-                        if [[ -z ${starttime} ]];then
+                        led_3g_on
+			if [[ -z ${starttime} ]];then
                                 starttime=$(get_now_time)
                                 echo ${starttime} >${starttime_file}
-                        else
-                                led_3g_on
                         fi
                 else
                         num=$(($num+1))
