@@ -46,6 +46,7 @@ readonly dir_hd=/mnt/hd
 readonly dir_usb=/mnt/usb
 readonly dir_config=/config
 readonly dir_tftp=/tmp/tftp
+readonly dir_tmp_config=/tmp/config
 readonly dir_status=/tmp/status
 readonly dir_plt=/tmp/plt
 readonly dir_plt_syslog=${dir_plt}/syslog
