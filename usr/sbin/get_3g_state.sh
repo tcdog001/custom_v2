@@ -166,7 +166,7 @@ main () {
                 local state=$(cat ${state_file} 2>/dev/null)
                 local starttime_file=${path_3g}/starttime
                 local starttime=$(cat ${starttime_file} 2>/dev/null)
-                if [[ (! -z ${state}) && (${state} -eq 0) ]];then
+                if [[ ${state} -eq 0 ]];then
                         num=0
                         led_3g_on
 			if [[ -z ${starttime} ]];then
