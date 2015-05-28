@@ -102,6 +102,8 @@ phase2() {
 }
 
 phase3() {
+	/usr/sbin/getinfo_and_register.sh &
+	/usr/sbin/off_check.sh &
 	return
 }
 

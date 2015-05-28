@@ -34,23 +34,10 @@ add_timers() {
 	add_timer onoff_monitor  0 3600 "/usr/sbin/onoff-monite.sh 43500"
 }
 
-do_register() {
-	/usr/sbin/wr_product_info &
-	/usr/sbin/wr_hd_info &
-	sleep 1
-	/usr/sbin/get_device_info.sh &
-	/etc/platform/bin/register.sh &
-}
 
-do_acc_check() {
-	/usr/sbin/off_check.sh &
-	
-}
 
 main() {
 	add_timers
-	do_register
-	do_acc_check
 }
 
 main "$@"
