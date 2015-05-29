@@ -20,6 +20,7 @@ if [[ -z "${__UTILS_UTILS_IN__}" ]]; then __UTILS_UTILS_IN__=_; else return; fi
 . ${__ROOTFS__}/etc/utils/version.in
 . ${__ROOTFS__}/etc/utils/appkey.in
 . ${__ROOTFS__}/etc/utils/arp.in
+. ${__ROOTFS__}/etc/utils/xcopy.in
 
 #
 # md dir

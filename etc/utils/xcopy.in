@@ -1,6 +1,12 @@
 #!/bin/bash
 
-main() {
+if [[ -z "${__UTILS_XCOPY_IN__}" ]]; then __UTILS_XCOPY_IN__=_; else return; fi
+
+#
+#$1:src
+#$2:dst
+#
+xcopy() {
 	local argc=$#
 	local src="$1"
 	local dst="$2"
@@ -16,7 +22,7 @@ main() {
 		src=${src%/}
 	fi
 
-	rsync -acq --delete --force --stats --partial "${src}" "${dst}"; err=$?
+	rsync -acq --delete --force "${src}" "${dst}" &> /dev/null; err=$?
 	if ((0!=err)); then
 		if [ -d "${src}" ]; then
 			rm -fr ${dst}/*
@@ -29,4 +35,3 @@ main() {
        	sync	
 }
 
-main "$@"
