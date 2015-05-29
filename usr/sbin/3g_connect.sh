@@ -65,7 +65,8 @@ main() {
         if [[ -z ${interval} ]];then
                 interval=10
         fi
-        record_first_dialtime
+	sleep ${interval}
+	record_first_dialtime
         while :
         do
                 local state_file=${path_3g}/3g_state.log

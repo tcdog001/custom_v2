@@ -162,7 +162,8 @@ main () {
         fi
         while :
         do
-                check_ppp0
+        	sleep ${interval}
+		check_ppp0
                 local state=$(cat ${state_file} 2>/dev/null)
                 local starttime_file=${path_3g}/starttime
                 local starttime=$(cat ${starttime_file} 2>/dev/null)
@@ -189,7 +190,6 @@ main () {
                                 fi
                         fi
                 fi
-                sleep ${interval}
         done
 }
 

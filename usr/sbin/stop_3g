@@ -7,6 +7,7 @@ main() {
 	killall -9 ppp_dial 2>/dev/null
 	killall -9 pppd 2>/dev/null
         killall -9 check_3gdown_result.sh 2>/dev/null
+	killall -9 add_nat.sh 2>/dev/null
 }
 
 main "$@"
