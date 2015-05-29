@@ -74,17 +74,27 @@ get_pro_info() {
 }
 
 get_software_version() {
-	local software_version=$(cat /etc/.version)
-	if [ -z "$software_version" ];then
+	local file = "/etc/.version"
+	if [ -f "${file}" ];then
+		local software_version=$(cat ${file})
+		if [ -z "$software_version" ];then
+			software_version=invalid
+			jcrit_kvs "get_productinfo" "warning" "cannot get software version"
+		fi
+	else
 		software_version=invalid
-		jcrit_kvs "get_productinfo" "warning" "cannot get software version"
 	fi
 	echo "$software_version" > ${softwareinfo_path}/sw.version	
 }
 
 get_config_version() {
-	local config_version=$(cat /config/.version)
-	if [ -z "$config_version" ];then
+	local file = "/config/download/ver.info"
+	if [ -f "${file}" ];then
+		local config_version=$(cat ${file})
+		if [ -z "$config_version" ];then
+			config_version=invalid
+		fi
+	else
 		config_version=invalid
 	fi
 	echo "$config_version" > ${softwareinfo_path}/cfg.version	
