@@ -29,7 +29,6 @@ if [ -f $FILE_REGISTER ];then
 	else
 		url=${URL_DEFAULT}${PAGE}
 	fi
-	echo url=$url
 	
 	while true
 	do
@@ -45,7 +44,6 @@ if [ -f $FILE_REGISTER ];then
 	done
 
 	out=`cat $RESULT_FILE |jq '.code'`
-	echo out=$out
 	case $out in
 		0) 
 			echo "register success!"

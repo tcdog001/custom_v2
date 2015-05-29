@@ -30,7 +30,6 @@ if [ -f ${FILE_REGISTER} ];then
 	curl  -k  -cert ${CERTIFICATE}  -u ${USER_PASSWD}  -H "Content-type: application/json"  -X POST  -d $mac  -s  -c $COOKIE_FILE  $url > $RESULT_FILE
 
 	code=`cat ${RESULT_FILE} |jq -j '.code'`
-	echo code=${code}
 	case ${code} in
 		0)
 		;;
@@ -49,7 +48,6 @@ if [ -f ${FILE_REGISTER} ];then
 	if [ -f ${RESULT_FILE} ];then
                 rm ${RESULT_FILE}
         fi
-	echo out=${out}
 	result=${out}
 	#result=`echo "$out" |base64 -d`
 	echo $result |tr ";" "\n" > ${COMMAND_FILE}

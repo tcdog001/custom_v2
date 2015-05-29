@@ -28,13 +28,11 @@ else
 	else
 		url=${URL_DEFAULT}${PAGE}
 	fi
-	echo url=$url
 	
 	while true
 	do
 		curl  -k  -cert $CERTIFICATE  -u $USER_PASSWD  -H "Content-type: application/json"  -X POST  -d "$json_jlog" -s  -c $COOKIE_FILE  $url > $RESULT_FILE
 		response=$?
-		echo response=$response
 #		if [ $response -eq $CURLE_COULDNT_CONNECT ] || [ $response -eq $CURLE_COULDNT_RESOLVE_HOST ];then
 		if [ $response != $CURLE_OK ]; then
 			sleep $RECONNECTION_INTERVAL
@@ -44,7 +42,6 @@ else
 	done
 
 	out=`cat $RESULT_FILE |jq '.code'`
-	echo out=$out
 	case $out in
 		0) 
 			echo "push log success!"
