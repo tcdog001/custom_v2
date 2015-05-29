@@ -12,8 +12,6 @@ main() {
 	cp ${file} ${dir_tmp_log_aute}/aute_jlog-${time}
 	
 	/etc/platform/bin/diagnose_log.sh
-	
-	echo "$0:$*"
 }
 
 main "$@"
