@@ -1,6 +1,6 @@
 #!/bin/bash
 
-. /usr/sbin/check_3gdown_result.sh
+. /usr/sbin/check_3gdown_result.in
 . /usr/sbin/common_opera.in
 . /etc/utils/utils.in
 
