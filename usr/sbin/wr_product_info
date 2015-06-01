@@ -74,7 +74,7 @@ get_pro_info() {
 }
 
 get_software_version() {
-	local file = "/etc/.version"
+	local file="/etc/.version"
 	if [ -f "${file}" ];then
 		local software_version=$(cat ${file})
 		if [ -z "$software_version" ];then
@@ -88,7 +88,7 @@ get_software_version() {
 }
 
 get_config_version() {
-	local file = "/config/download/ver.info"
+	local file="/config/download/ver.info"
 	if [ -f "${file}" ];then
 		local config_version=$(cat ${file})
 		if [ -z "$config_version" ];then
