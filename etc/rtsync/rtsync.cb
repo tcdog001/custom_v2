@@ -1,0 +1,30 @@
+#!/bin/bash
+
+. ${__ROOTFS__}/etc/utils/xcopy.in
+
+main() {
+	local dir="$1"
+       	local event="$2"
+	local file="$3"	
+	local name src dst
+	local cb
+
+	while read name src dst; do
+		#
+		# dir include src
+		#
+		if [[ "${dir}" != "${dir#${src}}" ]]; then
+			cb=/etc/rsync/rsync.${name}.cb
+			if [[ -x "${cb}" ]]; then
+				eval "${cb} ${dir} ${event} ${file}"
+			else
+				xcopy ${src} ${dst}
+			fi
+
+			return
+		fi
+	done < /etc/rtsync/rtsync.conf
+}
+
+main "$@"
+
