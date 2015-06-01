@@ -46,6 +46,7 @@
 
 ################################################################################
 PREFIX=udisk
+USBDEV=udisk1110p1
 CONSOLE=/dev/ttyS000
 ################################################################################
 show_env ()
@@ -77,7 +78,7 @@ add_disk ()
 	#
 	#autelan
 	#
-	if [[ "${NEW_NAME}" == "sdiskp1" ]]; then
+	if [[ "${NEW_NAME}" == "${USBDEV}" ]]; then
 		mount /dev/${NEW_NAME} /mnt/usb
 	fi
 }
@@ -94,7 +95,7 @@ remove_disk ()
 	#
 	#autelan
 	#
-	if [[ "${NEW_NAME}" == "sdiskp1" ]]; then
+	if [[ "${NEW_NAME}" == "${USBDEV}" ]]; then
 		killall sysusbupgrade usbupgrade	
 	fi
 }
