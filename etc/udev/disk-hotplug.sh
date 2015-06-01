@@ -95,7 +95,7 @@ remove_disk ()
 	#autelan
 	#
 	if [[ "${NEW_NAME}" == "sdiskp1" ]]; then
-		echo
+		killall sysusbupgrade usbupgrade	
 	fi
 }
 ################################################################################
