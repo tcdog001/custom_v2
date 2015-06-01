@@ -3,6 +3,14 @@
 . /etc/utils/dir.in
 
 path_3g=/tmp/.3g
+path_data_3g=/data/3g
+#
+# get now time
+#
+get_now_time() {
+	local time=$(date '+%F-%H:%M:%S')
+	echo ${time}
+}
 #
 # check file,if there is not the file,mkdir the file and echo ${default_content} >file
 #
@@ -25,44 +33,21 @@ kill_process() {
 
 	if [[ ${line_num} -ge 2 ]];then
 		killall -9 ${process} 2>/dev/null
-		sleep 1
 	fi
 }
 #
 # control 3g led
 #
-led_3g_on() {
-	local slot=$(cat ${path_3g}/slot |sed -n '$p' 2>/dev/null)
-	case ${slot} in
-		"2-2")
-			sysled 3g_led1 on
-			;;
-		"2-3")
-			sysled 3g_led2 on
-			;;
-		*)
-			;;
-	esac
-}
-led_3g_off() {
-	local slot=$(cat ${path_3g}/slot |sed -n '$p' 2>/dev/null)
-	case ${slot} in
-		"2-2")
-			sysled 3g_led1 off
-			;;
-		"2-3")
-			sysled 3g_led2 off
-			;;
-		*)
-			;;
-	esac
-}
-#
-# get now time
-#
-get_now_time() {
-	local time=$(date '+%F-%H:%M:%S')
-	echo ${time}
+set_3g_led() {
+	local led_state=$1
+	cat ${path_3g}/slot |grep "2-2" 1>/dev/null;local ret_2=$?
+	cat ${path_3g}/slot |grep "2-3" 1>/dev/null;local ret_3=$?
+	if [[ ${ret_2} -eq 0 ]];then
+		sysled 3g_led1 ${led_state}
+	fi
+	if [[ ${ret_3} -eq 0 ]];then
+		sysled 3g_led2 ${led_state}
+	fi
 }
 #
 # get 3g up flow
@@ -97,11 +82,11 @@ get_3gdown_flow() {
 	echo ${down_flow} >${down_flow_file}
 }
 #
-# get the 3g flow
+# record the 3g flow log every 5 min
 #
 get_3g_flow() {
 	local startup=$(cat /tmp/.startup 2>/dev/null)
-	local starttime=$(cat ${path_3g}/starttime 2>/dev/null)
+	local starttime=$(cat ${path_3g}/first_suctime 2>/dev/null)
 	local endtime=$(cat ${path_3g}/endtime 2>/dev/null)
 	local up=$(check_file "${path_3g}/3gup_flow" "0" )
 	local down=$(check_file "${path_3g}/3gdown_flow" "0")
@@ -116,7 +101,7 @@ get_3g_flow() {
 	fi
 }
 #
-# write the log of 3g drop
+# record the log of 3g drop when checking the 3g down reson (90s)
 #
 drop_3g_log() {
 	get_dbm
@@ -145,4 +130,160 @@ drop_3g_log() {
 		"${csq}"  >>${log_file}
 	fi
 }
+#
+# record the log of 3g drop when the 3g down time is 30 min
+#
+drop_3g_log_30min() {
+	local time=$(get_now_time)
+	local startup=$(cat /tmp/.startup 2>/dev/null)
+	local ontime=$(check_file "${path_3g}/ontime" "null" 2>/dev/null)
+	local offtime=$(check_file "${path_3g}/offtime" "null" 2>/dev/null)
+	local duration=$1
+	local log_file=${path_3g}/3g_offline_${startup}.log
+
+	printf '{"time":"%s", "ontime":"%s", "offtime":"%s", "duration":"%s"}\n'    \
+		"${time}"       \
+		"${ontime}"     \
+		"${offtime}"    \
+		"${duration}"   >> ${log_file}
+}
+#
+# write the info to data/3g when they can dial successfully
+# $1:file_name: meid imsi sn iccid net apn tel company 3g_model ...
+#
+diff_data_tmp() {
+	local file_name=$1
+	local tmp_info=$(cat ${path_3g}/${file_name} 2>/dev/null)
+	local data_info=$(cat ${path_data_3g}/${file_name} 2>/dev/null)
+	if [[ ${tmp_info} != ${data_info} ]];then
+		echo ${tmp_info} > ${path_data_3g}/${file_name}; fsync ${path_data_3g}/${file_name}
+	fi
+}
+write_data() {
+	diff_data_tmp "meid"
+	diff_data_tmp "imsi"
+	diff_data_tmp "sn"
+	diff_data_tmp "iccid"
+	diff_data_tmp "net"
+	diff_data_tmp "apn"
+	diff_data_tmp "tel"
+	diff_data_tmp "company"
+	diff_data_tmp "3g_model"
+}
+#
+# get the cycle time from /tmp/config/configlist.in
+#
+get_cycle_time() {
+	local name=$1
+	local def_time=$2
+	local interval=$(get_confinfo "${name}" 2>/dev/null)
+	if [[ -z ${interval} || ${interval} == "null" ]];then
+		interval=${def_time}
+	fi
+	echo ${interval}
+}
+#
+# record the first 3g dial successful time
+#
+record_first_time() {
+	local starttime_file=${path_3g}/first_suctime
+	local starttime=$(cat ${starttime_file} 2>/dev/null)
+	if [[ -z ${starttime} ]];then
+		starttime=$(get_now_time)
+		echo ${starttime} >${starttime_file}
+	fi
+
+}
+#
+# set the end time of dial
+#
+report_enddial_time() {
+	local end_dialtime=$(get_now_time)
+	echo ${end_dialtime} > ${path_3g}/end_dial_time; fsync ${path_3g}/end_dial_time
+}
+#
+# record the first dial time to ${path_3g}/start_dial_time
+#
+record_first_dialtime() {
+	local start_dial_time_file=${path_3g}/start_dial_time
+	local start_dial_time=$(cat ${start_dial_time_file} 2>/dev/null)
+	if [[ -z ${start_dial_time} ]];then
+		start_dial_time=$(get_now_time)
+		echo ${start_dial_time} > ${path_3g}/start_dial_time; fsync ${path_3g}/start_dial_time
+	fi
+}
+#
+# repord the dial count
+#
+record_dialcount() {
+	local num=$(cat ${path_3g}/dialcount 2>/dev/null)
+	num=$(($num+1))
+	echo ${num} >${path_3g}/dialcount; fsync ${path_3g}/dialcount
+}
+#
+# record the number of restarting the 3g module
+#
+restart_3gmd_num() {
+        local resetcount=$(cat ${path_3g}/resetcount 2>/dev/null)
+        if [[ -z ${resetcount} ]];then
+                resetcount=0
+        else
+                resetcount=$((${resetcount}+1))
+        fi
+        echo ${resetcount} >${path_3g}/resetcount; fsync ${path_3g}/resetcount
+}
+#
+# record the log when the 3g signal is weak
+#
+record_3gsignal_weak_log() {
+        local time=$(get_now_time)
+        local signal_1=$1
+        local signal_2=$2
+        local gps_state=$(cat /tmp/.gps/status 2>/dev/null)
+        local east_west=""
+        local gps_Lng=""
+        local north_south=""
+        local gps_Lat=""
+        local gps_location=""
+        if [[ (-z ${gps_state}) || (${gps_state} -eq 1) ]];then
+                gps_location="null"
+        else
+                east_west=$(cat /tmp/.gps/east_west 2>/dev/null)
+                gps_Lng=$(cat /tmp/.gps/gps_Lng 2>/dev/null)
+                north_south=$(cat /tmp/.gps/north_south 2>/dev/null)
+                gps_Lat=$(cat /tmp/.gps/gps_Lat 2>/dev/null)
+                gps_location=${east_west}${gps_Lng}${north_south}${gps_Lat}
+        fi
+        jnotice_kvs '3g'  \
+                notice 'hdrcsq_weak'    \
+                signal1 ${signal1}    \
+                signal2 ${signal2}    \
+                location ${gps_location}        \
+                #end
+}
+#
+# check the 3g signal--csq(0-31,99)
+# when the csq is 0-10 or 99, record the log of 3g signal is weak
+#
+check_csq() {
+        local signal1=$1
+        local signal2=$2
+        if [[ ${signal1} -le 10 || ${signal1} -eq 99 ]];then
+                if [[ ${signal2} -eq 99 || ${signal2} -le 10 ]];then
+                        record_3gsignal_weak_log ${signal1} ${signal2}
+                fi
+        fi
+}
+#
+# check the 3g signal--hdrcsq(0,20,40,60,80,99)
+# when the hdrcsq is 0 or 20, record the log of 3g signal is weak
+#
+check_hdrcsq() {
+        local signal1=$1
+        local signal2=$2
+        if [[ ${signal1} -le 20 && ${signal2} -le 20 ]];then
+                record_3gsignal_weak_log ${signal1} ${signal2}
+        fi
+}
+
 

@@ -8,14 +8,12 @@
 #
 main() {
         sleep 10
+        local interval=$(get_cycle_time "3g.conf.check_sim_state.interval" "300")
         local sim_state=""
         local i=1
         local j=1
         local sign=0
-        local interval=$(get_confinfo "3g.conf.check_sim_state.interval" 2>/dev/null)
-        if [[ -z ${interval} ]];then
-                interval=300
-        fi
+
         while :
         do
                 sim_state=$(get_sim_state)

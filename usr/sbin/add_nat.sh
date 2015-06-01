@@ -18,7 +18,7 @@ main() {
                         break
                 fi
                 sleep 10
-	done
+        done
 }
 
 main "$@"

@@ -5,32 +5,7 @@
 
 path_3g=/tmp/.3g
 path_data_3g=/data/3g
-#
-# set the end time of dial
-#
-report_enddial_time() {
-        local end_dialtime=$(get_now_time)
-        echo ${end_dialtime} > ${path_3g}/end_dial_time; fsync ${path_3g}/end_dial_time
-}
-#
-# record the first dial time to ${path_3g}/start_dial_time
-#
-record_first_dialtime() {
-        local start_dial_time_file=${path_3g}/start_dial_time
-        local start_dial_time=$(cat ${start_dial_time_file} 2>/dev/null)
-        if [[ -z ${start_dial_time} ]];then
-                start_dial_time=$(get_now_time)
-                echo ${start_dial_time} > ${path_3g}/start_dial_time; fsync ${path_3g}/start_dial_time
-        fi
-}
-#
-#repord the dial count
-#
-record_dialcount() {
-        local num=$(cat ${path_3g}/dialcount 2>/dev/null)
-        num=$(($num+1))
-        echo ${num} >${path_3g}/dialcount; fsync ${path_3g}/dialcount
-}
+
 #
 # According to the apn and tel, start the 3g dial
 #
@@ -54,19 +29,12 @@ start_3g() {
                 fi
         fi
 }
-#
-# Remove excess the ppp_dial and start ppp_dial
-#
-start_ppp() {
-        start_3g
-}
+
 main() {
-        local interval=$(get_confinfo "3g.conf.3g_connect.interval" 2>/dev/null)
-        if [[ -z ${interval} ]];then
-                interval=10
-        fi
-	sleep ${interval}
-	record_first_dialtime
+        local interval=$(get_cycle_time "3g.conf.3g_connect.interval" "10")
+
+	    sleep ${interval}
+	    record_first_dialtime
         while :
         do
                 local state_file=${path_3g}/3g_state.log
@@ -78,7 +46,7 @@ main() {
                                 "1")
                                         report_enddial_time
                                         record_dialcount
-                                        start_ppp
+                                        start_3g
                                         ;;
                                 "2")
                                         ;;
@@ -86,7 +54,7 @@ main() {
                                         killall -9 ppp_dial 2>/dev/null
                                         report_enddial_time
                                         record_dialcount
-                                        start_ppp
+                                        start_3g
                                         ;;
                         esac
                 fi

@@ -65,9 +65,9 @@ at_model() {
 
 main() {
         rm -rf /tmp/at_ctrl >/dev/null 2>&1
-	at_model
-	cp /usr/sbin/at_ctrl /tmp/at_ctrl
-	chmod 755 /tmp/at_ctrl
+        at_model
+        cp /usr/sbin/at_ctrl /tmp/at_ctrl
+        chmod 755 /tmp/at_ctrl
 }
 
 main "$@"

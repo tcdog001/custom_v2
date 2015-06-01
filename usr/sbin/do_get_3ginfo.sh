@@ -15,7 +15,7 @@ main() {
         iccid=$(report_sim_iccid)
         net_3g=$(report_net_3g)
         apn=$(get_apn)
-	meid=$(report_meid_of3g)
+        meid=$(report_meid_of3g)
 }
 
 main "$@"

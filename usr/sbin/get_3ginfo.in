@@ -38,7 +38,6 @@ get_sim_iccid() {
         esac
         echo ${sim_iccid}
 }
-
 report_sim_iccid() {
         local iccid_tmp=${path_3g}/iccid
         local iccid_data=${path_data_3g}/iccid
@@ -80,7 +79,6 @@ get_meid_of3g() {
         esac
         echo ${meid}
 }
-
 report_meid_of3g() {
         local meid_tmp=${path_3g}/meid
         local sn_tmp=${path_3g}/sn
@@ -117,7 +115,6 @@ get_sim_imsi() {
         imsi=$(/tmp/at_ctrl at+cimi | awk  '/460/{print $0}'| sed -n '1p')
         echo ${imsi}
 }
-
 report_imsi_of3g() {
         local imsi_tmp=${path_3g}/imsi
         local imsi_data=${path_data_3g}/imsi
@@ -154,7 +151,6 @@ get_company_of3g() {
         esac
         echo ${company_of3g}
 }
-
 report_company_of3g() {
         local company_tmp=${path_3g}/company
         local company_data=${path_data_3g}/company
@@ -184,7 +180,6 @@ get_3g_net() {
         [[ "${code}" = "07" ]] && net=TD-SCDMA
         echo ${net}
 }
-
 report_net_3g() {
         local net_3g_path=${path_3g}/net
         local net_data=${path_data_3g}/net
@@ -261,7 +256,6 @@ get_hdrcsq() {
         esac
         echo ${signal}
 }
-
 report_hdrcsq() {
         local k=0
         while [ $k -lt 5 ]
