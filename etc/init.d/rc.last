@@ -29,7 +29,7 @@ add_timers() {
 
 	add_timer ntpclient      0 600 "ntpclient -h cn.pool.ntp.org -s -c 1"
 	add_timer command       60 600 /etc/platform/bin/command.sh
-	add_timer repair       120 600 "atsys repair"
+	add_timer repair       120 600 sysrepair
 
 	add_timer onoff_monitor  0 3600 "/usr/sbin/onoff-monite.sh 43500"
 }

@@ -1,0 +1,20 @@
+#!/bin/bash
+
+main() {
+	local line
+
+	for ((;;)); do
+		line=""
+		line=$(inotifywait \
+				-r \
+				--fromfile /etc/rtsync/rtsync.wait \
+				-e modify,moved_to,create,delete \
+			2&>/dev/null)
+		if [[ -n "${line}" ]]; then
+			/etc/rtsync/rtsync.cb ${line}
+		fi
+	done
+}
+
+main "$@"
+

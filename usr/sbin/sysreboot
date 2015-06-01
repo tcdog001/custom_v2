@@ -43,7 +43,7 @@ main() {
 	sleep 1
 
 	killapp ${list_reboot_2[@]}
-	atsys umount
+	sysumount
 	sleep 1
 
         echo "System will reboot now!"
