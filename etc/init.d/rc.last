@@ -21,15 +21,15 @@ add_timer() {
 add_timers() {
 	add_timer onoff_check	 0  60 "/usr/sbin/onoff_check 300"
 
-	add_timer push_syslog    0 120 /etc/platform/bin/push_syslog.sh
+	add_timer push_syslog    0 120 "/etc/platform/bin/push_syslog.sh 2>/dev/null"
 
 	add_timer md_syslog      0 300 /usr/sbin/systemlog_md.sh
 	add_timer tar_syslog    60 300 /etc/platform/bin/tar_syslog.sh
 	add_timer push_gps     120 300 /etc/platform/bin/curlhttpgps.sh
 
 	add_timer ntpclient      0 600 "ntpclient -h cn.pool.ntp.org -s -c 1"
-	add_timer command       60 600 /etc/platform/bin/command.sh
-	add_timer repair       120 600 sysrepair
+	add_timer command       60 600 "/etc/platform/bin/command.sh 1>/dev/null"
+	add_timer repair       120 600 "atsys repair 1>null"
 
 	add_timer onoff_monitor  0 3600 "/usr/sbin/onoff-monite.sh 43500"
 }
