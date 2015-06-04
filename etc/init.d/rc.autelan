@@ -10,7 +10,7 @@ phase1() {
 	clock_set
 	. /etc/cp1.in
 	mount; copy_appkey
-	sysmount
+	atsys mount
 	. /etc/cp2.in
 	/etc/upgrade/set_dir.sh
 
