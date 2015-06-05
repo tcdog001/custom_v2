@@ -12,7 +12,7 @@ readonly file_kernel=hi_kernel.bin
 readonly file_pqparam=pq_param_hi3718cv100.bin
 
 readonly dev_hd=/dev/udiskp1
-readonly dev_usb=/dev/udisk1310p1
+readonly dev_usb=/dev/udisk1110p1
 readonly dev_sd=/dev/mmcblk1p1
 readonly dev_boot=/dev/mmcblk0p1
 readonly dev_bootenv=/dev/mmcblk0p2
@@ -44,9 +44,12 @@ readonly dir_flash=/mnt/flash
 readonly dir_sd=/mnt/sd
 readonly dir_hd=/mnt/hd
 readonly dir_usb=/mnt/usb
-readonly dir_config=/config
+readonly dir_data=${dir_flash}/data
+readonly dir_config=${dir_flash}/config
+readonly dir_var=/tmp/var
 readonly dir_tftp=/tmp/tftp
-readonly dir_tmp_config=/tmp/config
+readonly dir_download=/tmp/download
+readonly dir_run_config=/tmp/config
 readonly dir_status=/tmp/status
 readonly dir_plt=/tmp/plt
 readonly dir_plt_syslog=${dir_plt}/syslog
@@ -59,25 +62,6 @@ readonly file_website_config=${dir_website_config}/website.conf
 readonly dir_sysconfig_upgrade=${dir_config}/download_rsync
 readonly dir_sysconfig_config=${dir_config}/download_config
 readonly file_sysconfig_config=${dir_sysconfig_config}/sysconfig.conf
-
-declare link_data
-declare link_data_master
-declare link_data_slave
-
-declare link_config
-declare link_config_master
-declare link_config_slave
-
-#readonly link_hd=/hd
-#readonly link_sd=/sd
-#readonly link_usb=/usb
-#readonly link_rootfs0=/rootfs0
-#readonly link_rootfs1=/rootfs1
-#readonly link_rootfs2=/rootfs2
-#readonly link_rootfs3=/rootfs3
-#readonly link_rootfs4=/rootfs4
-#readonly link_rootfs5=/rootfs5
-#readonly link_rootfs6=/rootfs6
 
 #
 # for third-part(custom dir)
@@ -112,61 +96,28 @@ readonly dir_rootfs4=${dir_flash}/rootfs4
 readonly dir_rootfs5=${dir_flash}/rootfs5
 readonly dir_rootfs6=${dir_flash}/rootfs6
 
-readonly dir_data0=${dir_flash}/data0
-readonly dir_data1=${dir_flash}/data1
-
-readonly dir_config0=${dir_flash}/config0
-readonly dir_config1=${dir_flash}/config1
-
-readonly dir_rootfs_data=${dir_flash}/rootfs_data
-
-
-#
-# for self big app
-#
-readonly dir_app=${dir_rootfs_data}/app
-readonly dir_app_bin=${dir_app}/bin
-readonly dir_app_etc=${dir_app}/etc
-readonly dir_app_lib=${dir_app}/lib
-readonly dir_app_mnt=${dir_app}/mnt
-readonly dir_app_opt=${dir_app}/opt
-readonly dir_app_usr=${dir_app}/usr
-readonly dir_app_usr_bin=${dir_app_usr}/bin
-readonly dir_app_usr_sbin=${dir_app_usr}/sbin
-readonly dir_app_usr_local=${dir_app_usr}/local
-readonly dir_app_sbin=${dir_app}/sbin
-
-
-
 #
 # for all rootfs config
 #
-readonly dir_config_nginx=${link_config}/nginx
-readonly dir_config_php=${link_config}/php
-readonly dir_config_plt=${link_config}/plt
-readonly dir_config_fagent=${link_config}/fagent
-readonly dir_config_stimer=${link_config}/stimer
-readonly dir_config_upgrade=${link_config}/upgrade
+readonly dir_config_nginx=${dir_config}/nginx
+readonly dir_config_php=${dir_config}/php
+readonly dir_config_plt=${dir_config}/plt
+readonly dir_config_fagent=${dir_config}/fagent
+readonly dir_config_stimer=${dir_config}/stimer
+readonly dir_config_upgrade=${dir_config}/upgrade
 
 #
 # backup dir
 #
-readonly dir_backup=${link_data}/backup
+readonly dir_backup=${dir_data}/backup
 readonly dir_backup_log=${dir_backup}/log       #same
 readonly dir_backup_log_gps=${dir_backup}/log   #same
 readonly dir_backup_log_sys=${dir_backup}/log   #same
 
 #
-# rsync dir
-#
-readonly dir_rsync=${link_data}/rsync
-readonly dir_ap_rsync=${dir_rsync}/ap
-readonly dir_md_rsync=${dir_rsync}/md
-
-#
 # opt dir
 #
-readonly dir_opt=${link_data}/opt
+readonly dir_opt=${dir_data}/opt
 
 readonly dir_opt_log=${dir_opt}/log
 readonly dir_opt_log_gps=${dir_opt_log}/gps
@@ -297,3 +248,30 @@ readonly dir_tftp_data_3g=${dir_tftp_data}/3g
 readonly dir_tftp_version=${dir_tftp}/version
 
 readonly file_md_ulog=${dir_opt_log_sys_md_ulog}/messages
+
+#
+#$1:prefix
+#
+setup_dir_byprefix() {
+	local prefix="$1"
+    local dir
+
+	if [[ -z "${prefix}" ]]; then
+		return
+	fi
+
+    for dir in ${!dir_*}; do
+        if [[ "${dir}" != "${dir#${prefix}}" ]]; then
+            mkdir -p ${!dir}
+        fi
+    done
+}
+
+setup_dir_default() {
+	setup_dir_byprefix /tmp
+	setup_dir_byprefix ${dir_data}
+	setup_dir_byprefix ${dir_config}
+	setup_dir_byprefix ${dir_opt}
+	setup_dir_byprefix ${dir_hd}
+	setup_dir_byprefix ${dir_sd}
+}

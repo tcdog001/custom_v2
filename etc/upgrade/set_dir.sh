@@ -14,6 +14,6 @@ main() {
 	mkdir -p ${dir_opt_log_onoff}
 	mkdir -p ${dir_opt_log_drop_3g}
 	mkdir -p ${dir_tftp}
-	mkdir -p ${dir_tmp_config}
+	mkdir -p ${dir_run_config}
 }
 main "$@"

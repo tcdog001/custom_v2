@@ -12,7 +12,7 @@ fi
 readonly file_usbupgrade_auto=${dir_usb_upgrade}/.usbupgrade_auto
 readonly file_usbupgrade_force=${dir_usb_upgrade}/.usbupgrade_force
 
-readonly file_usbupgrade_state=${dir_rootfs_data}/.usbupgrade_state
+readonly file_usbupgrade_state=${dir_data}/.usbupgrade_state
 
 usbupgrade_logger() {
 	do_logger usbupgrade "$@"
