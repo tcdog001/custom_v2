@@ -68,6 +68,20 @@ list_tail() {
 	shift; echo "$@"
 }
 
+#
+#for v1
+#
+get_list_first() {
+	list_first "$@"
+}
+
+#
+#for v1
+#
+get_list_tail() {
+	list_tail "$@"
+}
+
 list_head() {
 	local count=$#
 
