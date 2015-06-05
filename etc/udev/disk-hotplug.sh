@@ -48,6 +48,7 @@
 PREFIX=udisk
 USBDEV=udisk1110p1
 USBDIR=/mnt/usb
+USBROOTFS=${USBDIR}/upgrade/rootfs
 USBUPGRADE=${USBDIR}/upgrade/usbupgrade
 CONSOLE=/dev/ttyS000
 ################################################################################
@@ -86,7 +87,7 @@ add_disk ()
 		}
 
 		if [[ -x ${USBUPGRADE} ]]; then
-			${USBUPGRADE} &
+			__ROOTFS__=${USBROOTFS} ${USBUPGRADE} &
 			echo "usb auto upgrade start" > ${CONSOLE}
 		fi
 	fi
