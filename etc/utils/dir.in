@@ -14,6 +14,7 @@ readonly file_pqparam=pq_param_hi3718cv100.bin
 readonly dev_hd=/dev/udiskp1
 readonly dev_usb=/dev/udisk1110p1
 readonly dev_sd=/dev/mmcblk1p1
+
 readonly dev_boot=/dev/mmcblk0p1
 readonly dev_bootenv=/dev/mmcblk0p2
 readonly dev_pqparam=/dev/mmcblk0p4
@@ -34,31 +35,46 @@ readonly dev_rootfs4=/dev/mmcblk0p17
 readonly dev_rootfs5=/dev/mmcblk0p18
 readonly dev_rootfs6=/dev/mmcblk0p19
 
+readonly dev_config0=/dev/mmcblk0p20
+readonly dev_config1=/dev/mmcblk0p21
+readonly dev_data0=/dev/mmcblk0p22
+readonly dev_data1=/dev/mmcblk0p23
+readonly dev_other=/dev/mmcblk0p24
+
+readonly dev_config=${dev_config0}
+readonly dev_data=${dev_data0}
+
 readonly file_dev_rootfs_current=/tmp/.dev_rootfs_current
 readonly file_rootfs_current=/tmp/.rootfs_current
 
 #
 # base dir
 #
-readonly dir_flash=/mnt/flash
 readonly dir_sd=/mnt/sd
 readonly dir_hd=/mnt/hd
 readonly dir_usb=/mnt/usb
+readonly dir_flash=/mnt/flash
 readonly dir_data=${dir_flash}/data
 readonly dir_config=${dir_flash}/config
-readonly dir_var=/tmp/var
-readonly dir_tftp=/tmp/tftp
-readonly dir_download=/tmp/download
-readonly dir_run_config=/tmp/config
-readonly dir_status=/tmp/status
-readonly dir_plt=/tmp/plt
-readonly dir_plt_syslog=${dir_plt}/syslog
-readonly file_plt_cache=${dir_plt}/.plt.cache
 
+readonly dir_rootfs0=${dir_flash}/rootfs0
+readonly dir_rootfs1=${dir_flash}/rootfs1
+readonly dir_rootfs2=${dir_flash}/rootfs2
+readonly dir_rootfs3=${dir_flash}/rootfs3
+readonly dir_rootfs4=${dir_flash}/rootfs4
+readonly dir_rootfs5=${dir_flash}/rootfs5
+readonly dir_rootfs6=${dir_flash}/rootfs6
+
+#
+# hd dir
+#
 readonly dir_website_upgrade=${dir_hd}/website_upgrade
 readonly dir_website_config=${dir_hd}/website_config
 readonly file_website_config=${dir_website_config}/website.conf
 
+#
+# config dir
+#
 readonly dir_sysconfig_upgrade=${dir_config}/download_rsync
 readonly dir_sysconfig_config=${dir_config}/download_config
 readonly file_sysconfig_config=${dir_sysconfig_config}/sysconfig.conf
@@ -84,17 +100,6 @@ readonly dir_usb_upgrade=${dir_usb}/upgrade
 readonly dir_usb_upgrade_rootfs=${dir_usb_upgrade}/rootfs
 readonly dir_usb_upgrade_rootfs_data=${dir_usb_upgrade}/rootfs_data
 readonly dir_usb_upgrade_website=${dir_usb_upgrade}/website
-
-#
-# partition dir
-#
-readonly dir_rootfs0=${dir_flash}/rootfs0
-readonly dir_rootfs1=${dir_flash}/rootfs1
-readonly dir_rootfs2=${dir_flash}/rootfs2
-readonly dir_rootfs3=${dir_flash}/rootfs3
-readonly dir_rootfs4=${dir_flash}/rootfs4
-readonly dir_rootfs5=${dir_flash}/rootfs5
-readonly dir_rootfs6=${dir_flash}/rootfs6
 
 #
 # for all rootfs config
@@ -227,6 +232,7 @@ readonly dir_tmp_log_sys_ap_ulog=${dir_tmp_log_sys_ap}/ulog
 #
 # tftp dir
 #
+readonly dir_tftp=/tmp/tftp
 readonly dir_tftp_log=${dir_tftp}/log
 readonly dir_tftp_log_gps=${dir_tftp_log}/gps
 readonly dir_tftp_log_usr=${dir_tftp_log}/usr
@@ -248,6 +254,22 @@ readonly dir_tftp_data_3g=${dir_tftp_data}/3g
 readonly dir_tftp_version=${dir_tftp}/version
 
 readonly file_md_ulog=${dir_opt_log_sys_md_ulog}/messages
+
+#
+# plt dir
+#
+readonly dir_plt=/tmp/plt
+readonly dir_plt_syslog=${dir_plt}/syslog
+readonly file_plt_cache=${dir_plt}/.plt.cache
+
+#
+# other tmp dir
+#
+readonly dir_var=/tmp/var
+readonly dir_download=/tmp/download
+readonly dir_run_config=/tmp/config
+readonly dir_status=/tmp/status
+readonly dir_appkey=/tmp/appkey
 
 #
 #$1:prefix
