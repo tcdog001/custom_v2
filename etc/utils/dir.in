@@ -4,6 +4,9 @@ if [[ -z "${__UTILS_DIR_IN__}" ]]; then __UTILS_DIR_IN__=_; else return; fi
 
 . ${__ROOTFS__}/etc/utils/utils.in
 
+#
+# upgrade file
+#
 readonly file_ap=sysupgrade.bin
 readonly file_ap_long=openwrt-ar71xx-generic-db120-squashfs-sysupgrade.bin
 readonly file_ap_boot=u-boot.bin
@@ -11,6 +14,9 @@ readonly file_boot=fastboot-burn.bin
 readonly file_kernel=hi_kernel.bin
 readonly file_pqparam=pq_param_hi3718cv100.bin
 
+#
+# devs
+#
 readonly dev_hd=/dev/udiskp1
 readonly dev_usb=/dev/udisk1110p1
 readonly dev_sd=/dev/mmcblk1p1
@@ -43,9 +49,6 @@ readonly dev_other=/dev/mmcblk0p24
 
 readonly dev_config=${dev_config0}
 readonly dev_data=${dev_data0}
-
-readonly file_dev_rootfs_current=/tmp/.dev_rootfs_current
-readonly file_rootfs_current=/tmp/.rootfs_current
 
 #
 # base dir
@@ -132,47 +135,20 @@ readonly dir_opt_log_onoff=${dir_opt_log}/onoff
 readonly dir_opt_log_drop=${dir_opt_log}/drop
 readonly dir_opt_log_drop_wifi=${dir_opt_log_drop}/wifi
 readonly dir_opt_log_drop_3g=${dir_opt_log_drop}/3g
-readonly dir_opt_log_drop_gps=${dir_opt_log_drop}/gps
 
 readonly dir_opt_log_flow=${dir_opt_log}/flow
 readonly dir_opt_log_flow_user=${dir_opt_log_flow}/user
-readonly dir_opt_log_flow_3g=${dir_opt_log_flow}/3g
 
 readonly dir_opt_log_nginx=${dir_opt_log}/nginx
 readonly dir_opt_log_nginx_error=${dir_opt_log_nginx}/error
 readonly dir_opt_log_nginx_access=${dir_opt_log_nginx}/access
-#readonly file_nginx_access_log=${dir_opt_log_nginx_access}/nginx.log
-#readonly file_nginx_error_log=${dir_opt_log_nginx_error}/nginx.log
-
-readonly dir_opt_log_squid=${dir_opt_log}/squid
-readonly dir_opt_log_squid_error=${dir_opt_log_squid}/error
-readonly dir_opt_log_squid_access=${dir_opt_log_squid}/access
-#readonly file_squid_access_log=${dir_opt_log_squid_access}/squid.log
-#readonly file_squid_error_log=${dir_opt_log_squid_error}/squid.log
-
-readonly dir_opt_log_php=${dir_opt_log}/php
-readonly dir_opt_log_phpfpm_error=${dir_opt_log_php}/error
-
-readonly dir_opt_log_upgrade=${dir_opt_log}/upgrade
-readonly dir_opt_log_upgrade_content=${dir_opt_log_upgrade}/content
-readonly dir_opt_log_upgrade_system=${dir_opt_log_upgrade}/system
-
-readonly dir_opt_log_usr=${dir_opt_log}/usr
-readonly dir_opt_log_auth=${dir_opt_log}/auth
 
 readonly dir_opt_log_sys=${dir_opt_log}/sys
 readonly dir_opt_log_sys_md=${dir_opt_log_sys}/md
 readonly dir_opt_log_sys_md_init=${dir_opt_log_sys_md}/init
 readonly dir_opt_log_sys_md_klog=${dir_opt_log_sys_md}/klog
 readonly dir_opt_log_sys_md_ulog=${dir_opt_log_sys_md}/ulog
-readonly dir_opt_log_sys_ap=${dir_opt_log_sys}/ap
-readonly dir_opt_log_sys_ap_init=${dir_opt_log_sys_ap}/init
-readonly dir_opt_log_sys_ap_klog=${dir_opt_log_sys_ap}/klog
-readonly dir_opt_log_sys_ap_ulog=${dir_opt_log_sys_ap}/ulog
 
-readonly dir_opt_data=${dir_opt}/data
-readonly dir_opt_data_gps=${dir_opt_data}/gps
-readonly dir_opt_data_3g=${dir_opt_data}/3g
 #
 # tmp log dir
 #
@@ -200,14 +176,6 @@ readonly dir_tmp_log_flow_3g=${dir_tmp_log_flow}/3g
 readonly dir_tmp_log_nginx=${dir_tmp_log}/nginx
 readonly dir_tmp_log_nginx_error=${dir_tmp_log_nginx}/error
 readonly dir_tmp_log_nginx_access=${dir_tmp_log_nginx}/access
-readonly filetmpinx_access_log=${dir_tmp_log_nginx_access}/nginx.log
-readonly filetmpinx_error_log=${dir_tmp_log_nginx_error}/nginx.log
-             
-readonly dir_tmp_log_squid=${dir_tmp_log}/squid
-readonly dir_tmp_log_squid_error=${dir_tmp_log_squid}/error
-readonly dir_tmp_log_squid_access=${dir_tmp_log_squid}/access
-readonly file_squid_access_log=${dir_tmp_log_squid_access}/squid.log
-readonly file_squid_error_log=${dir_tmp_log_squid_error}/squid.log
 
 readonly dir_tmp_log_php=${dir_tmp_log}/php
 readonly dir_tmp_log_phpfpm_error=${dir_tmp_log_php}/error

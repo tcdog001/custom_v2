@@ -47,6 +47,9 @@
 ################################################################################
 PREFIX=udisk
 USBDEV=udisk1110p1
+USBDIR=/mnt/usb
+USBROOTFS=${USBDIR}/upgrade/rootfs
+USBUPGRADE=${USBDIR}/upgrade/usbupgrade
 CONSOLE=/dev/ttyS000
 ################################################################################
 show_env ()
@@ -76,10 +79,17 @@ add_disk ()
 	fi
 
 	#
-	#autelan
+	# autelan
 	#
 	if [[ "${NEW_NAME}" == "${USBDEV}" ]]; then
-		mount /dev/${NEW_NAME} /mnt/usb
+		mount /dev/${NEW_NAME} ${USBDIR} && {
+			echo "usb auto mount" > ${CONSOLE}
+		}
+
+		if [[ -x ${USBUPGRADE} ]]; then
+			__ROOTFS__=${USBROOTFS} ${USBUPGRADE} &
+			echo "usb auto upgrade start" > ${CONSOLE}
+		fi
 	fi
 }
 ################################################################################
@@ -88,15 +98,19 @@ remove_disk ()
 {
 	local NEW_NAME=$1
 
-	if [ -L /dev/${NEW_NAME} ]; then
-		rm -f /dev/${NEW_NAME}
-	fi
-
 	#
-	#autelan
+	# autelan
 	#
 	if [[ "${NEW_NAME}" == "${USBDEV}" ]]; then
-		killall sysusbupgrade usbupgrade	
+		killall sysusbupgrade usbupgrade
+
+		umount ${USBDIR} && {
+			echo "usb auto umount" > ${CONSOLE}
+		}
+	fi
+
+	if [ -L /dev/${NEW_NAME} ]; then
+		rm -f /dev/${NEW_NAME}
 	fi
 }
 ################################################################################
