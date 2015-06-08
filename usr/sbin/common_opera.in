@@ -40,8 +40,8 @@ kill_process() {
 #
 set_3g_led() {
 	local led_state=$1
-	cat ${path_3g}/slot |grep "2-2" 1>/dev/null;local ret_2=$?
-	cat ${path_3g}/slot |grep "2-3" 1>/dev/null;local ret_3=$?
+	cat ${path_3g}/slot 2>/dev/null |grep "2-2" 1>/dev/null;local ret_2=$?
+	cat ${path_3g}/slot 2>/dev/null |grep "2-3" 1>/dev/null;local ret_3=$?
 	if [[ ${ret_2} -eq 0 ]];then
 		sysled 3g_led1 ${led_state}
 	fi
