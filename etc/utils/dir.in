@@ -259,9 +259,11 @@ setup_dir_byprefix() {
 
 setup_dir_default() {
 	setup_dir_byprefix /tmp
-	setup_dir_byprefix ${dir_data}
-	setup_dir_byprefix ${dir_config}
-	setup_dir_byprefix ${dir_opt}
-	setup_dir_byprefix ${dir_hd}
-	setup_dir_byprefix ${dir_sd}
+	setup_dir_byprefix dir_data
+	setup_dir_byprefix dir_config
+	setup_dir_byprefix dir_opt
+	setup_dir_byprefix dir_hd
+	setup_dir_byprefix dir_sd
+	setup_dir_byprefix dir_tmp_log
+	setup_dir_byprefix dir_tftp
 }

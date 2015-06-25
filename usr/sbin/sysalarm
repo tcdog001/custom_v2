@@ -1,0 +1,30 @@
+#!/bin/bash
+
+. ${__ROOTFS__}/etc/utils/utils.in
+
+#
+#$1:on/off
+#
+main() {
+	local state="$1"
+	local value
+
+	md_board_check || return
+
+	case ${state} in
+	on)
+		value=on
+		;;
+	off)
+		value=off
+		;;
+	*)
+		return ${e_inval}
+		;;
+	esac
+	
+	/usr/sbin/sysled alarm "${value}"
+	#echo ${value} > /sys/class/leds/db120\:green\:alarm/brightness
+}
+
+main "$@"
