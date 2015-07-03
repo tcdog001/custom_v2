@@ -9,7 +9,7 @@ path_data_3g=/data/3g
 #
 # According to the apn and tel, start the 3g dial
 #
-start_3g() {
+start_ppp() {
         local tel=$(cat ${path_3g}/tel 2>/dev/null)
         local apn=$(cat ${path_3g}/apn 2>/dev/null)
         local data_tel=$(cat ${path_data_3g}/tel 2>/dev/null)
@@ -46,7 +46,7 @@ main() {
                                 "1")
                                         report_enddial_time
                                         record_dialcount
-                                        start_3g
+                                        start_ppp
                                         ;;
                                 "2")
                                         ;;
@@ -54,7 +54,7 @@ main() {
                                         killall -9 ppp_dial 2>/dev/null
                                         report_enddial_time
                                         record_dialcount
-                                        start_3g
+                                        start_ppp
                                         ;;
                         esac
                 fi
