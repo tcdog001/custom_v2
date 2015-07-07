@@ -193,12 +193,12 @@ jsock_handle() {
 
 	local stdout="$(echo ${body} | jq -j '.stdout|strings')"
 	if [[ -n "${stdout}" ]]; then
-		echo "${stdout}"
+		echo "${stdout}" | base64 -d
 	fi
 
 	local stderr="$(echo ${body} | jq -j '.stderr|strings')"
 	if [[ -n "${stderr}" ]]; then
-		echo "${stderr}" >&2
+		echo "${stderr}" | base64 -d >&2
 	fi
 }
 
