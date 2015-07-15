@@ -1,0 +1,26 @@
+#!/bin/bash
+
+sys_file="/tmp/config/configlist.in"
+
+set_config() {
+	local key="$1"
+	local value="$2"
+	local file="$3"
+
+	eval sed '/${key}/d' -i ${file}
+	echo "<${key}>     ${value}" >> ${file}
+}
+
+main() {
+	local key=$1
+	local value=$2
+	local file=${sys_file}
+
+	if [[ "${file}" && "${value}" ]]; then
+		set_config "${key}" "${value}" "${file}"
+	else
+		echo "null"
+	fi
+}
+
+main "$@"
