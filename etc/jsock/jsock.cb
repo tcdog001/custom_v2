@@ -27,7 +27,7 @@ jsock_cb_body_handle() {
 	#
 	# result handle
 	
-	local output=${echo "${input}" | base64 | awk 'NR>1&&/:/{print ""}{printf $0}END{print ""}'}
+	local output=$(echo "${input}" | base64 | awk 'NR>1&&/:/{print ""}{printf $0}END{print ""}')
 
 	echo "${output}"
 }
@@ -250,10 +250,10 @@ jcmd_cb() {
 		local tmp
 		tmp=$( (${name} ${args}) 2>&1 ); errno=$?
 		if ((0==errno)); then
-			stdout=$(jcmd_result_handle "${tmp}")
+			stdout=${tmp}
 			jcmd_logger "${name} ${args} stdout:${stdout}"
 		else
-			stderr=$(jcmd_result_handle "${tmp}")
+			stderr=${tmp}
 			jcmd_logger "${name} ${args} stderr:${errno}:${stderr}"
 		fi
 
