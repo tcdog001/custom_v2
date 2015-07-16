@@ -2,6 +2,10 @@
 
 . ${__ROOTFS__}/etc/utils/xcopy.in
 
+#
+#$1:src
+#$2:dst
+#
 main() {
 	xcopy "$@"
 }
