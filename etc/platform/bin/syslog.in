@@ -129,6 +129,11 @@ get_3g_drop_log() {
 }
 #functions[3g-drop.log]=get_3g_drop_log
 
+get_gps_flow_log() {
+	get_private_log ${dir_tmp_log_gps} gps.log
+}
+functions[gps.log]=get_gps_flow_log
+
 get_gps_drop_log() {
         get_private_log ${dir_tmp_log_drop_gps} gps-drop.log
 }
