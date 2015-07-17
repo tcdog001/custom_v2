@@ -8,10 +8,10 @@ copy_appkey() {
 
 phase1() {
 	clock_set
-	. /etc/cp1.in
+	#. /etc/cp1.in
 	mount; copy_appkey
 	sysmount
-	. /etc/cp2.in
+	#. /etc/cp2.in
 	/etc/upgrade/set_dir.sh
 
 	ifconfig lo up
