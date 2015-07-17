@@ -1,0 +1,5 @@
+#!/bin/bash
+
+	gpio forceshut=1
+	sleep 1
+	gpio offdelay=0 
