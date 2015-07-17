@@ -2,16 +2,19 @@
 
 
 usage() {
-	echo "$0 usage:"
-	echo "$0 [main/sys/sata/pwr/alarm/gps/3g_led1/3g_led2] [on/off/blink]"
-	echo "    main: all the leds"
-	echo "    sys: sys led"
-	echo "    sata: sata led"
-	echo "    pwr: pwr led"
-	echo "    alarm: alarm led"
-	echo "    gps: gps led"
-	echo "    on: led on"
-	echo "    off: led off"
+	echo "usage:"
+	echo "[main/sys/sata/pwr/alarm/gps/3g_led1/3g_led2] [on/off/blink]"
+	echo "    main: for all leds"
+	echo "    sys: for sys led"
+	echo "    sata: for sata led"
+	echo "    pwr: for power led"
+	echo "    gps: for gps led"
+	echo "    alarm: for alarm led"
+	echo "    3g_led1: for 3g1 led"
+	echo "    3g_led2: for 3g2 led"
+	echo ""
+	echo "    on: 	 led on"
+	echo "    off: 	 led off"
 	echo "    blink: led blink"
 	echo
 }

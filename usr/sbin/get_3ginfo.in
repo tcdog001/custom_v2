@@ -297,7 +297,7 @@ get_sim_state() {
         local m=0
         while(( $m < 5 ))
         do
-                sim_state=$(/tmp/at_ctrl  AT+CPIN? |awk '/CPIN:/{print $2}' |sed -n '$p')
+                sim_state=$(/tmp/at_ctrl  AT+CPIN? |awk -F ':' '/CPIN:/{print $2}' |awk '{print substr($1,length($1)-5)}')
                 if [[ ${sim_state} == "READY" ]];then
                         break
                 else
