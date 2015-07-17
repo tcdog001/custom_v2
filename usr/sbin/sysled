@@ -3,8 +3,7 @@
 
 usage() {
 	echo "usage:"
-	echo "[main/sys/sata/pwr/alarm/gps/3g_led1/3g_led2] [on/off/blink]"
-	echo "    main: for all leds"
+	echo "[sys|sata|pwr|alarm|gps|3g_led1|3g_led2] [on|off|blink]"
 	echo "    sys: for sys led"
 	echo "    sata: for sata led"
 	echo "    pwr: for power led"
