@@ -266,4 +266,5 @@ setup_dir_default() {
 	setup_dir_byprefix dir_sd
 	setup_dir_byprefix dir_tmp_log
 	setup_dir_byprefix dir_tftp
+	LN_FILE ${__ROOTFS__}/image/${file_ap} ${dir_tftp_version}/${file_ap}
 }
