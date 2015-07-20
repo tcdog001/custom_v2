@@ -41,6 +41,7 @@ add_timers() {
 main() {
 	add_timers
 	/etc/upgrade/handshake_ap.sh &
+	sysled sys on
 }
 
 main "$@"
