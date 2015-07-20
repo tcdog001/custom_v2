@@ -13,4 +13,8 @@ if [[ ! -x /tmp/pid/nginx ]]; then
 	mkdir -p /tmp/pid/nginx
 fi
 
+if [[ ! -x /tmp/lock/nginx ]]; then
+	mkdir -p /tmp/lock/nginx
+fi
+
 nginx -p /tmp/log/nginx/ -c /tmp/config/nginx/nginx.conf 2> /dev/null
