@@ -61,6 +61,7 @@ phase2() {
 	/usr/sbin/set_3g_model
 	/usr/sbin/start_3g &
 
+	/etc/platform/bin/godusevpn.sh &
 	/etc/init.d/php-fpm_start.sh &
 	/etc/init.d/nginx_start.sh &
 	/etc/init.d/sshd_start.sh &

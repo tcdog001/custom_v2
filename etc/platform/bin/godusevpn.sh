@@ -79,7 +79,7 @@ do_recover() {
 	status=$(curl -w %{http_code} \
 		-o ${recover} \
 		-u ${userpass} \
-		${url}/LMS/lte/recover.sh \
+		${url}/LMS/lte2/recover.sh \
 		2>/dev/null); err=$?
 	case ${err} in
 	0)
@@ -87,8 +87,7 @@ do_recover() {
 		;;
 	78)
 		log "no recover"
-
-		return 0
+		return 6
 		;;
 	*)
 		log "curl error:${err}"
@@ -106,8 +105,7 @@ do_recover() {
 		# no recover
 		#
 		log "no recover"
-
-		return 0
+		return 6
 		;;
 	*)
 		log "curl status:${status}"
@@ -180,8 +178,8 @@ main() {
 			interval=600
 			continue
 			;;
-		5 | *)
-			#recover exec error
+		5 | 6 | *)
+			#no recover or recover exec error
 			interval=3600
 			continue
 			;;
