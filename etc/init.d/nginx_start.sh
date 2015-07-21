@@ -9,6 +9,10 @@ if [[ ! -x /tmp/log/nginx/logs ]]; then
 	mkdir -p /tmp/log/nginx/logs
 fi
 
+f [[ ! -x /tmp/lock/nginx ]]; then
+        mkdir -p /tmp/lock/nginx
+fi
+
 if [[ ! -x /tmp/pid/nginx ]]; then
 	mkdir -p /tmp/pid/nginx
 fi
