@@ -1,0 +1,44 @@
+#!/bin/bash
+
+dnsmasq_restart() {
+	local file=$1
+        
+	[[ -f ${file} ]] && {
+		command_kill dnsmasq 
+		dnsmasq -C ${file} -x /tmp/dnsmasq.pid
+	}
+}
+                
+dns_stat() {
+	local oper=$1
+	local fileok=/tmp/config/dnsmasq.ok
+	local filedef=/tmp/config/dnsmasq.conf
+	local dnsmasq_file=""
+                                                
+	dnsmasq_file=$(ps -w | awk '/dnsmasq/{print $7}' | sed '/print/d')
+                                                                
+	if [[ "${oper}" = "0" ]]; then
+		#dnsmasq with fileok
+		[[ "${dnsmasq_file}" != "${fileok}" ]] && dnsmasq_restart ${fileok}
+	else
+		#dnsmasq with filedef
+		[[ "${dnsmasq_file}" != "${filedef}" ]] && dnsmasq_restart ${filedef}
+	fi
+}
+
+upload_stat() {
+	local file=/tmp/.3g/3g_state.log
+                                                                                                                                                                
+	if [[ -f ${file} ]]; then
+		cat ${file}
+	else
+		echo 1
+	fi
+}
+
+main() {
+	local state=$(upload_stat)
+	dns_stat "${state}"
+}
+
+main "$@"
