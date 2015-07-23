@@ -1,13 +1,13 @@
 #!/bin/bash
 
 main() {
-
 	local interval=$1
 
-	acc_exit
-	sleep 1
+	[[ -z ${interval} ]] && exit
+	acc_exit 1> /dev/null
 	set_confinfo acc.conf.acc_monitor.timeout "${interval}"
-	sleep 1
-	acc_init
+	acc_init 1> /dev/null
+
+	echo "acc.timeout=${interval}s"
 }
 main "$@"
