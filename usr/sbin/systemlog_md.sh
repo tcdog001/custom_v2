@@ -33,7 +33,7 @@ get_memory_use() {
 }
 
 get_ssd_Usage() {
-    local ssdUsage=$(df -h /dev/sda1 |awk -F ' ' '{print $5}' |sed -n '$p')
+    local ssdUsage=$(df -h /dev/sda1 2> /dev/null|awk -F ' ' '{print $5}' |sed -n '$p')
 
     if [[ -z ${ssdUsage} ]]; then
         ssdUsage="0%"
