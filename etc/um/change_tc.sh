@@ -4,7 +4,7 @@
 
 ip=$1
 groupnu=$2
-filepath="/etc/um/group$groupnu"
+filepath="/tmp/config/group$groupnu"
 landev="eth0.1"
 vlandev="ifb0"
 logfile="/tmp/log/umdsh.log"

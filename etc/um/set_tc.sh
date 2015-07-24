@@ -1,6 +1,6 @@
 #!/bin/bash
 
-groupfile="/etc/um/group0"
+groupfile="/tmp/config/group0"
 landev="eth0.1"
 vlandev="ifb0"
 
