@@ -6,8 +6,8 @@ PATH="/bin:/usr/bin:/sbin:/usr/sbin:/usr/local/sbin"
 export PATH
 
 . /etc/env.in
-. /etc/cp1.in
-. /etc/cp2.in
+#. /etc/cp1.in
+#. /etc/cp2.in
 
 ulimit -c 0
 

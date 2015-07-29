@@ -15,7 +15,7 @@ dns_stat() {
 	local filedef=/tmp/config/dnsmasq.conf
 	local dnsmasq_file=""
                                                 
-	dnsmasq_file=$(ps -w | awk '/dnsmasq/{print $7}' | sed '/print/d')
+	dnsmasq_file=$(ps -w | awk '/dnsmasq/{print$7}' | sed '/print/d;/^$/d')
                                                                 
 	if [[ "${oper}" = "0" ]]; then
 		#dnsmasq with fileok

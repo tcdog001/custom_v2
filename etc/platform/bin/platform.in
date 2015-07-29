@@ -12,6 +12,70 @@ readonly BACKUP_LOG=/mnt/flash/rootfs_data/backup/log/
 readonly CERTIFICATE=/etc/platform/conf/server.cer
 readonly USER_PASSWD=autelanauteviewlms:autelanauteviewlms20140925
 
+#
+# $1: url
+# $2: response
+# $3: result
+# $4: cookie
+# $5: cert 
+# $6: userpasswd
+# $7: post_data
+#
+pf_curl_post() {
+	local url="$1"
+	local response_file="$2"
+	local result_file="$3"
+	local cookie_file="$4"
+	local cert="$5"
+	local userpasswd="$6"
+	local data="$7"
+	local curl_cmd="curl -k -H \"Content-type: application/json\" -X POST -s"
+	local response=""
+	local result=""
+	
+	result=$(${curl_cmd} -cert ${cert} -u ${userpasswd} -d "${data}" -c ${cookie_file} ${url}); response=$?
+
+	[[ ${response} && ${response_file} ]] && echo ${response} > ${response_file}
+	[[ ${result} && ${result_file} ]] && echo ${result} > ${result_file}
+}
+
+#
+# $1: file_register
+#
+get_mac_json() {
+	local file_register="$1"
+	local mac_string=$(cat ${file_register} | jq -c '.mac|strings')
+	local mac_json={\"mac\":${mac_string}}
+
+	echo "${mac_json}"
+}
+
+#
+# $1: url_path
+# $2: url_default
+# $3: page
+#
+get_url_string() {
+	local url_path="$1"
+	local url_default="$2"
+	local page="$3"
+	local url=""
+	
+	if [[ -s "${url_path}" ]];then
+		url_path=$(cat ${url_path} |jq -j '.url|strings')
+		url="${url_path}""${page}"
+	else
+		url="${url_default}""${page}"
+	fi
+	echo ${url}
+}
+
+# $1: file_name
+delete_file() {
+	local file="$1"
+	[[ -f ${file} ]] && rm ${file}
+}
+
 reg_check(){
 
 	local curl_ok=0
@@ -25,10 +89,9 @@ reg_check(){
 
 	while true
 	do
-		curl  -k  -cert "${CERTIFICATE}"  -u "${USER_PASSWD}"  -H "Content-type: application/json"  -X POST  -d @"${FILE_REGISTER}" -s  -c "${cookie_file}"  "${url}" > "${result_file}"
-		response=$?
-		echo response="${response}" > "${response_file}"
-		#		if [ $response -eq ${curl_couldnt_connect} ] || [ $response -eq ${curl_couldnt_resolve_host} ]; then
+		pf_curl_post "${url}" "${response_file}" "${result_file}" "${cookie_file}" "${CERTIFICATE}" "${USER_PASSWD}" "@${FILE_REGISTER}"
+		response=$(cat ${response_file})
+
 		if [[ "${response}" != "${curl_ok}" ]]; then
 			sleep "${reconnection_interval}"
 		else
@@ -64,28 +127,16 @@ register_operation() {
 	local url_path=$1
 	local url_default=$2
 
-	if [[ -f "${result_file}" ]]; then
-		rm ${result_file}
-	fi
-
 	while [[ ! -f "${FILE_REGISTER}" ]]; do
 		sleep 5
 	done
 
 	if [[ -f "${FILE_REGISTER}" ]]; then
-		if [[ -s "${url_path}" ]]; then
-			url_path=$(cat ${url_path} |jq -j '.url')
-			url="${url_path}""${page}"
-		else
-			url="${url_default}""${page}"
-		fi
-		reg_check  "${cookie_file}" "${url}" "${result_file}"  "${response_file}"
-		rm -f "${response_file}"
-	
+		url=$(get_url_string ${url_path} ${url_default} ${page})
+		reg_check  "${cookie_file}" "${url}" "${result_file}" "${response_file}"
 		reg_print_result "${result_file}"
-	#	if [ -f $result_file ];then
-	#		rm $result_file
-	#	fi
+		delete_file "${response_file}"
+		delete_file "${cookie_file}"
 	else
 		echo ${FILE_REGISTER}" is not exist!"
 	fi
@@ -98,31 +149,16 @@ command_operation(){
 	local result_file=/tmp/commandResult.txt
 	local command_file=/tmp/command.txt
 	local command_file_re=/tmp/command_record.log
-	local url_path=$1
-	local url_default=$2
+	local url_path="$1"
+	local url_default="$2"
 	
-	if [[ -f "${FILE_REGISTER}" ]];then
-		if [[ -s "${url_path}" ]];then
-			url_path=`cat ${url_path} |jq -j '.url'`
-			url="${url_path}""${page}"
-		else
-			url="${url_default}""${page}"
-		fi
-		echo url="${url}"
-
-		macKey='{"mac":'
-		macValue=`cat ${FILE_REGISTER} |jq '.mac'`
-		endChar='}'
-		mac="${macKey}""${macValue}""${endChar}"
-		echo mac="${mac}"
-
-		curl  -k  -cert "${CERTIFICATE}"  -u "${USER_PASSWD}"  -H "Content-type: application/json"  -X POST  -d "${mac}"  -s  -c "${cookie_file}"  "${url}" > "${result_file}"
-
+	if [[ -f "${FILE_REGISTER}" ]]; then
+		url=$(get_url_string ${url_path} ${url_default} ${page})
+		mac=$(get_mac_json "${FILE_REGISTER}")
+		#curl  -k  -cert "${CERTIFICATE}"  -u "${USER_PASSWD}"  -H "Content-type: application/json"  -X POST  -d "${mac}"  -s  -c "${cookie_file}"  "${url}" > "${result_file}"
+		pf_curl_post "${url}" "${response_file}" "${result_file}" "${cookie_file}" "${CERTIFICATE}" "${USER_PASSWD}" "${mac}"		
+		
 		out=$(cat ${result_file} |jq -j '.cmd')
-		if [[ -f "${result_file}" ]]; then
-	                rm "${result_file}"
-	        fi
-		echo out="${out}"
 		result=$(echo "${out}" |base64 -d)
 		echo "${result}" |tr ";" "\n" > "${command_file}" 
 		cat "${command_file}" | while read myCommand
@@ -133,9 +169,10 @@ command_operation(){
 
 			eval "${myCommand}"
 		done
-		if [[ -f "${command_file}" ]];then
-			rm "${command_file}"
-		fi
+		delete_file "${result_file}"
+		delete_file "${response_file}"
+		delete_file "${cookie_file}"
+		delete_file "${command_file}"		
 	else
 		logger "platform" "$FILE_REGISTER is not exist!"
 	fi
