@@ -1,5 +1,7 @@
 #!/bin/sh
 
+[[ -z ${__CP_WEBSITE__} ]] && __CP_WEBSITE__=/mnt/hd/website
+
 get_gateway_version() {                                                         
 	gateway_version="`cat ${__CP_WEBSITE__}/ver.info 2>/dev/null`"   
 	if [ -z "${gateway_version}" ];then                           
