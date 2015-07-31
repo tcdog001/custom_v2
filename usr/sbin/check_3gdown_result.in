@@ -41,7 +41,7 @@ check_lte_modules() {
                         fi
                         ;;
                 "DM111")
-                        if [[ ${ttyUSB_sum} -ne 2 ]];then
+                        if [[ ${ttyUSB_sum} -ne 5 ]];then
                                 restart_lte_modules
                         fi
                         ;;
