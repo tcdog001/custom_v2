@@ -249,13 +249,7 @@ get_hdrcsq() {
                         signal=$(/tmp/at_ctrl at+csq |awk '/csq:/{print $2}'|awk -F ',' '{print $1}' |sed 's/ //g' |sed -n '$p')
                         ;;
                 "C5300V")
-                        signal=$(/tmp/at_ctrl atignal=$(/tmp/at_ctrl at^hdrcsq |awk '/HDRCSQ:/{print $2}' |sed -n '$p')
-                        ;;
-                *)
-                        ;;
-        esac
-        echo ${signal}
-}hdrcsq |awk '/HDRCSQ:/{print $2}' |sed -n '$p')
+                        signal=$(/tmp/at_ctrl at^hdrcsq |awk '/HDRCSQ:/{print $2}' |sed -n '$p')
                         ;;
                 *)
                         ;;
