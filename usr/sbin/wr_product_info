@@ -60,7 +60,7 @@ get_info_func() {
 
 get_pro_info() {
 	local array_target=('lms' 'mac' 'sn' 'vendor' 'company' 'model')
-	local array_default=('lms1.autelan.com' '00-1F-64-00-00-01' 'null' 'null' 'null' 'null')
+	local array_default=('lms1.autelan.com' '00:1F:64:00:00:01' 'null' 'null' 'null' 'null')
 	
 	local count=${#array_target[*]}
 	local i
