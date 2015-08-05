@@ -5,7 +5,7 @@
 CERTIFICATE=/etc/platform/conf/server.cer
 USER_PASSWD=autelanauteviewlms:autelanauteviewlms20140925
 URL_PATH=/etc/platform/conf/platform.json
-URL_DEFAULT=https://atbus.9797168.com:8443/LMS/lte/
+URL_DEFAULT=https://lms1.autelan.com:8443/LMS/lte/
 COOKIE_FILE=/tmp/registerCookie.txt
 PAGE=lteRegister.do
 RESULT_FILE=/tmp/registerResult.txt
