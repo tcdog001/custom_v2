@@ -175,6 +175,16 @@ get_software_update_log() {
 }
 #functions[software_update.log]=get_software_update_log
 
+get_init_log() {
+	get_private_log ${dir_tftp_log_sys_ap_init} init.log
+}
+functions[init.log]=get_init_log
+
+get_ulog_log() {
+	get_private_log ${dir_tftp_log_sys_ap_ulog} ulog.log
+}
+functions[ulog.log]=get_ulog_log
+
 #
 #$1:file
 #

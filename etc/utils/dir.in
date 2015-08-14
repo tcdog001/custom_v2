@@ -221,7 +221,7 @@ readonly dir_tftp_data_3g=${dir_tftp_data}/3g
 
 readonly dir_tftp_version=${dir_tftp}/version
 
-readonly file_md_ulog=${dir_opt_log_sys_md_ulog}/messages
+readonly file_md_ulog=${dir_tmp_log_sys_md_ulog}/messages
 
 #
 # plt dir

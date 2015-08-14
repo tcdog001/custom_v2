@@ -13,6 +13,13 @@ acc_vcclog() {
 	move_vcc.sh
 }
 
+#cp ap syslog
+syslog_copy() {
+	local cmd="/etc/jsock/jmsg.sh asyn acc_off {\"date\":\"${time}\"}"
+	echo "$0: ${cmd}"
+	${cmd} &
+}
+
 #save 3g log
 acc_3glog() {
 	move_3g.sh
@@ -38,6 +45,7 @@ acc_shutdown() {
 main() {
 	acc_closeled
 	acc_vcclog
+	syslog_copy
 	acc_onfflog
 	acc_3glog
 	acc_unregister

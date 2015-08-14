@@ -13,7 +13,7 @@ phase1() {
 	sysmount
 	#. /etc/cp2.in
 	/etc/upgrade/set_dir.sh
-
+	/etc/upgrade/set_log.sh &
 	ifconfig lo up
 	#
 	# try use oem mac
