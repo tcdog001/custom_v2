@@ -6,7 +6,7 @@
 save_log() {
 
 	local now=$(getnow)
-	local file=${dir_tmp_log_sys_md_init}/${now}
+	local file=${dir_tmp_log_sys_md_init}/md_init-${now}
 	#
 	# save md init info
 	#
@@ -15,7 +15,7 @@ save_log() {
 	#
 	# save md syslog
 	#
-	file=${dir_tmp_log_sys_md_ulog}/${now}; touch ${file}
+	file=${dir_tmp_log_sys_md_ulog}/md_ulog-${now}; touch ${file}
 	#
 	# for readsyslog
 	#
