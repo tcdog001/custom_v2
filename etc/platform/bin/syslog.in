@@ -175,15 +175,25 @@ get_software_update_log() {
 }
 #functions[software_update.log]=get_software_update_log
 
-get_init_log() {
-	get_private_log ${dir_tftp_log_sys_ap_init} init.log
+get_ap_init_log() {
+	get_private_log ${dir_tftp_log_sys_ap_init} ap_init.log
 }
-functions[init.log]=get_init_log
+functions[ap_init.log]=get_ap_init_log
 
-get_ulog_log() {
-	get_private_log ${dir_tftp_log_sys_ap_ulog} ulog.log
+get_ap_ulog_log() {
+	get_private_log ${dir_tftp_log_sys_ap_ulog} ap_ulog.log
 }
-functions[ulog.log]=get_ulog_log
+functions[ap_ulog.log]=get_ap_ulog_log
+
+get_md_init_log() {
+	get_private_log ${dir_tmp_log_sys_md_init} init.log
+}
+functions[init.log]=get_md_init_log
+
+get_md_ulog_log() {
+	get_private_log ${dir_tmp_log_sys_md_ulog} ulog.log
+}
+functions[ulog.log]=get_md_ulog_log
 
 #
 #$1:file
