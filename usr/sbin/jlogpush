@@ -7,7 +7,7 @@ main() {
 	# todo: use curl
 	#
 	#
-	/etc/platform/bin/curljlog.sh ${json}
+	/etc/platform/bin/curljlog.sh "${json}"
 }
 
 main "$@"

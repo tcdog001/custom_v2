@@ -11,7 +11,7 @@ main() {
 	
 	cp ${file} ${dir_tmp_log_aute}/aute_jlog-${time}
 	
-	/etc/platform/bin/diagnose_log.sh
+	/etc/platform/bin/diagnose_log.sh &
 }
 
 main "$@"
