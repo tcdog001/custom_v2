@@ -1,0 +1,83 @@
+#!/bin/bash
+
+map_hw_ver() {
+	local hw_ver="$1"
+	case "${hw_ver}" in
+		"1.2" )
+			echo "1"
+			;;
+		"2.0" )
+			echo "2"
+			;;
+	esac
+}
+
+map_ap_model() {
+	local ap_model="$1"
+	case "${ap_model}" in
+		"AQ2000-LV1" )
+			echo "0"
+			;;
+		"ZXSCVW-100" )
+			echo "1"
+			;;
+	esac
+}
+
+map_ap_ver() {
+	local ap_ver="$1"
+	case "${ap_ver}" in
+		0 )
+			echo "0"
+			;;
+	esac
+}
+
+map_sw_ver() {
+	local sw_ver="$1"
+	case "${sw_ver}" in
+		 0 )
+			echo "0"
+			;;
+	esac
+}
+
+get_cfg_folder_encode() {
+	local ap_model="$1"
+	local ap_ver="$2"
+	local hw_ver="$3"
+	local sw_ver="$4"
+
+	local hw_ver_encode=$(map_hw_ver "${hw_ver}")
+	local ap_model_encode=$(map_ap_model "${ap_model}")
+	local ap_ver_encode=$(map_ap_ver "${ap_ver}")
+	local sw_ver_encode=$(map_sw_ver "${sw_ver}")
+
+	local cfg_folder_encode=$(echo "${hw_ver_encode}\
+									${ap_model_encode}\
+									${ap_ver_encode}\
+									${sw_ver_encode}")
+
+	case "${cfg_folder_encode}" in
+		"1000" )
+			echo "FILEname1"
+			;;
+		* )
+			echo "FILEname"
+			;;
+	esac
+}
+
+main() {
+	local cfg_file_path=$(get_sysinfo path script.cfg)
+	local ap_model=$(get_sysinfo model)
+	local ap_ver=$(get_sysinfo vendor)
+	local hw_ver=$(get_sysinfo hw.version)
+	local sw_ver=$(sysversion)
+	local next_cfg_ver="/cfg/next_cfg_version"
+	local cfg_folder=$(get_cfg_folder_encode \
+							"${hw_ver}" "${ap_model}" "${ap_ver}" "${sw_ver}")
+
+	echo "${cfg_file_path}"/"${cfg_folder}"
+}
+main "$@"

@@ -1,0 +1,74 @@
+#!/bin/bash
+
+rsync_action() {
+	local remote="$1"
+    local dir="$2"
+    local server="$3"
+    local user="$4"
+    local timeout="300"
+    local rsync_dynamic=" --timeout=${timeout}"
+    local rsync_static="-acz --delete --force --stats --partial"
+    local pass="--password-file=/etc/rsyncd.pass"
+    local action="rsync ${rsync_dynamic} ${rsync_static} \
+    					${user}@${server}::systemver/${remote}/ ${dir} ${pass}"
+
+    local err=0
+    eval "${action}" >/dev/null; err=$?
+    echo "${err}"
+}
+
+log_error() {
+	local remote="$1"
+	local dir="$2"
+	local server="$3"
+	
+	local user="autelan"
+	local rsync_result=$(rsync_action "${remote}" "${dir}" "${server}" "${user}")
+	local result_file="${dir}.result"
+	
+	if [[  "${rsync_result}" -eq 0 ]]; then
+		echo "sync ${remote} success!" >"${result_file}"
+	else
+		echo "sync ${remote} failed!" >"${result_file}"
+	fi
+	echo "${rsync_result}"
+}
+
+rsync_sw() {
+	local server="$1"
+
+	local remote="sw_version"
+	local dir="$(get_sysinfo path script.sw)"
+	local rsync_sw_result=$(log_error "${remote}" "${dir}" "${server}")
+
+	echo "${rsync_sw_result}"
+}
+
+rsync_cfg() {
+	local server="$1"
+
+	local remote="cfg_version"
+	local dir="$(get_sysinfo path script.cfg)"
+	local rsync_cfg_result=$(log_error "${remote}" "${dir}" "${server}")
+
+	echo "${rsync_cfg_result}"
+}
+
+main() {
+	local ver_cfg="$1"
+	local sw_server="$(get_sysinfo profile.VersionServer)"
+	local cfg_server="$(get_sysinfo profile.CfgServer)"
+
+	case "${ver_cfg}" in
+		"sw_version" )
+			rsync_sw "${sw_server}"
+			;;
+		"cfg_version" )
+			rsync_cfg "${cfg_server}"
+			;;
+		* )
+			echo "parameter error!"
+			;;
+	esac
+}
+main "$@"

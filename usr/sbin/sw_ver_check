@@ -1,0 +1,41 @@
+#!/bin/bash
+
+get_next_swver() {
+	local local_ver="$1"
+	local transition_ver="$2"
+	local upgrade_target_ver="$3"
+	
+
+	if [[ "${local_ver}" > "${transition_ver}" ]]; then
+		echo "${upgrade_target_ver}" 
+	else
+		echo "${transition_ver}" 
+	fi
+}
+
+get_transition_ver() {
+	local hw_ver="$1"
+	case "${hw_ver}" in
+		"1.0" )
+			echo "1.1.0.3"
+			;;
+	esac
+}
+
+main() {
+	local file_path="$(get_sysinfo path script.sw)"
+
+	local hw_ver=$(get_sysinfo hw.version)
+	local local_ver=$(sysversion)
+	local transition_ver=$(get_transition_ver "${hw_ver}")
+	local upgrade_target_ver=$(cat "${file_path}/version")
+
+	if [[ "${local_ver}" == "${upgrade_target_ver}" ]]; then
+		echo "needn't upgrade!"
+	else
+		local upgrade_ver="$(get_next_swver \
+					"${local_ver}" "${transition_ver}" "${upgrade_target_ver}")"
+		echo "${upgrade_ver}"
+	fi
+}
+main "$@"
