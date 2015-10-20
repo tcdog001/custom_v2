@@ -1,0 +1,19 @@
+#!/bin/bash
+
+sys_file="/etc/utils/sysinfo_dir.kp"
+
+get_file_path() {
+	local key="$1"
+	while read k v; do 
+		if [[ "${key}" == "${k}" ]]; then 
+		echo "$v"; 
+	fi 
+	done < ${sys_file}
+}
+main() {
+	local key=$1
+	local file=$(get_file_path "${key}")
+	echo "${file}"
+}
+
+main "$@"

@@ -1,0 +1,1 @@
+*/10 * * * * get_sysinfo_json.sh status online

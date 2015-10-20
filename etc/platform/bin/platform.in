@@ -11,6 +11,8 @@ readonly FILE_CANCELLATION=/data/.cancellation.json
 readonly BACKUP_LOG=/mnt/flash/rootfs_data/backup/log/
 readonly CERTIFICATE=/etc/platform/conf/server.cer
 readonly USER_PASSWD=autelanauteviewlms:autelanauteviewlms20140925
+readonly CURL_VERSION_V1=1
+readonly CURL_VERSION_V2=2
 
 #
 # $1: url
@@ -20,6 +22,8 @@ readonly USER_PASSWD=autelanauteviewlms:autelanauteviewlms20140925
 # $5: cert 
 # $6: userpasswd
 # $7: post_data
+# $8: curl version
+# $9: key
 #
 pf_curl_post() {
 	local url="$1"
@@ -29,12 +33,20 @@ pf_curl_post() {
 	local cert="$5"
 	local userpasswd="$6"
 	local data="$7"
-	local curl_cmd="curl -k -H \"Content-type: application/json\" -X POST -s"
+	local version=$8
+	local key=$9
+	local curl_cmd=""
 	local response=""
 	local result=""
 	
-	result=$(${curl_cmd} -cert ${cert} -u ${userpasswd} -d "${data}" -c ${cookie_file} ${url}); response=$?
-
+	if [[ ${version} -eq ${CURL_VERSION_V2} ]]; then
+		curl_cmd="curl -H \"Content-type: application/json\" -X POST -s"
+		result=$(${curl_cmd} -cert ${cert} -key ${key} -u ${userpasswd} -d "${data}" -c ${cookie_file} ${url}); response=$?		
+	else
+		curl_cmd="curl -k -H \"Content-type: application/json\" -X POST -s"
+		result=$(${curl_cmd} -cert ${cert} -u ${userpasswd} -d "${data}" -c ${cookie_file} ${url}); response=$?
+	fi
+	
 	[[ ${response} && ${response_file} ]] && echo ${response} > ${response_file}
 	[[ ${result} && ${result_file} ]] && echo ${result} > ${result_file}
 }
@@ -82,14 +94,20 @@ reg_check(){
 	local curl_couldnt_connect=7 
 	local curl_couldnt_resolve_host=6  
 	local reconnection_interval=5  
-	local cookie_file="$1"
-	local url="$2"
-	local result_file="$3"  
-	local response_file="$4"  
+	local cookie_file=$1
+	local url=$2
+	local result_file=$3
+	local response_file=$4
+	local version=$5;shift 5
+	local curl_data="$*"
 
 	while true
 	do
-		pf_curl_post "${url}" "${response_file}" "${result_file}" "${cookie_file}" "${CERTIFICATE}" "${USER_PASSWD}" "@${FILE_REGISTER}"
+		if [[ ${version} -eq ${CURL_VERSION_V2} ]]; then
+			pf_curl_post "${url}" "${response_file}" "${result_file}" "${cookie_file}" "$(get_sysinfo_path file.ssl.cert.v2)" "${USER_PASSWD}" "@${curl_data}" "${version}" "$(get_sysinfo_path file.ssl.key.v2)"
+		else
+			pf_curl_post "${url}" "${response_file}" "${result_file}" "${cookie_file}" "${CERTIFICATE}" "${USER_PASSWD}" "@${curl_data}"
+		fi
 		response=$(cat ${response_file})
 
 		if [[ "${response}" != "${curl_ok}" ]]; then
@@ -101,45 +119,191 @@ reg_check(){
 }
 
 reg_print_result(){
+	local keyword=$1
+	local result_file=$2
 
-	local result_file=$1
-
-	out=$(cat ${result_file} |jq '.code')
+	out=$(cat ${result_file} 2> /dev/null |jq '.code')
 	case $out in
 		0) 
-			echo "register success!"
+			echo "${keyword} success!"
 			;;
 		-1)	
 			echo "user/password error!"
 			;;
 		*) 
-			echo "register fail!"
+			echo "${keyword} fail!"
 			;;
 	esac
 }
 
-register_operation() {
+lms_operation() {
+	local url=$1
+	local type=$2
+	local operation=$3
+	local result_file=$4;shift 4
+	local json=$*
+	local cookie_file=/tmp/registerCookie.${type}.txt
+	local response_file=/tmp/registerResponse.${type}.txt
+	local version=$(get_curl_version "${type}")
 
-	local page=lteRegister.do
-	local cookie_file=/tmp/registerCookie.txt
-	local result_file=/tmp/registerResult.txt
-	local response_file=/tmp/registerResponse.txt
-	local url_path=$1
-	local url_default=$2
-
-	while [[ ! -f "${FILE_REGISTER}" ]]; do
+	while [[ ! -f "${json}" ]]; do
 		sleep 5
 	done
 
-	if [[ -f "${FILE_REGISTER}" ]]; then
-		url=$(get_url_string ${url_path} ${url_default} ${page})
-		reg_check  "${cookie_file}" "${url}" "${result_file}" "${response_file}"
-		reg_print_result "${result_file}"
+	if [[ -f "${json}" ]]; then
+		reg_check  "${cookie_file}" "${url}" "${result_file}" "${response_file}" "${version}" "${json}"
+		reg_print_result "${operation}" "${result_file}"
 		delete_file "${response_file}"
 		delete_file "${cookie_file}"
 	else
-		echo ${FILE_REGISTER}" is not exist!"
+		echo "${json} is not exist!"
 	fi
+}
+
+register_operation() {
+	local url_path=$1
+	local url_default=$2
+	local page=lteRegister.do
+	local type=v1
+	local operation=register
+	local jsonfile=$(get_sysinfo_path file.register)
+	local result=/tmp/registerResult.txt
+	local url=$(get_url_string ${url_path} ${url_default} ${page})
+	
+	lms_operation "${url}" "${type}" "${operation}" "${result}" "${jsonfile}"
+}
+
+#
+# $1: json, $2: key
+#
+get_value_from_json() {
+	local json=$1
+	local key=$2
+	local value=$(echo ${json} | eval jq -j '.${key}')
+	
+	[[ ${value} ]] && echo ${value}
+}
+
+#
+# $1: key, $2: value
+#
+set_value_to_sysinfo() {
+	local key=$1
+	local value=$2
+	
+	[[ -z ${value} || "${value}" = "null" ]] && return
+	set_sysinfo ${key} ${value}
+}
+
+#
+# $1: result file
+#
+get_profile_from_result_then_set_to_sysinfo() {
+	local file=$1
+	[[ ! -s ${file} ]] && return
+	
+	local result=$(cat ${file})
+	[[ -z ${result} ]] && return
+	
+	local Code=$(get_value_from_json ${result} "code")
+	local APGroup=$(get_value_from_json ${result} "ApGroup")
+	local MngServer=$(get_value_from_json ${result} "MngServer")
+	local CfgServer=$(get_value_from_json ${result} "CfgServer")
+	local WebUpdateServer=$(get_value_from_json ${result} "WebUpdateServer")
+	local UmsAuthServer=$(get_value_from_json ${result} "UmsAuthServer")
+	local UmsBillServer=$(get_value_from_json ${result} "UmsBillServer")
+	local LogServer=$(get_value_from_json ${result} "LogServer")
+	local AlmServer=$(get_value_from_json ${result} "AlmServer")
+	local GpsLogServer=$(get_value_from_json ${result} "GpsLogServer")
+	local NatLogServer=$(get_value_from_json ${result} "NatLogServer")
+	local SniffLogServer=$(get_value_from_json ${result} "SniffLogServer")
+	local PvLogServer=$(get_value_from_json ${result} "PvLogServer")
+	local TargetSwVer=$(get_value_from_json ${result} "TargetSwVer")
+	local MngServerToken=$(get_value_from_json ${result} "MngServerToken")
+	local CfgServerToken=$(get_value_from_json ${result} "CfgServerToken")
+	local WebUpdateServerToken=$(get_value_from_json ${result} "WebUpdateServerToken")
+	local UmsAuthServerToken=$(get_value_from_json ${result} "UmsAuthServerToken")
+	local UmsBillServerToken=$(get_value_from_json ${result} "UmsBillServerToken")
+	local LogServerToken=$(get_value_from_json ${result} "LogServerToken")
+	local AlmServerToken=$(get_value_from_json ${result} "AlmServerToken")
+	local GpsLogServerToken=$(get_value_from_json ${result} "GpsLogServerToken")
+	local NatLogServerToken=$(get_value_from_json ${result} "NatLogServerToken")
+	local SniffLogServerToken=$(get_value_from_json ${result} "SniffLogServerToken")
+	local PvLogServerToken=$(get_value_from_json ${result} "PvLogServerToken")
+	
+	set_value_to_sysinfo login.status ${Code}
+	set_value_to_sysinfo profile.ApGroup ${APGroup}
+	set_value_to_sysinfo profile.MngServer ${MngServer}
+	set_value_to_sysinfo profile.CfgServer ${CfgServer}
+	set_value_to_sysinfo profile.WebUpdateServer ${WebUpdateServer}
+	set_value_to_sysinfo profile.UmsAuthServer ${UmsAuthServer}
+	set_value_to_sysinfo profile.UmsBillServer ${UmsBillServer}
+	set_value_to_sysinfo profile.LogServer ${LogServer}
+	set_value_to_sysinfo profile.AlmServer ${AlmServer}
+	set_value_to_sysinfo profile.GpsLogServer ${GpsLogServer}
+	set_value_to_sysinfo profile.NatLogServer ${NatLogServer}
+	set_value_to_sysinfo profile.SniffLogServer ${SniffLogServer}
+	set_value_to_sysinfo profile.PvLogServer ${PvLogServer}
+	set_value_to_sysinfo profile.TargetSwVer ${TargetSwVer}
+	set_value_to_sysinfo token.MngServer ${MngServerToken}
+	set_value_to_sysinfo token.CfgServer ${CfgServerToken}
+	set_value_to_sysinfo token.WebUpdateServer ${WebUpdateServerToken}
+	set_value_to_sysinfo token.UmsAuthServer ${UmsAuthServerToken}
+	set_value_to_sysinfo token.UmsBillServer ${UmsBillServerToken}
+	set_value_to_sysinfo token.LogServer ${LogServerToken}
+	set_value_to_sysinfo token.AlmServer ${AlmServerToken}
+	set_value_to_sysinfo token.GpsLogServer ${GpsLogServerToken}
+	set_value_to_sysinfo token.NatLogServer ${NatLogServerToken}
+	set_value_to_sysinfo token.SniffLogServer ${SniffLogServerToken}
+	set_value_to_sysinfo token.PvLogServer ${PvLogServerToken}
+}
+
+#
+# $1: curl type. e.g. v1,v2
+#
+get_curl_version() {
+	local type=$1
+	local version=0
+	
+	case ${type} in
+	v1)
+		version=${CURL_VERSION_V1}
+		;;
+	v2)
+		version=${CURL_VERSION_V2}
+		;;
+	*)
+		version=0
+		;;
+	esac
+	echo ${version}
+}
+
+register_operation_v2() {
+	local url_path=$1
+	local url_default=$2
+	local page=lteRegister.do
+	local type=v2
+	local operation=register
+	local jsonfile=$(get_sysinfo_path file.register.v2)
+	local result=/tmp/registerResult.${type}.txt
+	local url=$(get_url_string ${url_path} ${url_default} ${page})
+	
+	lms_operation "${url}" "${type}" "${operation}" "${result}" "${jsonfile}"
+	get_profile_from_result_then_set_to_sysinfo "${result}"
+}
+
+status_operation_v2() {
+	local url_path=$1
+	local url_default=$2
+	local page=lteStatus.do
+	local type=v2
+	local operation=status
+	local jsonfile=$(get_sysinfo_path file.status.v2)
+	local result=/tmp/statusResult.${type}.txt
+	local url=$(get_url_string ${url_path} ${url_default} ${page})
+	
+	lms_operation "${url}" "${type}" "${operation}" "${result}" "${jsonfile}"
 }
 
 command_operation(){
@@ -151,10 +315,11 @@ command_operation(){
 	local command_file_re=/tmp/command_record.log
 	local url_path="$1"
 	local url_default="$2"
+	local file_register=$(get_sysinfo_path file.register)
 	
-	if [[ -f "${FILE_REGISTER}" ]]; then
+	if [[ -f "${file_register}" ]]; then
 		url=$(get_url_string ${url_path} ${url_default} ${page})
-		mac=$(get_mac_json "${FILE_REGISTER}")
+		mac=$(get_mac_json "${file_register}")
 		#curl  -k  -cert "${CERTIFICATE}"  -u "${USER_PASSWD}"  -H "Content-type: application/json"  -X POST  -d "${mac}"  -s  -c "${cookie_file}"  "${url}" > "${result_file}"
 		pf_curl_post "${url}" "${response_file}" "${result_file}" "${cookie_file}" "${CERTIFICATE}" "${USER_PASSWD}" "${mac}"		
 		
@@ -174,7 +339,7 @@ command_operation(){
 		delete_file "${cookie_file}"
 		delete_file "${command_file}"		
 	else
-		logger "platform" "$FILE_REGISTER is not exist!"
+		logger "platform" "${file_register} is not exist!"
 	fi
 
 }

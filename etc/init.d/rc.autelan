@@ -78,7 +78,7 @@ phase2() {
 #	. /etc/drop_off.sh
 #	. /etc/get_time.sh &
 
-#	/usr/localweb/.compare_disk.sh &
+	/usr/localweb/.compare_disk.sh &
 
 #	wifidog -c /usr/local/etc/wifidog.conf 2>/dev/null
 
