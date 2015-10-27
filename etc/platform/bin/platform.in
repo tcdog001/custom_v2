@@ -90,17 +90,17 @@ get_url() {
 	fi
 	echo ${url}
 }
+
 get_url_string() {
-	local url_path="$1"
+	local url_tmp="$1"
 	local url_default="$2"
 	local page="$3"
 	
 	local url=""
-	local url_tmp=""
 	
-	if [[ -s "${url_path}" ]]; then
-		url="$(cat ${url_path})${page}"
-	else
+	if [[ "${url_tmp}" && "${url_tmp}" != "none" && "${url_tmp}" != "null" ]]; then
+		url="${url_tmp}${page}"
+	elif [[ "${url_default}" ]]; then
 		url="${url_default}${page}"
 	fi
 	echo ${url}
@@ -260,12 +260,13 @@ set_value_to_sysinfo() {
 #
 get_profile_from_result_then_set_to_sysinfo() {
 	local operation="$1"
-	local result="$2"
+	local result_file="$2"
 
-	[[ ! -s ${result} ]] && return
+	[[ ! -s ${result_file} ]] && return
 	
-	local Code=$(get_code_from_result "${operation}" "${result}")
+	local Code=$(get_code_from_result "${operation}" "${result_file}")
 	if [[ "${Code}" = "${OPERATE_OK}" ]]; then
+		local result=$(cat ${result_file})
 		local APGroup=$(get_value_from_json ${result} "ApGroup")
 		local MngServer=$(get_value_from_json ${result} "MngServer")
 		local CfgServer=$(get_value_from_json ${result} "CfgServer")
@@ -343,7 +344,7 @@ get_curl_version() {
 }
 
 register_operation_v2() {
-	local url_path="$1"
+	local url_tmp="$1"
 	local url_default="$2"
 	
 	local page=lteRegister.do
@@ -351,7 +352,7 @@ register_operation_v2() {
 	local operation=register
 	local jsonfile=$(get_sysinfo_path file.register.v2)
 	local result=/tmp/${operation}Result.${type}.txt
-	local url=$(get_url_string ${url_path} ${url_default} ${page})
+	local url=$(get_url_string "${url_tmp}" "${url_default}" "${page}")
 	
 	set_value_to_sysinfo login.status "${OPERATE_NOK}"
 	lms_operation "${url}" "${type}" "${operation}" "${result}" "${jsonfile}"
@@ -359,7 +360,7 @@ register_operation_v2() {
 }
 
 status_operation_v2() {
-	local url_path="$1"
+	local url_tmp="$1"
 	local url_default="$2"
 	
 	local page=lteStatus.do
@@ -367,7 +368,7 @@ status_operation_v2() {
 	local operation=status
 	local jsonfile=$(get_sysinfo_path file.status.v2)
 	local result=/tmp/${operation}Result.${type}.txt
-	local url=$(get_url_string ${url_path} ${url_default} ${page})
+	local url=$(get_url_string "${url_tmp}" "${url_default}" "${page}")
 	
 	lms_operation "${url}" "${type}" "${operation}" "${result}" "${jsonfile}"
 	local Code=$(get_code_from_result "${operation}" "${result}")
@@ -410,7 +411,7 @@ get_cmd_from_result() {
 }
 
 command_operation_v2(){
-	local url_path="$1"
+	local url_tmp="$1"
 	local url_default="$2"
 	
 	local page=lteCommand.do
@@ -420,7 +421,7 @@ command_operation_v2(){
 	local result=/tmp/${operation}Result.${type}.txt
 	local command_file=/tmp/${operation}.${type}.txt
 	local command_file_record=/tmp/${operation}_record.${type}.log
-	local url=$(get_url_string ${url_path} ${url_default} ${page})
+	local url=$(get_url_string "${url_tmp}" "${url_default}" "${page}")
 	
 	lms_operation "${url}" "${type}" "${operation}" "${result}" "${jsonfile}"
 	local command=$(get_cmd_from_result "${operation}" "${result}")

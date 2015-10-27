@@ -94,6 +94,7 @@ web.frame               /tmp/.statistic/web.version.frame
 web.rsync               /tmp/.statistic/web.version.rsync
 login.time              /tmp/.login/time
 login.status            /tmp/.login/login
+login.url               /etc/platform/conf/platform_v2.json
 profile.ApGroup         /data/.profile/ApGroup
 profile.MngServer       /data/.profile/MngServer
 profile.VersionServer   /data/.profile/VersionServer
