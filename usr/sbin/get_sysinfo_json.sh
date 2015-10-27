@@ -127,11 +127,19 @@ get_json_productinfo_b() {
     [[ ${jsonstr} ]] && echo ${jsonstr}
 }
 
-# ApMac ApSn ApModel
-get_json_productinfo_a() {
+# ApMac
+get_json_mac() {
     local jsonstr=$@
 
     jsonstr=$(add_json_string "ApMac" "0" "$(get_sysinfo mac)" "${jsonstr}")
+
+    [[ ${jsonstr} ]] && echo ${jsonstr}
+}
+
+# ApSn ApModel
+get_json_productinfo_a() {
+    local jsonstr=$@
+
     jsonstr=$(add_json_string "ApSn" "0" "$(get_sysinfo sn)" "${jsonstr}")
     jsonstr=$(add_json_string "ApModel" "0" "$(get_sysinfo model)" "${jsonstr}")
 
@@ -145,9 +153,10 @@ get_json_productinfo_a() {
 # "LastLoginLat":"40.0257331","LastLoginLng":"116.1752359"}
 #
 form_register_json() {
-	local file=/data/.register.v2.json
+	local file=$(get_sysinfo_path file.register.v2)
 	local jstring=""
 	
+	jstring=$(get_json_mac "${jstring}")
 	jstring=$(get_json_productinfo_a "${jstring}")
 	jstring=$(get_json_productinfo_b "${jstring}")
 	jstring=$(get_json_md_boardinfo "${jstring}")
@@ -328,7 +337,7 @@ get_json_status_tail() {
 form_status_json() {
 	local apstatus=$1
 	local logoutcause=$2
-	local file=/data/.status.v2.json
+	local file=$(get_sysinfo_path file.status.v2)
 	local jstring=""
 	
 	jstring=$(get_json_status_head "${jstring}")
@@ -345,6 +354,15 @@ form_status_json() {
 	echo ${jstring} > ${file}
 }
 
+form_command_json() {
+	local file=$(get_sysinfo_path file.command.v2)
+	local jstring=""
+	
+	jstring=$(get_json_mac "${jstring}")
+
+	echo ${jstring} > ${file}
+}
+
 #
 # $1: operation
 #
@@ -354,8 +372,9 @@ main () {
 	local logoutcause=$3
 	
 	if [[ "${handle}" = "register" ]]; then
-		form_register_json "${oper}"
-		
+		form_register_json
+	elif [[ "${handle}" = "command" ]]; then
+		form_command_json
 	elif [[ "${handle}" = "status" ]]; then
 		if [[ ${apstatus} != "online" && ${apstatus} != "offline" ]]; then
 			echo "Usage: get_sysinfo_json ${handle} [online|offline]"
@@ -374,7 +393,7 @@ main () {
 		form_status_json "${apstatus}" "${logoutcause}"
 		
 	else
-		echo "Usage: get_sysinfo_json [register|status]" && exit 1
+		echo "Usage: get_sysinfo_json [register|status|command]" && exit 1
 	fi
 }
 

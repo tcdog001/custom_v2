@@ -121,6 +121,7 @@ token.SniffLogServer    /data/.token/SniffLogServer
 token.PvLogServer       /data/.token/PvLogServer
 file.register           /data/.register.json
 file.register.v2        /data/.register.v2.json
+file.command.v2         /data/.command.v2.json
 file.status.v2          /data/.status.v2.json
 file.ssl.key            /etc/platform/conf/client.key
 file.ssl.key.v2         /etc/platform/conf/client.v2.key
