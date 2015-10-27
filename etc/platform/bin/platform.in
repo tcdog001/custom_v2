@@ -140,13 +140,13 @@ reg_check(){
 
 		if [[ "${response}" != "${curl_ok}" ]]; then
 			if [[ ${version} -eq ${CURL_VERSION_V2} ]]; then
-				[[ ${times} -lt 0 ]] && break
+				(( times -- ))
+				[[ ${times} -le 0 ]] && break
 			fi
 			sleep "${reconnection_interval}"
 		else
 			break
 		fi
-		(( times -- ))
 	done
 }
 
