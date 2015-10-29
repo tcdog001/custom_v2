@@ -1,20 +1,24 @@
 #!/bin/bash
 
+GPS_OK=1
 #
 # $1: key
 # $2: type e.g. 0:string, 1:int
 # $3: value
 #
 make_json_string() {
-    local key=$1
-    local type=$2
-    local value=$3
+    local key="$1"
+    local type="$2"; shift 2
+    local value="$*"
+    
     local str_new=""
+    local value_tmp=""
    
     if [[ -z "${value}" || "null" = "${value}" || "none" = "${value}" ]]; then
 		str_new=""
 	elif [[ ${type} -eq 1 ]]; then
-    	str_new="{\"${key}\":${value}}"
+		value_tmp=$(echo ${value} | awk '$1~/^([0-9.])+$/')
+    	[[ ${value_tmp} ]] && str_new="{\"${key}\":${value_tmp}}"
 	else
     	str_new="{\"${key}\":\"${value}\"}"
     fi
@@ -28,10 +32,11 @@ make_json_string() {
 # e.g. echo "{\"a\":1,\"b\":2}" | jq -c -j ". * {\"b\":3,\"c\":4}"
 #
 add_json_string() {
-    local key=$1
-    local type=$2
-    local value=$3; shift 3
-    local str_old=$@
+    local key="$1"
+    local type="$2"
+    local value="$3"; shift 3
+    local str_old="$*"
+    
     local str_new=""
     local str_entirety=""
    
@@ -50,22 +55,23 @@ add_json_string() {
 
 # SwVer WebFrameVer WebRsrcVer CfgVer LastLoginTime LastLoginLat LastLoginLng
 get_json_md_funcinfo() {
-    local jsonstr=$@
+    local jsonstr="$@"
     
     jsonstr=$(add_json_string "SwVer" "0" "$(get_sysinfo sw.version)" "${jsonstr}")
     jsonstr=$(add_json_string "WebFrameVer" "0" "$(get_sysinfo web.frame)" "${jsonstr}")
     jsonstr=$(add_json_string "WebRsrcVer" "0" "$(get_sysinfo web.rsync)" "${jsonstr}")
     jsonstr=$(add_json_string "CfgVer" "0" "$(get_sysinfo cfg.version)" "${jsonstr}")
     jsonstr=$(add_json_string "LastLoginTime" "0" "$(get_sysinfo login.time)" "${jsonstr}")
-    jsonstr=$(add_json_string "LastLoginLat" "0" "$(get_sysinfo gps.Lat)" "${jsonstr}")
-    jsonstr=$(add_json_string "LastLoginLng" "0" "$(get_sysinfo gps.Lng)" "${jsonstr}")
-
+	if [[ $(get_sysinfo gps.status) -eq ${GPS_OK} ]]; then
+    	jsonstr=$(add_json_string "LastLoginLat" "0" "$(get_sysinfo gps.Lat)" "${jsonstr}")
+	    jsonstr=$(add_json_string "LastLoginLng" "0" "$(get_sysinfo gps.Lng)" "${jsonstr}")
+	fi
     [[ ${jsonstr} ]] && echo ${jsonstr}
 }
 
 # CWanCount CWan0Model CWan0Meid CWan0FwVer CWan0Iccid CWan0Carrier CWan1Model CWan1Meid CWan1FwVer CWan1Iccid CWan1Carrier
 get_json_md_waninfo() {
-    local jsonstr=$@
+    local jsonstr="$@"
     
     jsonstr=$(add_json_string "CWanCount" "0" "$(get_sysinfo cellular.count)" "${jsonstr}")
     jsonstr=$(add_json_string "CWan0Model" "0" "$(get_sysinfo cellular1.model)" "${jsonstr}")
@@ -84,7 +90,7 @@ get_json_md_waninfo() {
 
 # SdModel SdDisksize ExtWifiModel ExtWifiMAC ExtWifiSN
 get_json_md_extinfo() {
-    local jsonstr=$@
+    local jsonstr="$@"
 
     jsonstr=$(add_json_string "SdModel" "0" "$(get_sysinfo sd.model)" "${jsonstr}")
     jsonstr=$(add_json_string "SdDisksize" "0" "$(get_sysinfo sd.size)" "${jsonstr}")
@@ -97,7 +103,7 @@ get_json_md_extinfo() {
 
 # MemorySize FlashSize FlashVendor FlashPsn HddVendor HddModel HddSN HddDisksize HddFwVer
 get_json_md_boardinfo() {
-    local jsonstr=$@
+    local jsonstr="$@"
 
     jsonstr=$(add_json_string "MemorySize" "0" "$(get_sysinfo memory.size)" "${jsonstr}")
     jsonstr=$(add_json_string "FlashSize" "0" "$(get_sysinfo flash.size)" "${jsonstr}")
@@ -114,7 +120,7 @@ get_json_md_boardinfo() {
 
 # ApVendor ApVer PcbaModel PcbaVersion HwMac HwPn HwVer
 get_json_productinfo_b() {
-    local jsonstr=$@
+    local jsonstr="$@"
 
     jsonstr=$(add_json_string "ApVendor" "0" "$(get_sysinfo vendor)" "${jsonstr}")
     jsonstr=$(add_json_string "ApVer" "0" "$(get_sysinfo version)" "${jsonstr}")
@@ -129,7 +135,7 @@ get_json_productinfo_b() {
 
 # ApMac
 get_json_mac() {
-    local jsonstr=$@
+    local jsonstr="$@"
 
     jsonstr=$(add_json_string "ApMac" "0" "$(get_sysinfo mac)" "${jsonstr}")
 
@@ -138,7 +144,7 @@ get_json_mac() {
 
 # ApSn ApModel
 get_json_productinfo_a() {
-    local jsonstr=$@
+    local jsonstr="$@"
 
     jsonstr=$(add_json_string "ApSn" "0" "$(get_sysinfo sn)" "${jsonstr}")
     jsonstr=$(add_json_string "ApModel" "0" "$(get_sysinfo model)" "${jsonstr}")
@@ -187,7 +193,8 @@ form_time_5min() {
 # json_time format is 0000-00-00T00:00:00Z
 #
 form_time_json() {
-	local time_a=$1
+	local time_a="$1"
+	
 	local time_b=$(echo ${time_a} | awk -F '-' '{print $1"-"$2"-"$3" "$4":"$5":"$6}')
 
 	[[ -z "${time_a}" || -z "${time_b}" ]] && return
@@ -199,7 +206,8 @@ form_time_json() {
 
 # ApBillId BootTime LogTime
 get_json_status_head() {
-    local jsonstr=$@
+    local jsonstr="$@"
+    
     local boottime=$(form_time_json "$(cat /tmp/.startup)")
     local logtime=$(form_time_5min)
 
@@ -212,17 +220,18 @@ get_json_status_head() {
 
 # ApLat ApLng
 get_json_md_gpsinfo() {
-    local jsonstr=$@
+    local jsonstr="$@"
 
-    jsonstr=$(add_json_string "ApLat" "1" "$(get_sysinfo gps.Lat)" "${jsonstr}")
-    jsonstr=$(add_json_string "ApLng" "1" "$(get_sysinfo gps.Lng)" "${jsonstr}")
-
+	if [[ $(get_sysinfo gps.status) -eq ${GPS_OK} ]]; then
+    	jsonstr=$(add_json_string "ApLat" "1" "$(get_sysinfo gps.Lat)" "${jsonstr}")
+    	jsonstr=$(add_json_string "ApLng" "1" "$(get_sysinfo gps.Lng)" "${jsonstr}")
+	fi
     [[ ${jsonstr} ]] && echo ${jsonstr}
 }
 
 # LoginStatus WifiSwitchStatus ApGroup ApIP 
 get_json_status_a() {
-    local jsonstr=$@
+    local jsonstr="$@"
 
     jsonstr=$(add_json_string "LoginStatus" "0" "$(get_sysinfo login.status)" "${jsonstr}")
     jsonstr=$(add_json_string "WifiSwitchStatus" "0" "$(get_sysinfo wifi.status)" "${jsonstr}")
@@ -234,7 +243,7 @@ get_json_status_a() {
 
 # CWan0OfflineCount CWan0OfflineSecs CWan0OnlineSecs CWan0OnlinePercent CWan0Csq CWan0Hdrcsq CWan0WorkMode
 get_json_status_b() {
-    local jsonstr=$@
+    local jsonstr="$@"
 
     jsonstr=$(add_json_string "CWan0OfflineCount" "1" "$(get_sysinfo cellular1.offlinecount)" "${jsonstr}")
     jsonstr=$(add_json_string "CWan0OfflineSecs" "1" "$(get_sysinfo cellular1.offlinesecs)" "${jsonstr}")
@@ -249,7 +258,7 @@ get_json_status_b() {
 
 # Wifi0AverageRssi Wifi1AverageRssi Wifi0AssociateUeCount Wifi1AssociateUeCount
 get_json_status_c() {
-    local jsonstr=$@
+    local jsonstr="$@"
     
     jsonstr=$(add_json_string "Wifi0AverageRssi" "1" "$(get_sysinfo wifi0.rssi.avg)" "${jsonstr}")
     jsonstr=$(add_json_string "Wifi1AverageRssi" "1" "$(get_sysinfo wifi1.rssi.avg)" "${jsonstr}")
@@ -262,7 +271,7 @@ get_json_status_c() {
 # LoginUeCount 
 # AllUserWanRxOcts AllUserWanTxOcts AllUserLanRxOcts AllUserLanTxOcts AllCWanRxOcts AllCWanTxOcts AllLanRxOcts AllLanTxOcts
 get_json_status_d() {
-	local jsonstr=$@
+	local jsonstr="$@"
 
 	jsonstr=$(add_json_string "LoginUeCount" "1" "$(get_sysinfo umc.auth.uecount)" "${jsonstr}")
 	jsonstr=$(add_json_string "AllUserWanRxOcts" "1" "$(get_sysinfo umc.user.wan.rx)" "${jsonstr}")
@@ -281,7 +290,7 @@ get_json_status_d() {
 # HddDisksize HddAvailable HddUsedPercent SdDisksize SdAvailable SdUsedPercent
 # get number from string, e.g. sed -re 's/[^0-9]*([0-9]*).*$/\1/'
 get_json_status_e() {
-	local jsonstr=$@
+	local jsonstr="$@"
 
     jsonstr=$(add_json_string "BrdTemperature" "1" "$(get_sysinfo temperature)" "${jsonstr}")
     jsonstr=$(add_json_string "MemorySize" "1" "$(get_sysinfo memory.size | sed -re 's/[^0-9]*([0-9]*).*$/\1000/')" "${jsonstr}")
@@ -301,7 +310,7 @@ get_json_status_e() {
 
 # WebFoldersToUpdate WebFoldersUpdated
 get_json_status_webinfo() {
-	local jsonstr=$@
+	local jsonstr="$@"
 
     jsonstr=$(add_json_string "WebFoldersToUpdate" "0" "$(get_sysinfo web.floder.after)" "${jsonstr}")
     jsonstr=$(add_json_string "WebFoldersUpdated" "0" "$(get_sysinfo web.floder.now)" "${jsonstr}")
@@ -313,9 +322,10 @@ get_json_status_webinfo() {
 # $1: apstatus
 # $2: logoutcause
 get_json_status_tail() {
-	local apstatus=$1
-    local logoutcause=$2; shift 2
-	local jsonstr=$@
+	local apstatus="$1"
+    local logoutcause="$2"; shift 2
+	local jsonstr="$*"
+	
     local logouttime=$(date '+%FT%TZ')
 
 	if [[ ${apstatus} = "offline" ]]; then
@@ -335,8 +345,9 @@ get_json_status_tail() {
 # "ApMac":"00:1F:64:00:00:01","ApLat":40.025788,"ApLng":116.1752443,"CWan0Hdrcsq":11,"MemorySize":2000,"ApStatus":"online"}
 #
 form_status_json() {
-	local apstatus=$1
-	local logoutcause=$2
+	local apstatus="$1"
+	local logoutcause="$2"
+	
 	local file=$(get_sysinfo_path file.status.v2)
 	local jstring=""
 	
@@ -367,9 +378,9 @@ form_command_json() {
 # $1: operation
 #
 main () {
-	local handle=$1
-	local apstatus=$2
-	local logoutcause=$3
+	local handle="$1"
+	local apstatus="$2"
+	local logoutcause="$3"
 	
 	if [[ "${handle}" = "register" ]]; then
 		form_register_json

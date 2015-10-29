@@ -63,11 +63,12 @@ sw.version              /tmp/.software_info/sw.version
 cfg.version             /tmp/.software_info/cfg.version
 portal.version          /tmp/.software_info/portal.version
 content.version         /tmp/.software_info/content.version
+gps.status              /tmp/.gps/status
 gps.satellite           /tmp/.gps/gps_satellite
 gps.Lat                 /tmp/.gps/gps_Lat
 gps.Lng                 /tmp/.gps/gps_Lng
 acc.duration            /tmp/.acc/duration
-wifi.status             /tmp/.status/wifi
+wifi.status             /tmp/.wifi/onoff
 wifi0.rssi.avg          /tmp/.wifi/wifi0/rssi
 wifi1.rssi.avg          /tmp/.wifi/wifi1/rssi
 wifi0.uecount           /tmp/.wifi/wifi0/uecount

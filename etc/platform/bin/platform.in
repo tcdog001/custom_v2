@@ -47,7 +47,7 @@ pf_curl_post() {
 	
 	if [[ ${version} -eq ${CURL_VERSION_V2} ]]; then
 		curl_cmd="curl -H \"Content-type: application/json\" -X POST -s"
-		result=$(${curl_cmd} -cert ${cert} -key ${key} -u ${userpasswd} -d "${data}" -c ${cookie_file} -L ${url}); response=$?		
+		result=$(${curl_cmd} -cert ${cert} -key ${key} -u ${userpasswd} -d "${data}" -c ${cookie_file} ${url} --location-trust -L); response=$?		
 	else
 		curl_cmd="curl -k -H \"Content-type: application/json\" -X POST -s"
 		result=$(${curl_cmd} -cert ${cert} -u ${userpasswd} -d "${data}" -c ${cookie_file} ${url}); response=$?
