@@ -93,9 +93,9 @@ web.floder.after        /tmp/.statistic/web.floder.after
 web.floder.now          /tmp/.statistic/web.floder.now
 web.frame               /tmp/.statistic/web.version.frame
 web.rsync               /tmp/.statistic/web.version.rsync
-login.time              /tmp/.login/time
-login.status            /tmp/.login/login
 login.url               /etc/platform/conf/platform_v2.json
+login.time              /data/.profile/login.time
+login.status            /data/.profile/login.status
 profile.ApGroup         /data/.profile/ApGroup
 profile.MngServer       /data/.profile/MngServer
 profile.VersionServer   /data/.profile/VersionServer

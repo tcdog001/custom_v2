@@ -293,7 +293,7 @@ get_profile_from_result_then_set_to_sysinfo() {
 		local PvLogServerToken=$(get_value_from_json ${result} "PvLogServerToken")
 		
 		set_value_to_sysinfo login.status ${Code}
-		set_value_to_sysinfo login.time $(date '+%F %T')
+		set_value_to_sysinfo login.time $(date '+%FT%T')
 		set_value_to_sysinfo profile.ApGroup ${APGroup}
 		set_value_to_sysinfo profile.MngServer ${MngServer}
 		set_value_to_sysinfo profile.CfgServer ${CfgServer}
