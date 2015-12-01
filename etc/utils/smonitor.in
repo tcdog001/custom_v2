@@ -1,0 +1,12 @@
+#!/bin/bash
+
+if [[ -z "${__UTILS_SMONITOR_IN__}" ]]; then __UTILS_SMONITOR_IN__=_; else return; fi
+
+get_smonitor_pid() {
+	local name="$1"
+	local pid=$(ps | grep "${name}" | grep -v smonitor | grep -v grep | head -n 1 | awk '{print $1}')
+
+	expr ${pid} + 1 &> /dev/null || pid=0
+	echo ${pid}
+}
+
