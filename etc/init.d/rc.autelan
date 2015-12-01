@@ -1,15 +1,18 @@
 #!/bin/bash
 
-copy_appkey() {
+prepare() {
 	mkdir -p /tmp/appkey /tmp/.backtrace
+
 	cp -fpR /etc/appkey/* /tmp/appkey/
 	appkey reload &> /dev/null
+
+	cp -f /etc/init.d/.smonitor.init /tmp/.smonitor.init
 }
 
 phase1() {
 	clock_set
 	#. /etc/cp1.in
-	mount; copy_appkey
+	mount; prepare
 	sysmount
 	#. /etc/cp2.in
 	/etc/upgrade/set_dir.sh
