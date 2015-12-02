@@ -49,11 +49,14 @@ phase1() {
 	# run gps processes, use gps_exit to quit gps
 	gps_init &
 
+	# should move to .smonitor.init
 	udhcpd -f /tmp/config/udhcpd.conf & 2>/dev/null
 
 	sysctl -p 2>/dev/null
+
+	# should move to .smonitor.init
 	dnsmasq -C /tmp/config/dnsmasq.conf -x /tmp/dnsmasq.pid & 2>/dev/null
-	
+	# should move to .smonitor.init
 	xinetd -f /tmp/config/xinetd.conf -pidfile /tmp/xinetd.pid &
 }
 
