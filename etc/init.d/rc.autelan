@@ -50,12 +50,12 @@ phase1() {
 	gps_init &
 
 	# should move to .smonitor.init
-	udhcpd -f /tmp/config/udhcpd.conf & 2>/dev/null
+#	udhcpd -f /tmp/config/udhcpd.conf & 2>/dev/null
 
 	sysctl -p 2>/dev/null
 
 	# should move to .smonitor.init
-	dnsmasq -C /tmp/config/dnsmasq.conf -x /tmp/dnsmasq.pid & 2>/dev/null
+#	dnsmasq -C /tmp/config/dnsmasq.conf -x /tmp/dnsmasq.pid & 2>/dev/null
 	# should move to .smonitor.init
 	xinetd -f /tmp/config/xinetd.conf -pidfile /tmp/xinetd.pid &
 }
@@ -78,13 +78,13 @@ phase2() {
 #	chmod -R 777 /mnt/hd/website/
 #	chmod -R 777 /sbin/arp
 
-	/usr/sbin/crond -c /etc/crontabs/
+#	/usr/sbin/crond -c /etc/crontabs/
 
 	#check the last time drop reason
 #	. /etc/drop_off.sh
 #	. /etc/get_time.sh &
 
-#	/usr/localweb/.compare_disk.sh &
+	/usr/localweb/.compare_disk.sh &
 
 #	wifidog -c /usr/local/etc/wifidog.conf 2>/dev/null
 
@@ -97,12 +97,10 @@ phase2() {
 #			/etc/init.d/${__CP__}/init.sh 2>/dev/null &
 #	fi
 	/usr/sbin/check_gps.sh &
+	/usr/sbin/auto_reboot_md.sh &
 
 	echo $(date '+%F-%H-%M-%S') > /tmp/.startup
-	#
-	# auto reboot after running 12h
-	#
-	/usr/sbin/timeout_reboot.sh &
+	size_opt_dir > /dev/null
 
 	#
 	# keep it last !!!

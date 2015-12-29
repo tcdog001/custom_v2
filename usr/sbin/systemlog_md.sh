@@ -69,31 +69,30 @@ get_ip() {
 }
 
 get_online_user() {
-	echo "${ERROR_NOSUPPORT}"
+    echo "${ERROR_NOSUPPORT}"
 }
 
 get_today_user() {
-	echo "${ERROR_NOSUPPORT}"
+    echo "${ERROR_NOSUPPORT}"
 }
 
 get_gps_antenna() {
-	echo "${ERROR_NOSUPPORT}"
+    echo "${ERROR_NOSUPPORT}"
 }
 
 get_3g_status() {
-	local status=$(/usr/sbin/get_sysinfo cellular1.status)
-	case ${status} in
-	0)
-		status="online"
-		;;
-	1)
-		status="offline"
-		;;
-	*)
-		
-		status="null"
-		;;
-	esac
+    local status=$(/usr/sbin/get_sysinfo cellular1.status)
+    case ${status} in
+    0)
+        status="online"
+        ;;
+    1)
+        status="offline"
+        ;;
+    *)
+        status="null"
+        ;;
+    esac
 	
     echo ${status}
 }
@@ -134,12 +133,10 @@ str_systemlog_ap() {
 str_systemlog_3g() {
     local jsonstr="$@"
 
-
-	jsonstr=$(add_json_string "sim-iccid" "$(/usr/sbin/get_sysinfo cellular1.iccid)" "${jsonstr}")
-	jsonstr=$(add_json_string "3g-status" "$(get_3g_status)" "${jsonstr}")
-	jsonstr=$(add_json_string "3g_net" "$(/usr/sbin/get_sysinfo cellular1.carrier)" "${jsonstr}")
-	jsonstr=$(add_json_string "3g_strong" "$(/usr/sbin/get_sysinfo cellular1.strength | sed -n '$p')" "${jsonstr}")
-	
+    jsonstr=$(add_json_string "sim-iccid" "$(/usr/sbin/get_sysinfo cellular1.iccid)" "${jsonstr}")
+    jsonstr=$(add_json_string "3g-status" "$(get_3g_status)" "${jsonstr}")
+    jsonstr=$(add_json_string "3g_net" "$(/usr/sbin/get_sysinfo cellular1.carrier)" "${jsonstr}")
+    jsonstr=$(add_json_string "3g_strong" "$(/usr/sbin/get_sysinfo cellular1.strength | sed -n '$p')" "${jsonstr}")	
 
     [[ ${jsonstr} ]] && echo ${jsonstr}
 }
@@ -152,22 +149,20 @@ str_systemlog_md() {
     local jsonstr="$@"
 
     jsonstr=$(add_json_string "recordtime" "${car_system_now}" "${jsonstr}")
-	jsonstr=$(add_json_string "internet_ip" "$(get_ip)" "${jsonstr}")
+    jsonstr=$(add_json_string "internet_ip" "$(get_ip)" "${jsonstr}")
     jsonstr=$(add_json_string "process_num" "$(ps -w | wc -l)" "${jsonstr}")
-	jsonstr=$(add_json_string "online_user" "$(get_online_user)" "${jsonstr}")
-	jsonstr=$(add_json_string "today_user" "$(get_today_user)" "${jsonstr}")
-	jsonstr=$(add_json_string "today_flow" "$(/usr/sbin/get_sysinfo cellular.flow)" "${jsonstr}")
+    jsonstr=$(add_json_string "online_user" "$(get_online_user)" "${jsonstr}")
+    jsonstr=$(add_json_string "today_user" "$(get_today_user)" "${jsonstr}")
+    jsonstr=$(add_json_string "today_flow" "$(/usr/sbin/get_sysinfo cellular.flow)" "${jsonstr}")
     jsonstr=$(add_json_string "cpu_temp" "$(get_temp)" "${jsonstr}")
     jsonstr=$(add_json_string "cpu" "$(get_cpu_use)" "${jsonstr}")
 
     jsonstr=$(add_json_string "memory" "$(get_memory_use)" "${jsonstr}")
     jsonstr=$(add_json_string "disk_used" "$(get_ssd_Usage)" "${jsonstr}")
     jsonstr=$(add_json_string "disk_erased" "$(get_ssd_erasenum)" "${jsonstr}")
-	jsonstr=$(add_json_string "disk_bad" "$(get_ssd_badnum)" "${jsonstr}")
-	jsonstr=$(add_json_string "gps_satellite" "$(/usr/sbin/get_sysinfo gps.satellite)" "${jsonstr}")
-	jsonstr=$(add_json_string "gps_antenna" "$(get_gps_antenna)" "${jsonstr}")
-	
-	
+    jsonstr=$(add_json_string "disk_bad" "$(get_ssd_badnum)" "${jsonstr}")
+    jsonstr=$(add_json_string "gps_satellite" "$(/usr/sbin/get_sysinfo gps.satellite)" "${jsonstr}")
+    jsonstr=$(add_json_string "gps_antenna" "$(get_gps_antenna)" "${jsonstr}")
 
     [[ ${jsonstr} ]] && echo ${jsonstr}
 }
@@ -179,7 +174,7 @@ main() {
 
     jsonstr=$(str_systemlog_md ${jsonstr})
     #jsonstr=$(str_systemlog_ap ${jsonstr})
-	jsonstr=$(str_systemlog_3g ${jsonstr})
+    jsonstr=$(str_systemlog_3g ${jsonstr})
 
     # dir_opt_log_dev_monitor from etc/utils/dir.in
     str_output "{ ${jsonstr} }" "${dir_tmp_log_dev_monitor}/${logname}"

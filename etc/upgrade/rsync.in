@@ -8,6 +8,7 @@ fi
 
 . ${__ROOTFS__}/etc/jsock/jsock.in
 . ${__ROOTFS__}/etc/utils/dir.in
+. ${__ROOTFS__}/etc/upgrade/upgrade_boot.in
 
 #
 #$1:file
@@ -609,6 +610,14 @@ rsync_task() {
 		pass=${RSYNC_PASS}
 	fi
 
+	#
+	# check if upgrade boot, get __UPGRADE_BOOT__
+	#
+	upgrade_boot=$(echo ${json} | jq -j '.upgrade_boot|strings')
+	if [ -z "${upgrade_boot}" ];then
+		upgrade_boot=no
+	fi
+	
 	local fsm="$(rsync_getvalue ${obj} ${version} 'fsm')"
 	local error="$(rsync_getvalue ${obj} ${version} 'error')"
 	rsync_echo_logger "start rsync_task with fsm:${fsm} error:${error}"
@@ -622,6 +631,20 @@ rsync_task() {
 		# needn't rsync
 		#
 		rsync_echo_logger "the rsync version:${version} is ok, start upgrade"
+
+		#
+		# check if upgrade boot
+		#
+		if [[ "${upgrade_boot}" = "yes" ]]; then
+			local ret_boot=""
+			
+			__UPGRADE_BOOT__=${upgrade_boot} ${__ROOTFS__}/etc/upgrade/upgrade_boot.sh "${version}"; ret_boot=$?
+			if [[ ${ret_boot} -ne 0 ]]; then
+				upgrade_echo_logger "boot_upgrade" \
+					"upgrade boot fail: stop upgrade"
+				exit 1
+			fi
+		fi
 
 		${__ROOTFS__}/etc/upgrade/upgrade_task.sh "${version}"
 
@@ -718,6 +741,20 @@ rsync_task() {
 	rsync_setvalue "${obj}" "${version}" "state" "need"
 	rsync_echo_logger "rsync_task version:${version} ok, start upgrade"
 
+	#
+	# check if upgrade boot
+	#
+	if [[ "${upgrade_boot}" = "yes" ]]; then
+		local ret_boot2=""
+		
+		__UPGRADE_BOOT__=${upgrade_boot} ${__ROOTFS__}/etc/upgrade/upgrade_boot.sh "${version}"; ret_boot2=$?
+		if [[ ${ret_boot2} -ne 0 ]]; then
+			upgrade_echo_logger "boot_upgrade" \
+				"upgrade boot fail: stop upgrade"
+			exit 1
+		fi
+	fi
+	
 	${__ROOTFS__}/etc/upgrade/upgrade_task.sh "${version}"
 
 	return ${err}

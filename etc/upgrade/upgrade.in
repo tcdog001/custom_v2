@@ -36,18 +36,18 @@ upgrade_debug_trace() {
 }
 
 upgrade_logger() {
-	do_logger upgrade "$@"
+	do_logger "upgrade" "$@"
 }
 
 upgrade_echo_logger() {
-	echo_logger upgrade "$@"
+	echo_logger "upgrade" "$@"
 }
 
 #
 #$1:action
 #
 upgrade_do() {
-	debug_do upgrade "$@"
+	debug_do upgrade "$*"
 }
 
 readonly file_lock_upgrade_task=/tmp/.upgrade_task.lock
@@ -56,7 +56,7 @@ upgrade_task_running() {
 	local err=0
 
 	exec_with_flock ${file_lock_upgrade_task} echo; err=$?
-	if ((e_flock_failed == err)); then
+	if [ "${e_flock_failed}" == "${err}" ]; then
 		echo 'running'
 	fi
 }
