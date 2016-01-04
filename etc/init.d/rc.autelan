@@ -7,17 +7,28 @@ prepare() {
 	cp -fpR /etc/appkey/* /tmp/appkey/
 	appkey reload &> /dev/null
 
+	# copy conf files to run config path
+	cp -fpR /etc/config/* /tmp/config/
+	cp -fpR /config/*     /tmp/config/
+	
+	# init nginx&php&sshd conf files
+	/etc/init.d/nginx_start.sh
+	/etc/init.d/php-fpm_start.sh
+	/etc/init.d/sshd_start.sh
+	
 	cp -f /etc/init.d/.smonitor.init /tmp/.smonitor.init
 }
 
 phase1() {
 	clock_set
 	#. /etc/cp1.in
-	mount; prepare
+	mount
 	sysmount
 	#. /etc/cp2.in
 	/etc/upgrade/set_dir.sh
 	/etc/upgrade/set_log.sh &
+	prepare
+	
 	ifconfig lo up
 	#
 	# try use oem mac
@@ -37,10 +48,13 @@ phase1() {
 	vconfig set_flag eth0.9  1 1
 	ifconfig eth0.9 1.0.0.6 netmask 255.255.255.252 up
 	
-	# copy conf files to run config path
-	cp -fpR /etc/config/* /tmp/config/
-	cp -fpR /config/*     /tmp/config/
-	
+	sysctl -p 2>/dev/null
+
+	# should move to .smonitor.init
+	xinetd -f /tmp/config/xinetd.conf -pidfile /tmp/xinetd.pid &
+}
+
+phase2() {
 	# run acc processes, use acc_exit to quit acc
 	acc_init &
 
@@ -50,18 +64,6 @@ phase1() {
 	# run gps processes, use gps_exit to quit gps
 	gps_init &
 
-	# should move to .smonitor.init
-#	udhcpd -f /tmp/config/udhcpd.conf & 2>/dev/null
-
-	sysctl -p 2>/dev/null
-
-	# should move to .smonitor.init
-#	dnsmasq -C /tmp/config/dnsmasq.conf -x /tmp/dnsmasq.pid & 2>/dev/null
-	# should move to .smonitor.init
-	xinetd -f /tmp/config/xinetd.conf -pidfile /tmp/xinetd.pid &
-}
-
-phase2() {
 	#
 	# set 3g model, start_3g, add default route, add nat
 	#
@@ -69,44 +71,17 @@ phase2() {
 	/usr/sbin/start_3g &
 
 	/etc/platform/bin/godusevpn.sh &
-	/etc/init.d/php-fpm_start.sh &
-	/etc/init.d/nginx_start.sh &
-	/etc/init.d/sshd_start.sh &
-	
-#	chmod -R 777 /usr/local/php/php-cgi.sock
-#	chmod 777 /sbin/sudo
-#	chmod u+s /sbin/sudo
-#	chmod -R 777 /mnt/hd/website/
-#	chmod -R 777 /sbin/arp
-
-#	/usr/sbin/crond -c /etc/crontabs/
 
 	#check the last time drop reason
 #	. /etc/drop_off.sh
 #	. /etc/get_time.sh &
 
 	/usr/localweb/.compare_disk.sh &
-
-#	wifidog -c /usr/local/etc/wifidog.conf 2>/dev/null
-
-	#
-	# try start cp's init
-	#
-	# NOT support it !!!!!!!!!
-	#
-#	if [[ -n "${__CP_DEVMAC__}" ]]; then
-#			/etc/init.d/${__CP__}/init.sh 2>/dev/null &
-#	fi
 	/usr/sbin/check_gps.sh &
 	/usr/sbin/auto_reboot_md.sh &
 
 	echo $(date '+%F-%H-%M-%S') > /tmp/.startup
 	size_opt_dir > /dev/null
-
-	#
-	# keep it last !!!
-	#
-#	/etc/upgrade/rootfs_init.sh &
 }
 
 phase3() {
