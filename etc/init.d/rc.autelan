@@ -2,7 +2,8 @@
 
 prepare() {
 	mkdir -p /tmp/appkey /tmp/.backtrace
-
+	mkdir -p /tmp/var/run; chmod 777 /tmp/var/run -R
+	
 	cp -fpR /etc/appkey/* /tmp/appkey/
 	appkey reload &> /dev/null
 
@@ -37,8 +38,8 @@ phase1() {
 	ifconfig eth0.9 1.0.0.6 netmask 255.255.255.252 up
 	
 	# copy conf files to run config path
-	cp /etc/config/* /tmp/config/
-	cp /config/*     /tmp/config/
+	cp -fpR /etc/config/* /tmp/config/
+	cp -fpR /config/*     /tmp/config/
 	
 	# run acc processes, use acc_exit to quit acc
 	acc_init &
