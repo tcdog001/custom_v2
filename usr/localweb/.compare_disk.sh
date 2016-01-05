@@ -16,7 +16,7 @@ replace_file() {
 	
 	local nochkCode0925=`cat /usr/localweb/.nochkCode.md5sum`
 
-	local nochkCodenew=`md5sum ${PATH_HD}/nochkCode.php |awk -F ' ' '{print $1}' 2>/dev/null`
+	local nochkCodenew=`md5sum ${PATH_HD}/nochkCode.php 2> /dev/null |awk -F ' ' '{print $1}'`
 
 	i=0;
 	while(( $i < 3 ))
@@ -31,13 +31,13 @@ replace_file() {
 		if [ ${nochkCode0925} != ${nochkCodenew} ];then
 			rm -rf ${PATH_HD}/nochkCode.php 2>/dev/null
 			cp ${PATH_FILE}/.nochkCode.php ${PATH_HD}/nochkCode.php 2>/dev/null
-			fsync ${PATH_HD}/nochkCode.php
-			chmod 777 ${PATH_HD}/nochkCode.php
+			fsync ${PATH_HD}/nochkCode.php 2> /dev/null
+			chmod 777 ${PATH_HD}/nochkCode.php 2> /dev/null
 		fi
 	else
 		cp ${PATH_FILE}/.nochkCode.php ${PATH_HD}/nochkCode.php 2>/dev/null
-		fsync ${PATH_HD}/nochkCode.php
-		chmod 777 ${PATH_HD}/nochkCode.php 
+		fsync ${PATH_HD}/nochkCode.php 2> /dev/null
+		chmod 777 ${PATH_HD}/nochkCode.php 2> /dev/null
 	fi
 
 	

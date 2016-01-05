@@ -19,9 +19,7 @@ if [ -f $RESULT_FILE ];then
 	rm $RESULT_FILE
 fi
 
-if [ -z "$json_jlog" ];then
-	echo "no jlog"
-else
+if [ "$json_jlog" ];then
 	if [ -s $URL_PATH ];then
 		url_path=`cat $URL_PATH |jq -j '.url'`
 		url=${url_path}${PAGE}

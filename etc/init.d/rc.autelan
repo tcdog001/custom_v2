@@ -3,6 +3,7 @@
 prepare() {
 	mkdir -p /tmp/appkey /tmp/.backtrace
 	mkdir -p /tmp/var/run; chmod 777 /tmp/var/run -R
+	touch /tmp/udhcp.lease
 	
 	cp -fpR /etc/appkey/* /tmp/appkey/
 	appkey reload &> /dev/null
