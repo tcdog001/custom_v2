@@ -48,7 +48,7 @@ readonly file_recover_log=/tmp/.recover.log
 
 getmac() {
 	local mac=$(cat "${FILE_REGISTER}" | jq -j '.mac|strings' | tr "-" ":")
-		  mac=${mac:-00-00-00-00-00-00}
+	mac=${mac:-00-00-00-00-00-00}
 
 	echo ${mac}
 }

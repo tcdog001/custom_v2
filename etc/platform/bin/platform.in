@@ -6,7 +6,7 @@ else
 	__PLATFORM_BIN_PLATFORM_IN__="$0"
 fi
 
-. ${__ROOTFS__}/etc/utils/dir.in
+. ${__ROOTFS__}/etc/utils/utils.in
 
 readonly FILE_CANCELLATION=/data/.cancellation.json
 readonly BACKUP_LOG=/mnt/flash/rootfs_data/backup/log/
