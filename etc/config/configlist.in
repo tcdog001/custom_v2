@@ -14,7 +14,7 @@
 <acc.path>				/tmp/config
 <acc.conf.acc_monitor.delay>		0
 <acc.conf.acc_monitor.interval>		1
-<acc.conf.acc_monitor.timeout>		900
+<acc.conf.acc_monitor.timeout>		30
 <acc.conf.acc_monitor.path>		/tmp/.acc
 <acc.conf.acc_monitor.vcc.interval>	10
 <acc.conf.acc_monitor.vcc.file>		/tmp/vcc.log
