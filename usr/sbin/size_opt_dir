@@ -1,6 +1,6 @@
 #!/bin/bash
 
-. /etc/upgrade/dir.in
+. /etc/utils/dir.in
 
 do_operate_next() {
 	local dir="$1"
