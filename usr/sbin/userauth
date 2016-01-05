@@ -7,10 +7,10 @@ get_group() {
 	local rate=$2	
 	local i=0
 
-	while [ -f "/etc/um/group${i}" ]
+	while [ -f "/tmp/config/group${i}" ]
 	do
-	    local tmpflow=`awk '/wan_flow_all/{print $2}'  /etc/um/group${i}`
-	    local tmprate=`awk '/wan_rate_down/{print $2}'  /etc/um/group${i}`
+	    local tmpflow=`awk '/wan_flow_all/{print $2}'  /tmp/config/group${i}`
+	    local tmprate=`awk '/wan_rate_down/{print $2}'  /tmp/config/group${i}`
 	    if ((flow>=tmpflow*1000 && rate==tmprate)); then
 	   	echo "$((i+1))" 
 	   	return  
@@ -23,7 +23,7 @@ get_group() {
 do_umc_command() {
 	local mac=$1
 	local group=$2
-	local filepath=/etc/um/group"${group}" 
+	local filepath=/tmp/config/group"${group}" 
 	
 	if [ ! -f ${filepath} ]; then
 		return 1
