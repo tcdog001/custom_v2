@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [[ ! -x /tmp/config/php ]]; then
+if [[ ! -f /tmp/config/php/php-fpm.ini ]]; then
 	mkdir -p /tmp/config/
 	cp -r /usr/local/php/ /tmp/config/php
 fi

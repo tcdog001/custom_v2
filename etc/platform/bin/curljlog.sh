@@ -2,7 +2,7 @@
 
 . /etc/platform/bin/platform.in
 
-CERTIFICATE=/etc/platform/conf/server.cer
+#CERTIFICATE=/etc/platform/conf/server.cer
 USER_PASSWD=autelanauteviewlms:autelanauteviewlms20140925
 URL_PATH=/etc/platform/conf/platform_jlog.json
 URL_DEFAULT=https://lms1.autelan.com:8443/LMS/lte/
