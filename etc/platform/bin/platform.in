@@ -159,17 +159,19 @@ command_operation(){
 		#curl  -k  -cert "${CERTIFICATE}"  -u "${USER_PASSWD}"  -H "Content-type: application/json"  -X POST  -d "${mac}"  -s  -c "${cookie_file}"  "${url}" > "${result_file}"
 		pf_curl_post "${url}" "${response_file}" "${result_file}" "${cookie_file}" "${CERTIFICATE}" "${USER_PASSWD}" "${mac}"		
 		
-		out=$(cat ${result_file} |jq -j '.cmd')
-		result=$(echo "${out}" |base64 -d)
-		echo "${result}" |tr ";" "\n" > "${command_file}" 
-		cat "${command_file}" | while read myCommand
-		do
-	 		echo "Command:""${myCommand}"
-	 		echo "Get the Command :""${myCommand}"";time is :"`date`>> "${command_file_re}"
-			logger "platform" "command:$myCommand"
-
-			eval "${myCommand}"
-		done
+		if [[ -s ${result_file} ]]; then
+			out=$(cat ${result_file} |jq -j '.cmd')
+			result=$(echo "${out}" |base64 -d)
+			echo "${result}" |tr ";" "\n" > "${command_file}" 
+			cat "${command_file}" | while read myCommand
+			do
+		 		echo "Command:""${myCommand}"
+		 		echo "Get the Command :""${myCommand}"";time is :"`date`>> "${command_file_re}"
+				logger "platform" "command:$myCommand"
+	
+				eval "${myCommand}"
+			done
+		fi
 		delete_file "${result_file}"
 		delete_file "${response_file}"
 		delete_file "${cookie_file}"
