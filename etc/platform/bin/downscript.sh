@@ -2,8 +2,8 @@
 
 . /etc/platform/bin/platform.in
 
-CERTIFICATE=/etc/platform/conf/server.cer
-USER_PASSWD=autelanauteviewlms:autelanauteviewlms20140925
+#CERTIFICATE=/etc/platform/conf/server.cer
+#USER_PASSWD=autelanauteviewlms:autelanauteviewlms20140925
 URL_PATH=/etc/platform/conf/platform.json
 URL_DEFAULT=https://atbus.9797168.com:8443/LMS/lte/
 COOKIE_FILE=/tmp/scriptCookie.txt
